@@ -1,30 +1,13 @@
 import { View, Text, Pressable, Platform, Alert } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { supabase } from '@/lib/supabase';
-import { signInWithGoogle } from '@/lib/auth';
+import { signInWithGoogle, signInWithApple } from '@/lib/auth';
 
 export default function SignInScreen() {
   const handleAppleSignIn = async () => {
     try {
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-
-      if (!credential.identityToken) {
-        Alert.alert('Error', 'No identity token received from Apple.');
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithIdToken({
-        provider: 'apple',
-        token: credential.identityToken,
-      });
-
-      if (error) {
-        Alert.alert('Sign In Error', error.message);
+      const result = await signInWithApple();
+      if (!result.success) {
+        Alert.alert('Sign In Error', result.error);
       }
     } catch (e: unknown) {
       const error = e as { code?: string };
