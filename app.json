@@ -14,13 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.patrickalvarez.keepspot"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.patrickalvarez.keepspot",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -31,6 +33,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       "@rnmapbox/maps",
       [
         "expo-location",
@@ -39,6 +42,11 @@
         }
       ]
     ],
+    "extra": {
+      "eas": {
+        "projectId": "PLACEHOLDER_RUN_EAS_INIT"
+      }
+    },
     "experiments": {
       "typedRoutes": true
     }
