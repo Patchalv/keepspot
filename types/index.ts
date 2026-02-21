@@ -25,3 +25,20 @@ export type MapInviteInsert = Database['public']['Tables']['map_invites']['Inser
 // Union types for constrained text columns
 export type Entitlement = 'free' | 'premium';
 export type MapRole = 'owner' | 'editor';
+
+// Composite types for queries with joins
+export interface MapPlaceWithDetails {
+  id: string;
+  note: string | null;
+  created_at: string;
+  added_by: string;
+  map_id: string;
+  place_id: string;
+  places: Place;
+  map_place_tags: Array<{ tag_id: string; tags: Tag }>;
+  place_visits: Array<{ visited: boolean }>;
+}
+
+// Filter types
+export type VisitedFilter = 'all' | 'visited' | 'not_visited';
+export type ViewMode = 'map' | 'list';
