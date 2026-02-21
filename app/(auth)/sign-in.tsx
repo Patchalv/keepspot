@@ -1,8 +1,7 @@
 import { View, Text, Pressable, Platform, Alert } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
+import { signInWithGoogle } from '@/lib/auth';
 
 export default function SignInScreen() {
   const handleAppleSignIn = async () => {
@@ -37,44 +36,9 @@ export default function SignInScreen() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const redirectTo = Linking.createURL('auth/callback');
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          skipBrowserRedirect: true,
-        },
-      });
-
-      if (error) {
-        Alert.alert('Sign In Error', error.message);
-        return;
-      }
-
-      if (data.url) {
-        const result = await WebBrowser.openAuthSessionAsync(
-          data.url,
-          redirectTo,
-        );
-
-        if (result.type === 'success' && result.url) {
-          // Extract tokens from the redirect URL hash fragment
-          const url = result.url;
-          const hashParams = new URLSearchParams(
-            url.includes('#') ? url.split('#')[1] : '',
-          );
-
-          const accessToken = hashParams.get('access_token');
-          const refreshToken = hashParams.get('refresh_token');
-
-          if (accessToken && refreshToken) {
-            await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-          }
-        }
+      const result = await signInWithGoogle();
+      if (!result.success) {
+        Alert.alert('Sign In Error', result.error);
       }
     } catch {
       Alert.alert('Error', 'An unexpected error occurred.');
