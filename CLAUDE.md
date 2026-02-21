@@ -69,3 +69,9 @@ functions/ ← Edge Functions
 - When creating Supabase queries, always handle the error case
 - Bottom sheets use `@gorhom/bottom-sheet` — follow existing patterns
 - For new screens, create the route file in `app/` directory first
+
+## Reference Documents
+
+- `docs/prd.md` — Product requirements (what and why)
+- `docs/technical-plan.md` — Technical plan (how to build it)
+- Read these before starting any new milestone
