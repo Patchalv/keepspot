@@ -31,7 +31,11 @@
     },
     "plugins": [
       "expo-router",
-      "@rnmapbox/maps"
+      "@rnmapbox/maps",
+      "expo-location",
+      {
+        "locationWhenInUsePermission": "Show your location on the map to find nearby saved places."
+      }
     ],
     "experiments": {
       "typedRoutes": true
