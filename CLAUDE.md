@@ -1,4 +1,4 @@
-# Keepspot
+# KeepSpot
 
 A mobile app for saving and rediscovering place recommendations in cities.
 Expo (React Native) + Supabase + Mapbox + Google Places API.
@@ -64,19 +64,19 @@ Expo (React Native) + Supabase + Mapbox + Google Places API.
 ## File Structure
 
 app/ ← Expo Router file-based routes
-  (auth)/ ← Unauthenticated layout
-  (tabs)/ ← Authenticated tab layout
-    explore/ ← Map/list view
-    add/ ← Add place flow
-    profile/ ← Profile & map management
-  invite/[token].tsx ← Deep link handler
+(auth)/ ← Unauthenticated layout
+(tabs)/ ← Authenticated tab layout
+explore/ ← Map/list view
+add/ ← Add place flow
+profile/ ← Profile & map management
+invite/[token].tsx ← Deep link handler
 components/ ← Shared UI components
 hooks/ ← Custom hooks (data fetching, auth, etc.)
 lib/ ← Utilities (supabase client, constants)
 types/ ← TypeScript type definitions
 supabase/
-  migrations/ ← SQL migrations
-  functions/ ← Edge Functions
+migrations/ ← SQL migrations
+functions/ ← Edge Functions
 
 ## Database
 

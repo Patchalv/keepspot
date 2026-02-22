@@ -1,6 +1,6 @@
 ---
 name: new-component
-description: Scaffold a new React Native component following Keepspot conventions. Use when creating reusable UI components.
+description: Scaffold a new React Native component following KeepSpot conventions. Use when creating reusable UI components.
 ---
 
 Create a new component: $ARGUMENTS
@@ -16,18 +16,14 @@ Create a new component: $ARGUMENTS
 3. **Write the component** following this structure:
 
 ```tsx
-import { View, Text } from 'react-native';
+import { View, Text } from "react-native";
 
 interface ComponentNameProps {
   // Define all props with TypeScript types — no `any`
 }
 
-export function ComponentName({ }: ComponentNameProps) {
-  return (
-    <View className="">
-      {/* NativeWind classes for styling */}
-    </View>
-  );
+export function ComponentName({}: ComponentNameProps) {
+  return <View className="">{/* NativeWind classes for styling */}</View>;
 }
 ```
 

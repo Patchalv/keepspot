@@ -1,8 +1,8 @@
-# Keepspot — Product Requirements Document
+# KeepSpot — Product Requirements Document
 
 ## 1. Problem Statement
 
-People who live in big cities are constantly collecting place recommendations — from friends, colleagues, social media, and their own discoveries. They save these to tools like Google Maps, but when the moment comes to actually *use* those recommendations ("we're in Tribunal, where should we eat?"), they can't effectively retrieve them.
+People who live in big cities are constantly collecting place recommendations — from friends, colleagues, social media, and their own discoveries. They save these to tools like Google Maps, but when the moment comes to actually _use_ those recommendations ("we're in Tribunal, where should we eat?"), they can't effectively retrieve them.
 
 Google Maps treats every saved place identically. There are no categories, no filters, no personal context. A saved Michelin-star restaurant looks the same as a saved gift shop. Users end up with a sea of identical pins on a map with no way to distinguish between them.
 
@@ -21,11 +21,13 @@ The result: people who have done the work of building a curated, trusted list of
 **Context:** They regularly receive recommendations for restaurants, bars, cafes, brunch spots, shops, museums, and other places from friends, partners, colleagues, and social media. They go out frequently — for meals, drinks, weekend plans — often with a partner or group of friends.
 
 **Goals:**
+
 - Quickly save a recommended place with useful context (type, tags, notes)
 - Find the right place from their collection in the moment they need it
 - Share and collaborate on place collections with their partner or friend groups
 
 **Frustrations:**
+
 - Google Maps saves are an undifferentiated mess — no filtering, no categories, no "have I been here?" tracking
 - The more places they save, the less useful the list becomes
 - They end up Googling instead of using their own curated recommendations
@@ -35,7 +37,7 @@ The result: people who have done the work of building a curated, trusted list of
 
 ## 3. Core Value Proposition
 
-**Keepspot helps city dwellers save and rediscover place recommendations so they never waste a trusted suggestion again.**
+**KeepSpot helps city dwellers save and rediscover place recommendations so they never waste a trusted suggestion again.**
 
 ---
 
@@ -129,6 +131,7 @@ The result: people who have done the work of building a curated, trusted list of
 ### Core Daily Loop
 
 **Saving a recommendation (the "input" moment):**
+
 1. A friend recommends a restaurant.
 2. User opens the app (active map is already selected).
 3. User taps "Add place".
@@ -138,6 +141,7 @@ The result: people who have done the work of building a curated, trusted list of
 7. Place is saved to the active map.
 
 **Finding somewhere to go (the "retrieval" moment):**
+
 1. User is in a neighborhood and wants to find a restaurant.
 2. User opens the app — map view loads showing saved places around their current location.
 3. User applies filters: tag = "restaurant", visited = "no".
@@ -158,15 +162,18 @@ The result: people who have done the work of building a curated, trusted list of
 ## 6. Success Metrics
 
 **Core metrics:**
+
 1. **Save frequency:** Are users regularly adding new places? This indicates the saving experience is frictionless enough to maintain the habit.
 2. **Retrieval frequency:** Are users coming back to search/filter when deciding where to go? This indicates the app is replacing the "just Google it" fallback.
 
 **What success looks like:**
+
 - Users with growing collections over time (not just a burst at sign-up)
 - Users opening the app in "decision mode" — filtering and browsing before going out
 - Shared maps with multiple active contributors
 
 **What failure looks like:**
+
 - Users save places but never come back to search/filter (retrieval isn't good enough)
 - Users stop adding new places (saving is too much friction)
 - Users save places here but still default to Google when deciding where to go

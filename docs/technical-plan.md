@@ -1,35 +1,35 @@
-# Keepspot — Technical Plan
+# KeepSpot — Technical Plan
 
 ## 1. Technical Requirements Summary
 
 Key PRD requirements that drive technical decisions, with complexity notes.
 
-| PRD Requirement | Technical Impact | Complexity |
-|----------------|-----------------|------------|
-| Google Maps place search (add flow) | Google Places API integration, autocomplete, place data extraction | Medium — API setup, billing, rate limits |
-| Interactive map with custom pins | Mapbox SDK, custom markers with emoji/color per tag | Medium — Mapbox setup, marker rendering performance |
-| Filter/search saved places on map | Client-side filtering on cached data, real-time UI updates | Low — TanStack Query + local filter state |
-| Shared maps with per-user visited status | Data model must separate shared data (tags, notes) from personal data (visited). RLS policies for access control | High — most complex part of the schema and RLS |
-| Freemium gating (1 map / 50 places free) | Server-side enforcement via Edge Functions. Cannot trust client | Medium — Edge Functions + RevenueCat webhook |
-| Map sharing via invite links | Deep linking (Expo), invite token generation, Edge Function to validate and add member | Medium — deep link handling on iOS can be tricky |
-| Map/List view toggle | Two views of the same data, shared filter state | Low — same data source, different render |
-| Offline browsing (v1.1) | Data layer must support caching. Not built now but architecture shouldn't prevent it | Low for now — TanStack Query's cache is a good starting point |
+| PRD Requirement                          | Technical Impact                                                                                                 | Complexity                                                    |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Google Maps place search (add flow)      | Google Places API integration, autocomplete, place data extraction                                               | Medium — API setup, billing, rate limits                      |
+| Interactive map with custom pins         | Mapbox SDK, custom markers with emoji/color per tag                                                              | Medium — Mapbox setup, marker rendering performance           |
+| Filter/search saved places on map        | Client-side filtering on cached data, real-time UI updates                                                       | Low — TanStack Query + local filter state                     |
+| Shared maps with per-user visited status | Data model must separate shared data (tags, notes) from personal data (visited). RLS policies for access control | High — most complex part of the schema and RLS                |
+| Freemium gating (1 map / 50 places free) | Server-side enforcement via Edge Functions. Cannot trust client                                                  | Medium — Edge Functions + RevenueCat webhook                  |
+| Map sharing via invite links             | Deep linking (Expo), invite token generation, Edge Function to validate and add member                           | Medium — deep link handling on iOS can be tricky              |
+| Map/List view toggle                     | Two views of the same data, shared filter state                                                                  | Low — same data source, different render                      |
+| Offline browsing (v1.1)                  | Data layer must support caching. Not built now but architecture shouldn't prevent it                             | Low for now — TanStack Query's cache is a good starting point |
 
 ---
 
 ## 2. Tech Stack
 
-| Layer | Choice | Why (tied to PRD) |
-|-------|--------|-------------------|
-| Framework | **Expo (React Native)** with Expo Router | Cross-platform from day one (PRD: iOS priority, web v1.1). Expo Router provides file-based routing for tabs, stacks, and deep links (needed for invite flow) |
-| Map Display | **Mapbox** (`@rnmapbox/maps`) | PRD requires visually distinguishable pins by tag (emoji + color). Mapbox supports fully custom React Native markers. 25,000 free map loads/month. Cheaper than Google Maps SDK |
-| Place Search | **Google Places API** (New) | PRD requires searching places by name with accurate results for restaurants/bars/cafes in major cities. Google has the best venue database. $200/month free credit (~11,000 searches) |
-| Backend / API | **Supabase** (PostgreSQL + Edge Functions + Auth) | Auto-generated REST API, Row Level Security for shared maps access control, Edge Functions for freemium enforcement. No separate backend needed |
-| Auth | **Supabase Auth** with Apple Sign-In + Google Sign-In | Low-friction social auth. Apple Sign-In required by App Store if any social login is offered. No email/password flows to build |
-| Payments | **RevenueCat** (wraps Apple IAP) | Handles receipt validation, subscription/purchase management, webhook to Supabase. Free up to $2,500/month revenue. Supports one-time purchase model |
-| Data Fetching / State | **TanStack Query (React Query)** | Caching per map, pull-to-refresh, optimistic updates for visited toggle, cache invalidation after mutations. No real-time subscriptions needed |
-| Styling | **NativeWind** (Tailwind CSS for React Native) | Developer has Tailwind experience. Fast development, consistent styling |
-| Deployment | **EAS** (Expo Application Services) | Standard Expo build pipeline. Handles iOS code signing, builds, OTA updates |
+| Layer                 | Choice                                                | Why (tied to PRD)                                                                                                                                                                     |
+| --------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework             | **Expo (React Native)** with Expo Router              | Cross-platform from day one (PRD: iOS priority, web v1.1). Expo Router provides file-based routing for tabs, stacks, and deep links (needed for invite flow)                          |
+| Map Display           | **Mapbox** (`@rnmapbox/maps`)                         | PRD requires visually distinguishable pins by tag (emoji + color). Mapbox supports fully custom React Native markers. 25,000 free map loads/month. Cheaper than Google Maps SDK       |
+| Place Search          | **Google Places API** (New)                           | PRD requires searching places by name with accurate results for restaurants/bars/cafes in major cities. Google has the best venue database. $200/month free credit (~11,000 searches) |
+| Backend / API         | **Supabase** (PostgreSQL + Edge Functions + Auth)     | Auto-generated REST API, Row Level Security for shared maps access control, Edge Functions for freemium enforcement. No separate backend needed                                       |
+| Auth                  | **Supabase Auth** with Apple Sign-In + Google Sign-In | Low-friction social auth. Apple Sign-In required by App Store if any social login is offered. No email/password flows to build                                                        |
+| Payments              | **RevenueCat** (wraps Apple IAP)                      | Handles receipt validation, subscription/purchase management, webhook to Supabase. Free up to $2,500/month revenue. Supports one-time purchase model                                  |
+| Data Fetching / State | **TanStack Query (React Query)**                      | Caching per map, pull-to-refresh, optimistic updates for visited toggle, cache invalidation after mutations. No real-time subscriptions needed                                        |
+| Styling               | **NativeWind** (Tailwind CSS for React Native)        | Developer has Tailwind experience. Fast development, consistent styling                                                                                                               |
+| Deployment            | **EAS** (Expo Application Services)                   | Standard Expo build pipeline. Handles iOS code signing, builds, OTA updates                                                                                                           |
 
 ---
 
@@ -38,16 +38,17 @@ Key PRD requirements that drive technical decisions, with complexity notes.
 ### Tables
 
 #### `profiles`
+
 Extends Supabase `auth.users` with app-specific fields.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | — | References `auth.users.id` |
-| display_name | text | yes | null | From social auth provider |
-| avatar_url | text | yes | null | From social auth provider |
-| entitlement | text | no | 'free' | 'free' or 'premium'. Set by RevenueCat webhook |
-| active_map_id | uuid, FK → maps.id | yes | null | Currently selected map for explore view |
-| created_at | timestamptz | no | now() | |
+| Column        | Type               | Nullable | Default | Notes                                          |
+| ------------- | ------------------ | -------- | ------- | ---------------------------------------------- |
+| id            | uuid, PK           | no       | —       | References `auth.users.id`                     |
+| display_name  | text               | yes      | null    | From social auth provider                      |
+| avatar_url    | text               | yes      | null    | From social auth provider                      |
+| entitlement   | text               | no       | 'free'  | 'free' or 'premium'. Set by RevenueCat webhook |
+| active_map_id | uuid, FK → maps.id | yes      | null    | Currently selected map for explore view        |
+| created_at    | timestamptz        | no       | now()   |                                                |
 
 **Indexes:** Primary key on `id`.
 **RLS:** Users can read/update only their own profile.
@@ -67,12 +68,12 @@ CREATE POLICY "Users can update own profile"
 
 #### `maps`
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | gen_random_uuid() | |
-| name | text | no | — | e.g., "My Map", "Madrid Trip" |
-| created_by | uuid, FK → profiles.id | no | — | Original creator |
-| created_at | timestamptz | no | now() | |
+| Column     | Type                   | Nullable | Default           | Notes                         |
+| ---------- | ---------------------- | -------- | ----------------- | ----------------------------- |
+| id         | uuid, PK               | no       | gen_random_uuid() |                               |
+| name       | text                   | no       | —                 | e.g., "My Map", "Madrid Trip" |
+| created_by | uuid, FK → profiles.id | no       | —                 | Original creator              |
+| created_at | timestamptz            | no       | now()             |                               |
 
 **Indexes:** Primary key on `id`. Index on `created_by`.
 **RLS:** Users can only see maps they are a member of (via `map_members`).
@@ -118,15 +119,16 @@ CREATE POLICY "Owners can delete maps"
 ```
 
 #### `map_members`
+
 Junction table controlling who has access to which map.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | gen_random_uuid() | |
-| map_id | uuid, FK → maps.id ON DELETE CASCADE | no | — | |
-| user_id | uuid, FK → profiles.id | no | — | |
-| role | text | no | 'editor' | 'owner' or 'editor'. Future: 'viewer', 'contributor' |
-| joined_at | timestamptz | no | now() | |
+| Column    | Type                                 | Nullable | Default           | Notes                                                |
+| --------- | ------------------------------------ | -------- | ----------------- | ---------------------------------------------------- |
+| id        | uuid, PK                             | no       | gen_random_uuid() |                                                      |
+| map_id    | uuid, FK → maps.id ON DELETE CASCADE | no       | —                 |                                                      |
+| user_id   | uuid, FK → profiles.id               | no       | —                 |                                                      |
+| role      | text                                 | no       | 'editor'          | 'owner' or 'editor'. Future: 'viewer', 'contributor' |
+| joined_at | timestamptz                          | no       | now()             |                                                      |
 
 **Constraints:** UNIQUE on (map_id, user_id).
 **Indexes:** Index on `user_id` (frequent lookups: "which maps am I in?"). Index on `map_id`.
@@ -162,17 +164,18 @@ CREATE POLICY "Owners can remove members"
 ```
 
 #### `tags`
+
 Per-map tag definitions with visual properties for pin rendering.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | gen_random_uuid() | |
-| map_id | uuid, FK → maps.id ON DELETE CASCADE | no | — | Tags belong to a map |
-| name | text | no | — | e.g., "Restaurant", "Bar" |
-| color | text | yes | null | Hex color for pin rendering |
-| emoji | text | yes | null | Emoji for pin rendering |
-| position | integer | no | 0 | Ordering within the map's tag list |
-| created_at | timestamptz | no | now() | |
+| Column     | Type                                 | Nullable | Default           | Notes                              |
+| ---------- | ------------------------------------ | -------- | ----------------- | ---------------------------------- |
+| id         | uuid, PK                             | no       | gen_random_uuid() |                                    |
+| map_id     | uuid, FK → maps.id ON DELETE CASCADE | no       | —                 | Tags belong to a map               |
+| name       | text                                 | no       | —                 | e.g., "Restaurant", "Bar"          |
+| color      | text                                 | yes      | null              | Hex color for pin rendering        |
+| emoji      | text                                 | yes      | null              | Emoji for pin rendering            |
+| position   | integer                              | no       | 0                 | Ordering within the map's tag list |
+| created_at | timestamptz                          | no       | now()             |                                    |
 
 **Constraints:** UNIQUE on (map_id, name).
 **Indexes:** Index on `map_id`.
@@ -223,18 +226,19 @@ CREATE POLICY "Members can delete tags"
 ```
 
 #### `places`
+
 Deduplicated Google reference data. Shared across all maps.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | gen_random_uuid() | |
-| google_place_id | text | no | — | Deduplication key |
-| name | text | no | — | From Google |
-| address | text | yes | null | From Google |
-| latitude | float8 | no | — | |
-| longitude | float8 | no | — | |
-| google_category | text | yes | null | Primary type from Google |
-| created_at | timestamptz | no | now() | |
+| Column          | Type        | Nullable | Default           | Notes                    |
+| --------------- | ----------- | -------- | ----------------- | ------------------------ |
+| id              | uuid, PK    | no       | gen_random_uuid() |                          |
+| google_place_id | text        | no       | —                 | Deduplication key        |
+| name            | text        | no       | —                 | From Google              |
+| address         | text        | yes      | null              | From Google              |
+| latitude        | float8      | no       | —                 |                          |
+| longitude       | float8      | no       | —                 |                          |
+| google_category | text        | yes      | null              | Primary type from Google |
+| created_at      | timestamptz | no       | now()             |                          |
 
 **Constraints:** UNIQUE on `google_place_id`.
 **Indexes:** Primary key on `id`. Unique index on `google_place_id`.
@@ -253,16 +257,17 @@ CREATE POLICY "Authenticated users can insert places"
 ```
 
 #### `map_places`
+
 A saved place on a specific map. The core entity of the app.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | gen_random_uuid() | |
-| map_id | uuid, FK → maps.id ON DELETE CASCADE | no | — | |
-| place_id | uuid, FK → places.id | no | — | |
-| note | text | yes | null | Shared note visible to all map members |
-| added_by | uuid, FK → profiles.id | no | — | Who saved it |
-| created_at | timestamptz | no | now() | |
+| Column     | Type                                 | Nullable | Default           | Notes                                  |
+| ---------- | ------------------------------------ | -------- | ----------------- | -------------------------------------- |
+| id         | uuid, PK                             | no       | gen_random_uuid() |                                        |
+| map_id     | uuid, FK → maps.id ON DELETE CASCADE | no       | —                 |                                        |
+| place_id   | uuid, FK → places.id                 | no       | —                 |                                        |
+| note       | text                                 | yes      | null              | Shared note visible to all map members |
+| added_by   | uuid, FK → profiles.id               | no       | —                 | Who saved it                           |
+| created_at | timestamptz                          | no       | now()             |                                        |
 
 **Constraints:** UNIQUE on (map_id, place_id).
 **Indexes:** Index on `map_id` (primary query pattern). Index on `place_id`.
@@ -313,12 +318,13 @@ CREATE POLICY "Members can delete places"
 ```
 
 #### `map_place_tags`
+
 Junction table: which tags are applied to which saved place.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| map_place_id | uuid, FK → map_places.id ON DELETE CASCADE | no | — | |
-| tag_id | uuid, FK → tags.id ON DELETE CASCADE | no | — | |
+| Column       | Type                                       | Nullable | Default | Notes |
+| ------------ | ------------------------------------------ | -------- | ------- | ----- |
+| map_place_id | uuid, FK → map_places.id ON DELETE CASCADE | no       | —       |       |
+| tag_id       | uuid, FK → tags.id ON DELETE CASCADE       | no       | —       |       |
 
 **Constraints:** Composite PK on (map_place_id, tag_id).
 **RLS:** Inherited from map membership (if you can see the map_place, you can see its tags).
@@ -361,13 +367,14 @@ CREATE POLICY "Members can remove place tags"
 ```
 
 #### `place_visits`
+
 Personal visited status per user per saved place.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| user_id | uuid, FK → profiles.id | no | — | |
-| map_place_id | uuid, FK → map_places.id ON DELETE CASCADE | no | — | |
-| visited | boolean | no | false | |
+| Column       | Type                                       | Nullable | Default | Notes |
+| ------------ | ------------------------------------------ | -------- | ------- | ----- |
+| user_id      | uuid, FK → profiles.id                     | no       | —       |       |
+| map_place_id | uuid, FK → map_places.id ON DELETE CASCADE | no       | —       |       |
+| visited      | boolean                                    | no       | false   |       |
 
 **Constraints:** Composite PK on (user_id, map_place_id).
 **RLS:** Users can only read/write their own visited status.
@@ -393,19 +400,20 @@ CREATE POLICY "Users can delete own visit status"
 ```
 
 #### `map_invites`
+
 Invite links for shared maps.
 
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| id | uuid, PK | no | gen_random_uuid() | |
-| map_id | uuid, FK → maps.id ON DELETE CASCADE | no | — | |
-| token | text | no | — | Short random string for the URL |
-| created_by | uuid, FK → profiles.id | no | — | |
-| role | text | no | 'editor' | Role assigned on acceptance. Future: 'viewer', 'contributor' |
-| expires_at | timestamptz | yes | null | Optional expiry |
-| max_uses | integer | yes | null | null = unlimited |
-| use_count | integer | no | 0 | Tracks how many times used |
-| created_at | timestamptz | no | now() | |
+| Column     | Type                                 | Nullable | Default           | Notes                                                        |
+| ---------- | ------------------------------------ | -------- | ----------------- | ------------------------------------------------------------ |
+| id         | uuid, PK                             | no       | gen_random_uuid() |                                                              |
+| map_id     | uuid, FK → maps.id ON DELETE CASCADE | no       | —                 |                                                              |
+| token      | text                                 | no       | —                 | Short random string for the URL                              |
+| created_by | uuid, FK → profiles.id               | no       | —                 |                                                              |
+| role       | text                                 | no       | 'editor'          | Role assigned on acceptance. Future: 'viewer', 'contributor' |
+| expires_at | timestamptz                          | yes      | null              | Optional expiry                                              |
+| max_uses   | integer                              | yes      | null              | null = unlimited                                             |
+| use_count  | integer                              | no       | 0                 | Tracks how many times used                                   |
+| created_at | timestamptz                          | no       | now()             |                                                              |
 
 **Constraints:** UNIQUE on `token`.
 **Indexes:** Unique index on `token` (lookup on deep link open).
@@ -477,90 +485,97 @@ map_invites
 All data fetching uses the `supabase-js` SDK, managed by TanStack Query for caching and refetching.
 
 #### On App Open
+
 ```typescript
 // 1. Fetch user profile
 const { data: profile } = useQuery({
-  queryKey: ['profile'],
-  queryFn: () => supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  queryKey: ["profile"],
+  queryFn: () =>
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
 });
 
 // 2. Fetch all maps user is a member of
 const { data: maps } = useQuery({
-  queryKey: ['maps'],
-  queryFn: () => supabase
-    .from('map_members')
-    .select('map_id, role, maps(id, name, created_by)')
-    .eq('user_id', user.id)
+  queryKey: ["maps"],
+  queryFn: () =>
+    supabase
+      .from("map_members")
+      .select("map_id, role, maps(id, name, created_by)")
+      .eq("user_id", user.id),
 });
 
 // 3. Fetch all places for active map (with tags and visited status)
 const { data: places } = useQuery({
-  queryKey: ['map-places', activeMapId],
-  queryFn: () => supabase
-    .from('map_places')
-    .select(`
+  queryKey: ["map-places", activeMapId],
+  queryFn: () =>
+    supabase
+      .from("map_places")
+      .select(
+        `
       id, note, created_at, added_by,
       places(id, google_place_id, name, address, latitude, longitude, google_category),
       map_place_tags(tag_id, tags(id, name, color, emoji)),
       place_visits!inner(visited)
-    `)
-    .eq('map_id', activeMapId)
-    .eq('place_visits.user_id', user.id)
+    `,
+      )
+      .eq("map_id", activeMapId)
+      .eq("place_visits.user_id", user.id),
 });
 
 // 4. Fetch tags for active map (for filter UI)
 const { data: tags } = useQuery({
-  queryKey: ['tags', activeMapId],
-  queryFn: () => supabase
-    .from('tags')
-    .select('*')
-    .eq('map_id', activeMapId)
-    .order('position')
+  queryKey: ["tags", activeMapId],
+  queryFn: () =>
+    supabase
+      .from("tags")
+      .select("*")
+      .eq("map_id", activeMapId)
+      .order("position"),
 });
 ```
 
 #### "All Maps" View
+
 ```typescript
 // Fetch places across all maps user is a member of
 const { data: allPlaces } = useQuery({
-  queryKey: ['map-places', 'all'],
+  queryKey: ["map-places", "all"],
   queryFn: async () => {
     const { data: memberMaps } = await supabase
-      .from('map_members')
-      .select('map_id')
-      .eq('user_id', user.id);
+      .from("map_members")
+      .select("map_id")
+      .eq("user_id", user.id);
 
-    const mapIds = memberMaps.map(m => m.map_id);
+    const mapIds = memberMaps.map((m) => m.map_id);
 
     return supabase
-      .from('map_places')
-      .select(`
+      .from("map_places")
+      .select(
+        `
         id, note, map_id, created_at, added_by,
         places(id, google_place_id, name, address, latitude, longitude, google_category),
         map_place_tags(tag_id, tags(id, name, color, emoji)),
         place_visits(visited)
-      `)
-      .in('map_id', mapIds)
-      .eq('place_visits.user_id', user.id);
-  }
+      `,
+      )
+      .in("map_id", mapIds)
+      .eq("place_visits.user_id", user.id);
+  },
 });
 ```
 
 #### Google Places Autocomplete (Add Flow)
+
 ```typescript
 // Called directly from the client — no Supabase involved
 const searchPlaces = async (query: string) => {
   const response = await fetch(
-    'https://places.googleapis.com/v1/places:autocomplete',
+    "https://places.googleapis.com/v1/places:autocomplete",
     {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
       },
       body: JSON.stringify({
         input: query,
@@ -568,59 +583,70 @@ const searchPlaces = async (query: string) => {
           circle: {
             center: { latitude: userLat, longitude: userLng },
             radius: 10000, // 10km bias toward user's location
-          }
-        }
-      })
-    }
+          },
+        },
+      }),
+    },
   );
   return response.json();
 };
 ```
 
 #### Filtering (Client-Side)
+
 Filtering happens entirely in memory on the cached data. No additional API calls.
 
 ```typescript
 const filteredPlaces = useMemo(() => {
   if (!places) return [];
-  return places.filter(place => {
+  return places.filter((place) => {
     // Tag filter
     if (selectedTags.length > 0) {
-      const placeTags = place.map_place_tags.map(t => t.tag_id);
-      if (!selectedTags.some(t => placeTags.includes(t))) return false;
+      const placeTags = place.map_place_tags.map((t) => t.tag_id);
+      if (!selectedTags.some((t) => placeTags.includes(t))) return false;
     }
     // Visited filter
-    if (visitedFilter === 'visited' && !place.place_visits[0]?.visited) return false;
-    if (visitedFilter === 'not_visited' && place.place_visits[0]?.visited) return false;
+    if (visitedFilter === "visited" && !place.place_visits[0]?.visited)
+      return false;
+    if (visitedFilter === "not_visited" && place.place_visits[0]?.visited)
+      return false;
     // Name search
-    if (searchQuery && !place.places.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (
+      searchQuery &&
+      !place.places.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
     return true;
   });
 }, [places, selectedTags, visitedFilter, searchQuery]);
 ```
 
 #### Mutations
+
 ```typescript
 // Add a place
 const addPlace = useMutation({
   mutationFn: async ({ googlePlaceData, mapId, tagIds, note, visited }) => {
     // 1. Upsert the Google place reference
     const { data: place } = await supabase
-      .from('places')
-      .upsert({
-        google_place_id: googlePlaceData.placeId,
-        name: googlePlaceData.name,
-        address: googlePlaceData.address,
-        latitude: googlePlaceData.lat,
-        longitude: googlePlaceData.lng,
-        google_category: googlePlaceData.category,
-      }, { onConflict: 'google_place_id' })
+      .from("places")
+      .upsert(
+        {
+          google_place_id: googlePlaceData.placeId,
+          name: googlePlaceData.name,
+          address: googlePlaceData.address,
+          latitude: googlePlaceData.lat,
+          longitude: googlePlaceData.lng,
+          google_category: googlePlaceData.category,
+        },
+        { onConflict: "google_place_id" },
+      )
       .select()
       .single();
 
     // 2. Insert map_place
     const { data: mapPlace } = await supabase
-      .from('map_places')
+      .from("map_places")
       .insert({
         map_id: mapId,
         place_id: place.id,
@@ -632,57 +658,51 @@ const addPlace = useMutation({
 
     // 3. Insert tags
     if (tagIds.length > 0) {
-      await supabase
-        .from('map_place_tags')
-        .insert(tagIds.map(tagId => ({
+      await supabase.from("map_place_tags").insert(
+        tagIds.map((tagId) => ({
           map_place_id: mapPlace.id,
           tag_id: tagId,
-        })));
+        })),
+      );
     }
 
     // 4. Insert visited status
-    await supabase
-      .from('place_visits')
-      .insert({
-        user_id: user.id,
-        map_place_id: mapPlace.id,
-        visited,
-      });
+    await supabase.from("place_visits").insert({
+      user_id: user.id,
+      map_place_id: mapPlace.id,
+      visited,
+    });
 
     return mapPlace;
   },
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['map-places'] });
-  }
+    queryClient.invalidateQueries({ queryKey: ["map-places"] });
+  },
 });
 
 // Toggle visited
 const toggleVisited = useMutation({
   mutationFn: async ({ mapPlaceId, visited }) => {
-    return supabase
-      .from('place_visits')
-      .upsert({
-        user_id: user.id,
-        map_place_id: mapPlaceId,
-        visited,
-      });
+    return supabase.from("place_visits").upsert({
+      user_id: user.id,
+      map_place_id: mapPlaceId,
+      visited,
+    });
   },
   // Optimistic update for instant UI feedback
   onMutate: async ({ mapPlaceId, visited }) => {
-    await queryClient.cancelQueries({ queryKey: ['map-places'] });
-    const previousData = queryClient.getQueryData(['map-places', activeMapId]);
-    queryClient.setQueryData(['map-places', activeMapId], (old) =>
-      old.map(p =>
-        p.id === mapPlaceId
-          ? { ...p, place_visits: [{ visited }] }
-          : p
-      )
+    await queryClient.cancelQueries({ queryKey: ["map-places"] });
+    const previousData = queryClient.getQueryData(["map-places", activeMapId]);
+    queryClient.setQueryData(["map-places", activeMapId], (old) =>
+      old.map((p) =>
+        p.id === mapPlaceId ? { ...p, place_visits: [{ visited }] } : p,
+      ),
     );
     return { previousData };
   },
   onError: (err, variables, context) => {
-    queryClient.setQueryData(['map-places', activeMapId], context.previousData);
-  }
+    queryClient.setQueryData(["map-places", activeMapId], context.previousData);
+  },
 });
 ```
 
@@ -691,72 +711,96 @@ const toggleVisited = useMutation({
 Edge Functions are used for logic that **must not** be trusted to the client.
 
 #### 1. `create-map`
+
 Enforces freemium limit: free users can only have 1 map.
 
 ```typescript
 // supabase/functions/create-map/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 serve(async (req) => {
   const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
 
-  const authHeader = req.headers.get('Authorization')!
-  const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
+  const authHeader = req.headers.get("Authorization")!;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
 
   // Check entitlement
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('entitlement')
-    .eq('id', user.id)
-    .single()
+    .from("profiles")
+    .select("entitlement")
+    .eq("id", user.id)
+    .single();
 
-  if (profile.entitlement === 'free') {
+  if (profile.entitlement === "free") {
     const { count } = await supabase
-      .from('map_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('role', 'owner')
+      .from("map_members")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("role", "owner");
 
     if (count >= 1) {
       return new Response(
-        JSON.stringify({ error: 'Free tier limited to 1 map. Upgrade to premium.' }),
-        { status: 403 }
-      )
+        JSON.stringify({
+          error: "Free tier limited to 1 map. Upgrade to premium.",
+        }),
+        { status: 403 },
+      );
     }
   }
 
-  const { name } = await req.json()
+  const { name } = await req.json();
 
   // Create map
   const { data: map } = await supabase
-    .from('maps')
+    .from("maps")
     .insert({ name, created_by: user.id })
     .select()
-    .single()
+    .single();
 
   // Add creator as owner
   await supabase
-    .from('map_members')
-    .insert({ map_id: map.id, user_id: user.id, role: 'owner' })
+    .from("map_members")
+    .insert({ map_id: map.id, user_id: user.id, role: "owner" });
 
   // Create default tags
   const defaultTags = [
-    { name: 'Restaurant', emoji: '🍽️', color: '#EF4444', map_id: map.id, position: 0 },
-    { name: 'Bar', emoji: '🍸', color: '#8B5CF6', map_id: map.id, position: 1 },
-    { name: 'Cafe', emoji: '☕', color: '#F59E0B', map_id: map.id, position: 2 },
-    { name: 'Friend', emoji: '👥', color: '#3B82F6', map_id: map.id, position: 3 },
-  ]
-  await supabase.from('tags').insert(defaultTags)
+    {
+      name: "Restaurant",
+      emoji: "🍽️",
+      color: "#EF4444",
+      map_id: map.id,
+      position: 0,
+    },
+    { name: "Bar", emoji: "🍸", color: "#8B5CF6", map_id: map.id, position: 1 },
+    {
+      name: "Cafe",
+      emoji: "☕",
+      color: "#F59E0B",
+      map_id: map.id,
+      position: 2,
+    },
+    {
+      name: "Friend",
+      emoji: "👥",
+      color: "#3B82F6",
+      map_id: map.id,
+      position: 3,
+    },
+  ];
+  await supabase.from("tags").insert(defaultTags);
 
-  return new Response(JSON.stringify({ map }), { status: 201 })
-})
+  return new Response(JSON.stringify({ map }), { status: 201 });
+});
 ```
 
 #### 2. `add-place` (validation layer)
+
 Enforces freemium limit: free users limited to 50 places total.
 
 ```typescript
@@ -766,6 +810,7 @@ Enforces freemium limit: free users limited to 50 places total.
 ```
 
 #### 3. `accept-invite`
+
 Validates invite token and adds user to map.
 
 ```typescript
@@ -779,6 +824,7 @@ Validates invite token and adds user to map.
 ```
 
 #### 4. `revenucat-webhook`
+
 Receives purchase events from RevenueCat, updates `profiles.entitlement`.
 
 ```typescript
@@ -791,6 +837,7 @@ Receives purchase events from RevenueCat, updates `profiles.entitlement`.
 ### Real-Time Subscriptions
 
 **None required for v1.** All data is fetched on app open and refetched on:
+
 - Pull-to-refresh
 - After any mutation (TanStack Query invalidation)
 - When app returns from background (TanStack Query `refetchOnWindowFocus`)
@@ -799,21 +846,21 @@ Receives purchase events from RevenueCat, updates `profiles.entitlement`.
 
 ## 5. Screen Map
 
-| Screen | Route | Data Needed | Key Components |
-|--------|-------|-------------|----------------|
-| Sign In | `(auth)/sign-in` | None | Apple Sign-In button, Google Sign-In button |
-| Explore (Map) | `(tabs)/explore/index` | Profile, active map places + tags + visits | Mapbox MapView, custom markers, filter bar, map switcher dropdown, map/list toggle, FAB for current location |
-| Explore (List) | `(tabs)/explore/index` (toggled state) | Same as map view | FlatList of place cards, filter bar, map switcher, map/list toggle |
-| Filter Sheet | `(tabs)/explore/index` (bottom sheet) | Tags for active map | Tag multi-select chips, visited/not-visited toggle, name search input |
-| Place Detail | `(tabs)/explore/place/[id]` (bottom sheet) | Single map_place with place data, tags, note, visited | Place name, address, tag chips, note, visited toggle, directions button, edit button |
-| Search Place | `(tabs)/add/index` | None (Google API) | Search input, autocomplete results list |
-| Save Place | `(tabs)/add/save` | Tags for active map | Place info preview, tag picker, note input, visited toggle, save button, "Saving to [map name]" label |
-| Profile | `(tabs)/profile/index` | Profile, all maps + member counts | Avatar, name, list of maps with active indicator, premium badge/upgrade button |
-| Map Settings | `(tabs)/profile/map/[id]` | Map details, tags, members | Map name (editable), tag list (add/edit/delete with emoji+color picker), member list, invite button, leave/delete |
-| Invite | `(tabs)/profile/map/[id]/invite` | Map invites | Generate link button, share sheet, existing invite links |
-| Paywall | `(tabs)/profile/paywall` | Profile entitlement | Feature comparison, purchase button (RevenueCat) |
-| Invite Handler | `invite/[token]` (deep link) | None (Edge Function) | Loading state → redirect to explore with new map active |
-| Onboarding | Overlay on first explore load | None | 2-step tooltip tour |
+| Screen         | Route                                      | Data Needed                                           | Key Components                                                                                                    |
+| -------------- | ------------------------------------------ | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Sign In        | `(auth)/sign-in`                           | None                                                  | Apple Sign-In button, Google Sign-In button                                                                       |
+| Explore (Map)  | `(tabs)/explore/index`                     | Profile, active map places + tags + visits            | Mapbox MapView, custom markers, filter bar, map switcher dropdown, map/list toggle, FAB for current location      |
+| Explore (List) | `(tabs)/explore/index` (toggled state)     | Same as map view                                      | FlatList of place cards, filter bar, map switcher, map/list toggle                                                |
+| Filter Sheet   | `(tabs)/explore/index` (bottom sheet)      | Tags for active map                                   | Tag multi-select chips, visited/not-visited toggle, name search input                                             |
+| Place Detail   | `(tabs)/explore/place/[id]` (bottom sheet) | Single map_place with place data, tags, note, visited | Place name, address, tag chips, note, visited toggle, directions button, edit button                              |
+| Search Place   | `(tabs)/add/index`                         | None (Google API)                                     | Search input, autocomplete results list                                                                           |
+| Save Place     | `(tabs)/add/save`                          | Tags for active map                                   | Place info preview, tag picker, note input, visited toggle, save button, "Saving to [map name]" label             |
+| Profile        | `(tabs)/profile/index`                     | Profile, all maps + member counts                     | Avatar, name, list of maps with active indicator, premium badge/upgrade button                                    |
+| Map Settings   | `(tabs)/profile/map/[id]`                  | Map details, tags, members                            | Map name (editable), tag list (add/edit/delete with emoji+color picker), member list, invite button, leave/delete |
+| Invite         | `(tabs)/profile/map/[id]/invite`           | Map invites                                           | Generate link button, share sheet, existing invite links                                                          |
+| Paywall        | `(tabs)/profile/paywall`                   | Profile entitlement                                   | Feature comparison, purchase button (RevenueCat)                                                                  |
+| Invite Handler | `invite/[token]` (deep link)               | None (Edge Function)                                  | Loading state → redirect to explore with new map active                                                           |
+| Onboarding     | Overlay on first explore load              | None                                                  | 2-step tooltip tour                                                                                               |
 
 ### Navigation Structure
 
@@ -851,6 +898,7 @@ Root (Expo Router Layout)
 ## 6. Implementation Milestones
 
 ### Milestone 1: Project Foundation
+
 Get the project scaffolded, auth working, and the database set up.
 
 - [ ] **Task 1.1** — Initialize Expo project with Expo Router, NativeWind, and TypeScript config (depends on: nothing)
@@ -864,6 +912,7 @@ Get the project scaffolded, auth working, and the database set up.
 - [ ] **Task 1.9** — Set up TanStack Query provider and Supabase query helpers (depends on: 1.6)
 
 ### Milestone 2: Core Map Experience
+
 The "retrieval" flow — seeing and filtering saved places on a map.
 
 - [ ] **Task 2.1** — Integrate Mapbox SDK (`@rnmapbox/maps`) with Expo, display basic map with user location (depends on: Milestone 1)
@@ -879,6 +928,7 @@ The "retrieval" flow — seeing and filtering saved places on a map.
 - [ ] **Task 2.11** — Implement pull-to-refresh on both map and list views (depends on: 2.3)
 
 ### Milestone 3: Add Place Flow
+
 The "input" flow — saving a new recommendation.
 
 - [ ] **Task 3.1** — Set up Google Places API: get API key, configure billing, restrict key (depends on: nothing)
@@ -889,6 +939,7 @@ The "input" flow — saving a new recommendation.
 - [ ] **Task 3.6** — Cache invalidation: after save, refetch active map places so new pin appears on Explore (depends on: 3.4)
 
 ### Milestone 4: Map Management
+
 Multiple maps, map switching, map settings.
 
 - [ ] **Task 4.1** — Build map switcher dropdown on Explore: list user's maps + "All Maps" option, set active map (depends on: Milestone 2)
@@ -899,6 +950,7 @@ Multiple maps, map switching, map settings.
 - [ ] **Task 4.6** — Build tag management UI on Map Settings: add/edit/delete tags with name, emoji, and color picker (depends on: 4.5)
 
 ### Milestone 5: Sharing & Invites
+
 Invite links, deep linking, shared map access.
 
 - [ ] **Task 5.1** — Write `accept-invite` Edge Function: validate token, add user to map_members (depends on: Milestone 1)
@@ -908,6 +960,7 @@ Invite links, deep linking, shared map access.
 - [ ] **Task 5.5** — Handle edge cases: expired invite, already a member, invalid token (depends on: 5.4)
 
 ### Milestone 6: Payments & Freemium
+
 RevenueCat integration and premium gating.
 
 - [ ] **Task 6.1** — Set up RevenueCat: create project, configure Apple IAP product, link to Supabase user IDs (depends on: nothing)
@@ -917,6 +970,7 @@ RevenueCat integration and premium gating.
 - [ ] **Task 6.5** — Test purchase flow end-to-end in sandbox (depends on: 6.4)
 
 ### Milestone 7: Polish & Launch
+
 Onboarding, edge cases, App Store submission.
 
 - [ ] **Task 7.1** — Build onboarding tooltip tour (2 steps: how to add, how to filter) shown on first launch (depends on: Milestone 2, 3)
@@ -933,15 +987,15 @@ Onboarding, edge cases, App Store submission.
 
 ## 7. Technical Risks & Open Questions
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **Mapbox custom markers performance** — Rendering 50-200+ custom React Native views as map markers could cause jank on lower-end devices | Medium | Use Mapbox `ShapeSource` + `SymbolLayer` with pre-rendered images instead of React views for large datasets. Test early with 200+ pins |
-| **Google Places API cost** — If the autocomplete is called on every keystroke, costs accumulate fast | Medium | Debounce search input (300ms). Use session tokens to group autocomplete + place detail into a single billing session. Monitor usage via Google Cloud console |
-| **Deep linking on iOS** — Universal Links require Apple App Site Association file hosting and can be flaky | Medium | Use Expo's built-in deep linking support. Test early in development, not at the end. Have a fallback URL that redirects to the App Store |
-| **Apple Sign-In on Expo** — Requires specific native module setup and App Store provisioning | Low | Expo has first-class support via `expo-apple-authentication`. Follow Supabase's Expo auth guide |
-| **RLS policy performance** — Nested EXISTS queries on every database read could slow down with many users | Low | The `map_members` table is small per user. Add proper indexes (already specified). Monitor query plans if performance degrades |
-| **RevenueCat webhook reliability** — If the webhook fails, user pays but doesn't get premium | Medium | RevenueCat retries failed webhooks. Additionally, the app can check RevenueCat SDK on launch and sync entitlement locally as a fallback |
-| **Freemium enforcement race conditions** — Two simultaneous add-place requests could bypass the 50-place limit | Low | Edge Function checks count before insert. For true atomicity, use a Postgres function with row locking. Acceptable risk for v1 |
+| Risk                                                                                                                                     | Impact | Mitigation                                                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Mapbox custom markers performance** — Rendering 50-200+ custom React Native views as map markers could cause jank on lower-end devices | Medium | Use Mapbox `ShapeSource` + `SymbolLayer` with pre-rendered images instead of React views for large datasets. Test early with 200+ pins                       |
+| **Google Places API cost** — If the autocomplete is called on every keystroke, costs accumulate fast                                     | Medium | Debounce search input (300ms). Use session tokens to group autocomplete + place detail into a single billing session. Monitor usage via Google Cloud console |
+| **Deep linking on iOS** — Universal Links require Apple App Site Association file hosting and can be flaky                               | Medium | Use Expo's built-in deep linking support. Test early in development, not at the end. Have a fallback URL that redirects to the App Store                     |
+| **Apple Sign-In on Expo** — Requires specific native module setup and App Store provisioning                                             | Low    | Expo has first-class support via `expo-apple-authentication`. Follow Supabase's Expo auth guide                                                              |
+| **RLS policy performance** — Nested EXISTS queries on every database read could slow down with many users                                | Low    | The `map_members` table is small per user. Add proper indexes (already specified). Monitor query plans if performance degrades                               |
+| **RevenueCat webhook reliability** — If the webhook fails, user pays but doesn't get premium                                             | Medium | RevenueCat retries failed webhooks. Additionally, the app can check RevenueCat SDK on launch and sync entitlement locally as a fallback                      |
+| **Freemium enforcement race conditions** — Two simultaneous add-place requests could bypass the 50-place limit                           | Low    | Edge Function checks count before insert. For true atomicity, use a Postgres function with row locking. Acceptable risk for v1                               |
 
 ### Open Questions (Technical)
 

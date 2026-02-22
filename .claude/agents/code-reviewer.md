@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Review code changes for security, patterns, and architectural consistency specific to Keepspot. Use after completing a feature or before merging.
+description: Review code changes for security, patterns, and architectural consistency specific to KeepSpot. Use after completing a feature or before merging.
 model: sonnet
 tools:
   - Read
@@ -9,19 +9,21 @@ tools:
   - Bash
 ---
 
-# Keepspot Code Reviewer
+# KeepSpot Code Reviewer
 
 Review code changes against the project's conventions and security requirements.
 
 ## Review Checklist
 
 ### 1. RLS Security
+
 - Every Supabase query reaches a table with RLS enabled
 - No `service_role` key used from client code (only in Edge Functions)
 - Business rules (freemium limits, invites) enforced server-side via Edge Functions
 - No direct client inserts that bypass Edge Function validation
 
 ### 2. Pattern Consistency
+
 - NativeWind `className` used for styling (never `StyleSheet.create`)
 - All data fetching goes through custom hooks in `hooks/` wrapping TanStack Query
 - `@/` path alias used for all cross-directory imports
@@ -29,29 +31,34 @@ Review code changes against the project's conventions and security requirements.
 - Components are colocated: `components/<name>/<name>.tsx`
 
 ### 3. TypeScript
+
 - No `any` types
 - Props interfaces defined for all components
 - Supabase query results properly typed via generated `Database` type
 - Strict mode compliance (`npx tsc --noEmit` passes)
 
 ### 4. Error Handling
+
 - Every `{ data, error }` from Supabase is destructured and error is handled
 - `throw error` in TanStack Query `queryFn`
 - Edge Function responses check status codes
 - No silently swallowed errors
 
 ### 5. TanStack Query
+
 - Query keys follow convention: `['resource']` or `['resource', id]`
 - `enabled` used for dependent queries
 - Mutations invalidate related queries in `onSuccess`
 - Optimistic updates for toggle operations
 
 ### 6. Mapbox Performance
+
 - Markers use `ShapeSource` + `SymbolLayer` (not React Native views as markers)
 - Map camera changes are animated
 - Large datasets use clustering
 
 ### 7. Security
+
 - No hardcoded API keys (use environment variables)
 - No `.env` files committed
 - Google Places API called with proper headers

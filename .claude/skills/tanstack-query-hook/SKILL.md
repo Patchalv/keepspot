@@ -5,37 +5,39 @@ description: Create a TanStack Query hook for data fetching from Supabase. Use w
 
 # TanStack Query Hook Pattern
 
-Follow these patterns when creating data fetching hooks for Keepspot.
+Follow these patterns when creating data fetching hooks for KeepSpot.
 
 ## Query Key Convention
 
-| Resource | Key | Notes |
-|----------|-----|-------|
-| User profile | `['profile']` | Single user, no params |
-| All maps | `['maps']` | Maps the user is a member of |
-| Map places | `['map-places', mapId]` | Places for a specific map |
-| All places | `['map-places', 'all']` | Places across all maps |
-| Tags | `['tags', mapId]` | Tags for a specific map |
+| Resource     | Key                     | Notes                        |
+| ------------ | ----------------------- | ---------------------------- |
+| User profile | `['profile']`           | Single user, no params       |
+| All maps     | `['maps']`              | Maps the user is a member of |
+| Map places   | `['map-places', mapId]` | Places for a specific map    |
+| All places   | `['map-places', 'all']` | Places across all maps       |
+| Tags         | `['tags', mapId]`       | Tags for a specific map      |
 
 ## Standard Query Hook Template
 
 ```typescript
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 
 export function useMapPlaces(mapId: string) {
   return useQuery({
-    queryKey: ['map-places', mapId],
+    queryKey: ["map-places", mapId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('map_places')
-        .select(`
+        .from("map_places")
+        .select(
+          `
           id, note, created_at, added_by,
           places(id, google_place_id, name, address, latitude, longitude, google_category),
           map_place_tags(tag_id, tags(id, name, color, emoji)),
           place_visits(visited)
-        `)
-        .eq('map_id', mapId);
+        `,
+        )
+        .eq("map_id", mapId);
       if (error) throw error;
       return data;
     },
@@ -55,8 +57,8 @@ export function useMapPlaces(mapId: string) {
 ## Mutation Template
 
 ```typescript
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 
 export function useAddPlace() {
   const queryClient = useQueryClient();
@@ -64,7 +66,7 @@ export function useAddPlace() {
   return useMutation({
     mutationFn: async (params: { mapId: string; placeData: PlaceInsert }) => {
       const { data, error } = await supabase
-        .from('map_places')
+        .from("map_places")
         .insert(params.placeData)
         .select()
         .single();
@@ -72,7 +74,7 @@ export function useAddPlace() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['map-places'] });
+      queryClient.invalidateQueries({ queryKey: ["map-places"] });
     },
   });
 }
@@ -87,24 +89,38 @@ export function useToggleVisited(activeMapId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ mapPlaceId, visited }: { mapPlaceId: string; visited: boolean }) => {
+    mutationFn: async ({
+      mapPlaceId,
+      visited,
+    }: {
+      mapPlaceId: string;
+      visited: boolean;
+    }) => {
       const { error } = await supabase
-        .from('place_visits')
+        .from("place_visits")
         .upsert({ user_id: userId, map_place_id: mapPlaceId, visited });
       if (error) throw error;
     },
     onMutate: async ({ mapPlaceId, visited }) => {
-      await queryClient.cancelQueries({ queryKey: ['map-places', activeMapId] });
-      const previousData = queryClient.getQueryData(['map-places', activeMapId]);
-      queryClient.setQueryData(['map-places', activeMapId], (old: MapPlace[]) =>
-        old.map(p =>
-          p.id === mapPlaceId ? { ...p, place_visits: [{ visited }] } : p
-        )
+      await queryClient.cancelQueries({
+        queryKey: ["map-places", activeMapId],
+      });
+      const previousData = queryClient.getQueryData([
+        "map-places",
+        activeMapId,
+      ]);
+      queryClient.setQueryData(["map-places", activeMapId], (old: MapPlace[]) =>
+        old.map((p) =>
+          p.id === mapPlaceId ? { ...p, place_visits: [{ visited }] } : p,
+        ),
       );
       return { previousData };
     },
     onError: (_err, _vars, context) => {
-      queryClient.setQueryData(['map-places', activeMapId], context?.previousData);
+      queryClient.setQueryData(
+        ["map-places", activeMapId],
+        context?.previousData,
+      );
     },
   });
 }
@@ -115,7 +131,7 @@ export function useToggleVisited(activeMapId: string) {
 For mutations with business rules (freemium limits, invites):
 
 ```typescript
-const { data, error } = await supabase.functions.invoke('create-map', {
+const { data, error } = await supabase.functions.invoke("create-map", {
   body: { name: mapName },
 });
 if (error) throw error;
@@ -124,6 +140,7 @@ if (error) throw error;
 ## Supabase Nested Select Syntax
 
 Use PostgREST nested selects for joins:
+
 ```
 .select('id, name, map_place_tags(tag_id, tags(id, name, color, emoji))')
 ```

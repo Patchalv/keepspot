@@ -1,4 +1,4 @@
-Create a new screen for the Keepspot app.
+Create a new screen for the KeepSpot app.
 
 Screen name: $ARGUMENTS
 
