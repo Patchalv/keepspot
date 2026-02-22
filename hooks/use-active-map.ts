@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/hooks/use-profile';
 import { useMaps } from '@/hooks/use-maps';
+import { ALL_MAPS_ID } from '@/lib/constants';
 
 export function useActiveMap() {
   const { data: profile } = useProfile();
@@ -9,15 +10,24 @@ export function useActiveMap() {
   const queryClient = useQueryClient();
 
   const maps = mapMembers?.map((m) => m.maps).filter(Boolean) ?? [];
-  const activeMapId = profile?.active_map_id ?? maps[0]?.id ?? null;
-  const activeMap = maps.find((m) => m.id === activeMapId) ?? maps[0] ?? null;
+
+  // null active_map_id means "All Maps" mode
+  const isAllMaps = profile?.active_map_id === null && maps.length > 0;
+  const activeMapId = isAllMaps
+    ? ALL_MAPS_ID
+    : profile?.active_map_id ?? maps[0]?.id ?? null;
+  const activeMap = isAllMaps
+    ? null
+    : maps.find((m) => m.id === activeMapId) ?? maps[0] ?? null;
 
   const { mutate: setActiveMap, isPending: isSettingMap } = useMutation({
     mutationFn: async (mapId: string) => {
       if (!profile) throw new Error('No profile');
+      // ALL_MAPS_ID → set active_map_id to null
+      const newActiveMapId = mapId === ALL_MAPS_ID ? null : mapId;
       const { error } = await supabase
         .from('profiles')
-        .update({ active_map_id: mapId })
+        .update({ active_map_id: newActiveMapId })
         .eq('id', profile.id);
       if (error) throw error;
     },
@@ -28,9 +38,10 @@ export function useActiveMap() {
 
   return {
     activeMapId,
-    activeMapName: activeMap?.name ?? null,
+    activeMapName: isAllMaps ? 'All Maps' : activeMap?.name ?? null,
     maps,
     setActiveMap,
     isSettingMap,
+    isAllMaps,
   };
 }

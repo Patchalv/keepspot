@@ -18,6 +18,7 @@ interface FilterSheetProps {
   searchQuery: string;
   onSetSearchQuery: (query: string) => void;
   onClearAll: () => void;
+  isAllMaps?: boolean;
 }
 
 export const FilterSheet = forwardRef<BottomSheetModal, FilterSheetProps>(
@@ -31,6 +32,7 @@ export const FilterSheet = forwardRef<BottomSheetModal, FilterSheetProps>(
       searchQuery,
       onSetSearchQuery,
       onClearAll,
+      isAllMaps,
     },
     ref
   ) {
@@ -86,7 +88,25 @@ export const FilterSheet = forwardRef<BottomSheetModal, FilterSheetProps>(
           />
 
           {/* Tags */}
-          {tags.length > 0 && (
+          {isAllMaps ? (
+            <View style={{ marginBottom: 20 }}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: '600',
+                  color: '#6B7280',
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
+                Tags
+              </Text>
+              <Text style={{ fontSize: 14, color: '#9CA3AF' }}>
+                Switch to a specific map to filter by tags
+              </Text>
+            </View>
+          ) : tags.length > 0 && (
             <View style={{ marginBottom: 20 }}>
               <Text
                 style={{

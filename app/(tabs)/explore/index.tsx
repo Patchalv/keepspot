@@ -6,6 +6,7 @@ import Mapbox from '@/lib/mapbox';
 import { useLocation } from '@/hooks/use-location';
 import { useActiveMap } from '@/hooks/use-active-map';
 import { useMapPlaces } from '@/hooks/use-map-places';
+import { useAllMapPlaces } from '@/hooks/use-all-map-places';
 import { useTags } from '@/hooks/use-tags';
 import { useFilteredPlaces } from '@/hooks/use-filtered-places';
 import { useToggleVisited } from '@/hooks/use-toggle-visited';
@@ -21,13 +22,21 @@ const DEFAULT_CENTER: [number, number] = [-3.7038, 40.4168];
 
 export default function ExploreScreen() {
   const { location } = useLocation();
-  const { activeMapId, activeMapName, maps, setActiveMap } = useActiveMap();
+  const { activeMapId, activeMapName, maps, setActiveMap, isAllMaps } =
+    useActiveMap();
+
+  // Use different queries based on All Maps mode
+  const singleMapQuery = useMapPlaces(isAllMaps ? null : activeMapId);
+  const allMapsQuery = useAllMapPlaces(isAllMaps);
+  const activePlacesQuery = isAllMaps ? allMapsQuery : singleMapQuery;
+
   const {
     data: places,
     isRefetching,
     refetch,
-  } = useMapPlaces(activeMapId);
-  const { data: tags } = useTags(activeMapId);
+  } = activePlacesQuery;
+
+  const { data: tags } = useTags(isAllMaps ? null : activeMapId);
   const { mutate: toggleVisited } = useToggleVisited(activeMapId);
 
   // View state
@@ -48,7 +57,7 @@ export default function ExploreScreen() {
   // Derived
   const filteredPlaces = useFilteredPlaces({
     places,
-    selectedTagIds,
+    selectedTagIds: isAllMaps ? [] : selectedTagIds,
     visitedFilter,
     searchQuery,
   });
@@ -60,7 +69,9 @@ export default function ExploreScreen() {
     : DEFAULT_CENTER;
 
   const activeFilterCount =
-    selectedTagIds.length + (visitedFilter !== 'all' ? 1 : 0) + (searchQuery ? 1 : 0);
+    (isAllMaps ? 0 : selectedTagIds.length) +
+    (visitedFilter !== 'all' ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
   // Reset filters when switching maps
   useEffect(() => {
@@ -153,6 +164,7 @@ export default function ExploreScreen() {
       <ExploreHeader
         mapName={activeMapName}
         maps={maps.map((m) => ({ id: m.id, name: m.name }))}
+        activeMapId={activeMapId}
         onSelectMap={handleSelectMap}
         viewMode={viewMode}
         onToggleView={handleToggleView}
@@ -180,6 +192,7 @@ export default function ExploreScreen() {
         searchQuery={searchQuery}
         onSetSearchQuery={setSearchQuery}
         onClearAll={handleClearFilters}
+        isAllMaps={isAllMaps}
       />
     </View>
   );
