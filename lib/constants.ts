@@ -13,7 +13,7 @@ export const PLACES_SEARCH = {
   locationBiasRadius: 10_000,
 } as const;
 
-export const APP_SCHEME = 'keepspot';
+export const APP_SCHEME = 'mapvault';
 
 export const ALL_MAPS_ID = '__all__' as const;
 

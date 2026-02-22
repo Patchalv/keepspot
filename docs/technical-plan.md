@@ -1,4 +1,4 @@
-# KeepSpot — Technical Plan
+# MapVault — Technical Plan
 
 ## 1. Technical Requirements Summary
 
@@ -955,7 +955,7 @@ Invite links, deep linking, shared map access.
 
 - [ ] **Task 5.1** — Write `accept-invite` Edge Function: validate token, add user to map_members (depends on: Milestone 1)
 - [ ] **Task 5.2** — Build Invite screen: generate link button, copy/share via system share sheet (depends on: 4.5)
-- [ ] **Task 5.3** — Set up Expo deep linking for `keepspot.app/invite/[token]` URLs (depends on: Milestone 1)
+- [ ] **Task 5.3** — Set up Expo deep linking for `mapvault.app/invite/[token]` URLs (depends on: Milestone 1)
 - [ ] **Task 5.4** — Build invite handler screen: validate token → add to map → redirect to Explore with new map active (depends on: 5.1, 5.3)
 - [ ] **Task 5.5** — Handle edge cases: expired invite, already a member, invalid token (depends on: 5.4)
 
@@ -979,7 +979,7 @@ Onboarding, edge cases, App Store submission.
 - [ ] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
 - [ ] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues (depends on: all milestones)
 - [ ] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
-- [ ] **Task 7.7** — Set up Universal Links: buy `keepspot.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://keepspot.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
+- [ ] **Task 7.7** — Set up Universal Links: buy `mapvault.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://mapvault.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
 - [ ] **Task 7.8** — EAS build for App Store submission (depends on: all milestones)
 - [ ] **Task 7.9** — TestFlight beta testing (depends on: 7.8)
 - [ ] **Task 7.10** — App Store submission (depends on: 7.9)
@@ -1002,5 +1002,5 @@ Onboarding, edge cases, App Store submission.
 
 1. **Google Places API version** — The New (v2) API has different pricing and features than the legacy API. Need to verify autocomplete + place details pricing with session tokens.
 2. **Mapbox access token security** — The token is embedded in the app. Mapbox allows URL/bundle restrictions, but need to configure this properly.
-3. **Deep link domain** — Need to register `keepspot.app` (or similar) and set up Apple App Site Association for Universal Links.
+3. **Deep link domain** — Need to register `mapvault.app` (or similar) and set up Apple App Site Association for Universal Links.
 4. **Default tag set** — PRD lists "Restaurant", "Bar", "Friend". Technical plan adds "Cafe". Final list TBD.

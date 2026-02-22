@@ -5,7 +5,7 @@ description: Create a TanStack Query hook for data fetching from Supabase. Use w
 
 # TanStack Query Hook Pattern
 
-Follow these patterns when creating data fetching hooks for KeepSpot.
+Follow these patterns when creating data fetching hooks for MapVault.
 
 ## Query Key Convention
 

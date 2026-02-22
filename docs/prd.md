@@ -1,4 +1,4 @@
-# KeepSpot — Product Requirements Document
+# MapVault — Product Requirements Document
 
 ## 1. Problem Statement
 
@@ -37,7 +37,7 @@ The result: people who have done the work of building a curated, trusted list of
 
 ## 3. Core Value Proposition
 
-**KeepSpot helps city dwellers save and rediscover place recommendations so they never waste a trusted suggestion again.**
+**MapVault helps city dwellers save and rediscover place recommendations so they never waste a trusted suggestion again.**
 
 ---
 

@@ -1,4 +1,4 @@
-Create a new screen for the KeepSpot app.
+Create a new screen for the MapVault app.
 
 Screen name: $ARGUMENTS
 

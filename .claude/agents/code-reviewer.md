@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Review code changes for security, patterns, and architectural consistency specific to KeepSpot. Use after completing a feature or before merging.
+description: Review code changes for security, patterns, and architectural consistency specific to MapVault. Use after completing a feature or before merging.
 model: sonnet
 tools:
   - Read
@@ -9,7 +9,7 @@ tools:
   - Bash
 ---
 
-# KeepSpot Code Reviewer
+# MapVault Code Reviewer
 
 Review code changes against the project's conventions and security requirements.
 

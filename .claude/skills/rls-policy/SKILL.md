@@ -1,11 +1,11 @@
 ---
 name: rls-policy
-description: Write Supabase RLS policies for KeepSpot tables. Use when creating or modifying database migrations that include RLS.
+description: Write Supabase RLS policies for MapVault tables. Use when creating or modifying database migrations that include RLS.
 ---
 
 # Supabase RLS Policy Patterns
 
-KeepSpot uses three RLS patterns. Every table MUST have RLS enabled.
+MapVault uses three RLS patterns. Every table MUST have RLS enabled.
 
 ## Pattern 1: Personal Data
 

@@ -1,4 +1,4 @@
-# KeepSpot — Branding Assets Guide
+# MapVault — Branding Assets Guide
 
 ## Asset Files
 
@@ -67,4 +67,4 @@ assets/
 - **iOS icon**: Apple automatically applies rounded corners — do NOT add them manually.
 - **Android adaptive icon**: The OS applies various masks (circle, squircle, etc.). Content is within the center 66% safe zone. The `backgroundColor` provides the background layer.
 - **Splash screen**: Uses `resizeMode: "contain"` so the logo scales to fit any screen size. The `backgroundColor` fills the remaining space — matches the cream from the logo.
-- **Source image**: Generated from the KeepSpot logo (red map pin with heart on cream background). The text "KeepSpot" is intentionally excluded from the icon and splash — app icons should be recognizable without text.
+- **Source image**: Generated from the MapVault logo (red map pin with heart on cream background). The text "MapVault" is intentionally excluded from the icon and splash — app icons should be recognizable without text.

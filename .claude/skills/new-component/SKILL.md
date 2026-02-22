@@ -1,6 +1,6 @@
 ---
 name: new-component
-description: Scaffold a new React Native component following KeepSpot conventions. Use when creating reusable UI components.
+description: Scaffold a new React Native component following MapVault conventions. Use when creating reusable UI components.
 ---
 
 Create a new component: $ARGUMENTS

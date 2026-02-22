@@ -103,7 +103,7 @@ export default function PaywallScreen() {
             You&apos;re Premium!
           </Text>
           <Text className="mt-2 text-center text-base text-gray-500">
-            You have unlimited access to all KeepSpot features.
+            You have unlimited access to all MapVault features.
           </Text>
         </View>
       </SafeAreaView>
@@ -123,7 +123,7 @@ export default function PaywallScreen() {
       <View className="flex-1 px-6 pt-6">
         {/* Hero */}
         <Text className="text-center text-2xl font-bold text-gray-900">
-          Unlock KeepSpot Premium
+          Unlock MapVault Premium
         </Text>
         <Text className="mt-2 text-center text-base text-gray-500">
           Save more places, create unlimited maps, and share with friends.

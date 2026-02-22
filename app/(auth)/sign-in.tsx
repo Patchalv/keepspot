@@ -35,7 +35,7 @@ export default function SignInScreen() {
         source={require("@/assets/images/splash-icon.png")}
         className="mb-4 h-32 w-32"
       />
-      <Text className="mb-2 text-4xl font-bold">KeepSpot</Text>
+      <Text className="mb-2 text-4xl font-bold">MapVault</Text>
       <Text className="mb-12 text-base text-gray-500">
         Save places you love.
       </Text>

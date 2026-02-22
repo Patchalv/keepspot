@@ -1,6 +1,6 @@
 ---
 name: add-screen
-description: Create a new screen for the KeepSpot app. Use when adding a new route/page to the app.
+description: Create a new screen for the MapVault app. Use when adding a new route/page to the app.
 ---
 
 Create a new screen: $ARGUMENTS

@@ -42,7 +42,7 @@ export function InviteSection({ invites, onCreateInvite }: InviteSectionProps) {
   const handleShare = useCallback(async (token: string) => {
     const link = getInviteLink(token);
     await Share.share({
-      message: `Join my map on KeepSpot! ${link}`,
+      message: `Join my map on MapVault! ${link}`,
       url: link,
     });
   }, []);

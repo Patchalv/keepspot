@@ -1,4 +1,4 @@
-# KeepSpot
+# MapVault
 
 A mobile app for saving and rediscovering place recommendations in cities.
 Expo (React Native) + Supabase + Mapbox + Google Places API.
@@ -57,7 +57,7 @@ Expo (React Native) + Supabase + Mapbox + Google Places API.
 
 - Use `router.push()` / `router.replace()` from `expo-router`
 - For links: `<Link href="/explore">` from `expo-router`
-- Deep links use scheme `keepspot://` (configured in app.json)
+- Deep links use scheme `mapvault://` (configured in app.json)
 - Tab layout: `(tabs)/` with three tabs: explore, add, profile
 - Auth routing: `(auth)/` group for unauthenticated screens
 

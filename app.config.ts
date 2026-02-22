@@ -4,27 +4,28 @@ const IS_DEV = process.env.APP_VARIANT === "development";
 const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 const getBundleId = () => {
-  if (IS_DEV) return "com.patrickalvarez.keepspot.dev";
-  if (IS_PREVIEW) return "com.patrickalvarez.keepspot.preview";
-  return "com.patrickalvarez.keepspot";
+  if (IS_DEV) return "com.patrickalvarez.mapvault.dev";
+  if (IS_PREVIEW) return "com.patrickalvarez.mapvault.preview";
+  return "com.patrickalvarez.mapvault";
 };
 
 const getAppName = () => {
-  if (IS_DEV) return "KeepSpot (Dev)";
-  if (IS_PREVIEW) return "KeepSpot (Preview)";
-  return "KeepSpot";
+  if (IS_DEV) return "MapVault (Dev)";
+  if (IS_PREVIEW) return "MapVault (Preview)";
+  return "MapVault";
 };
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: getAppName(),
-  slug: "keepspot",
+  slug: "mapvault",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
-  scheme: "keepspot",
+  scheme: "mapvault",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
+  owner: "patchalv",
   splash: {
     image: "./assets/images/splash-icon.png",
     resizeMode: "contain",
@@ -65,8 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   ],
   extra: {
-    revenueCatAppleApiKey:
-      process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",
+    revenueCatAppleApiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",
     eas: {
       projectId: "e68615bd-089b-438c-bf12-3693f0cbcc58",
     },
