@@ -979,9 +979,10 @@ Onboarding, edge cases, App Store submission.
 - [ ] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
 - [ ] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues (depends on: all milestones)
 - [ ] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
-- [ ] **Task 7.7** — EAS build for App Store submission (depends on: all milestones)
-- [ ] **Task 7.8** — TestFlight beta testing (depends on: 7.7)
-- [ ] **Task 7.9** — App Store submission (depends on: 7.8)
+- [ ] **Task 7.7** — Set up Universal Links: buy `keepspot.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://keepspot.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
+- [ ] **Task 7.8** — EAS build for App Store submission (depends on: all milestones)
+- [ ] **Task 7.9** — TestFlight beta testing (depends on: 7.8)
+- [ ] **Task 7.10** — App Store submission (depends on: 7.9)
 
 ---
 
