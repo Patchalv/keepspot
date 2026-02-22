@@ -33,9 +33,9 @@ export default function SignInScreen() {
     <View className="flex-1 items-center justify-center bg-cream px-8">
       <Image
         source={require("@/assets/images/splash-icon.png")}
-        className="mb-4 h-24 w-24"
+        className="mb-4 h-32 w-32"
       />
-      <Text className="mb-2 text-3xl font-bold">KeepSpot</Text>
+      <Text className="mb-2 text-4xl font-bold">KeepSpot</Text>
       <Text className="mb-12 text-base text-gray-500">
         Save places you love.
       </Text>
@@ -59,8 +59,8 @@ export default function SignInScreen() {
           onPress={handleGoogleSignIn}
           className="h-[52px] w-full flex-row items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white"
         >
-          <AntDesign name="google" size={20} color="#4285F4" />
-          <Text className="text-lg font-semibold text-gray-800">
+          <AntDesign name="google" size={24} color="#4285F4" />
+          <Text className="text-xl font-medium text-gray-800">
             Continue with Google
           </Text>
         </Pressable>
