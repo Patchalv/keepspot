@@ -1,5 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
+import { useRevenueCat } from '@/hooks/use-revenuecat';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -9,6 +10,9 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  // Initialize RevenueCat SDK when user is authenticated
+  useRevenueCat();
+
   return (
     <Tabs
       screenOptions={{

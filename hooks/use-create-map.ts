@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { EdgeFunctionError } from '@/lib/edge-function-error';
 
 interface CreateMapInput {
   name: string;
@@ -21,6 +22,7 @@ export function useCreateMap() {
 
       if (error) {
         let message = 'Failed to create map';
+        let code: string | null = null;
         if (error.context instanceof Response) {
           try {
             const body = await error.context.json();
@@ -29,11 +31,14 @@ export function useCreateMap() {
             } else if (typeof body.message === 'string') {
               message = body.message;
             }
+            if (typeof body.code === 'string') {
+              code = body.code;
+            }
           } catch {
             // Response body wasn't valid JSON
           }
         }
-        throw new Error(message);
+        throw new EdgeFunctionError(message, code);
       }
 
       return data as CreateMapResult;

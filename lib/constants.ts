@@ -17,6 +17,10 @@ export const APP_SCHEME = 'keepspot';
 
 export const ALL_MAPS_ID = '__all__' as const;
 
+export const ERROR_CODES = {
+  freemiumLimitExceeded: 'FREEMIUM_LIMIT_EXCEEDED',
+} as const;
+
 export const TAG_COLORS = [
   '#EF4444', // red
   '#F97316', // orange

@@ -65,6 +65,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   ],
   extra: {
+    revenueCatAppleApiKey:
+      process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",
     eas: {
       projectId: "e68615bd-089b-438c-bf12-3693f0cbcc58",
     },

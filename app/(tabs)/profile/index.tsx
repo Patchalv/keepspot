@@ -3,11 +3,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { supabase } from '@/lib/supabase';
+import { logOutUser } from '@/lib/revenuecat';
 import { useAuth } from '@/hooks/use-auth';
 import { useProfile } from '@/hooks/use-profile';
 import { useMaps } from '@/hooks/use-maps';
 import { useActiveMap } from '@/hooks/use-active-map';
 import { useCreateMap } from '@/hooks/use-create-map';
+import { useFreemiumGate } from '@/hooks/use-freemium-gate';
 import { FREE_TIER } from '@/lib/constants';
 
 export default function ProfileScreen() {
@@ -17,6 +19,7 @@ export default function ProfileScreen() {
   const { data: mapMembers } = useMaps();
   const { activeMapId } = useActiveMap();
   const { mutate: createMap, isPending: isCreating } = useCreateMap();
+  const { handleMutationError } = useFreemiumGate();
 
   const maps = mapMembers ?? [];
   const ownedMapCount = maps.filter((m) => m.role === 'owner').length;
@@ -31,6 +34,7 @@ export default function ProfileScreen() {
     .slice(0, 2);
 
   const handleSignOut = async () => {
+    await logOutUser();
     const { error } = await supabase.auth.signOut();
     if (error) {
       Alert.alert('Error', error.message);
@@ -44,7 +48,7 @@ export default function ProfileScreen() {
         'Free accounts are limited to 1 map. Upgrade to premium for unlimited maps.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => {} },
+          { text: 'Upgrade', onPress: () => router.push('/(tabs)/profile/paywall') },
         ]
       );
       return;
@@ -66,7 +70,7 @@ export default function ProfileScreen() {
                   router.navigate('/(tabs)/explore');
                 },
                 onError: (err) => {
-                  Alert.alert('Error', err.message);
+                  handleMutationError(err);
                 },
               }
             );
@@ -108,7 +112,8 @@ export default function ProfileScreen() {
         <Text className="mt-1 text-sm text-gray-500">{email}</Text>
 
         {/* Entitlement badge */}
-        <View
+        <Pressable
+          onPress={isFree ? () => router.push('/(tabs)/profile/paywall') : undefined}
           className={`mt-2 rounded-full px-3 py-1 ${
             isFree ? 'bg-gray-100' : 'bg-amber-100'
           }`}
@@ -118,9 +123,9 @@ export default function ProfileScreen() {
               isFree ? 'text-gray-600' : 'text-amber-700'
             }`}
           >
-            {profile?.entitlement ?? 'free'}
+            {isFree ? 'free - upgrade' : 'premium'}
           </Text>
-        </View>
+        </Pressable>
       </View>
 
       {/* Divider */}

@@ -13,6 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useActiveMap } from '@/hooks/use-active-map';
 import { useTags } from '@/hooks/use-tags';
 import { useAddPlace } from '@/hooks/use-add-place';
+import { useFreemiumGate } from '@/hooks/use-freemium-gate';
 import { getPlaceDetails } from '@/lib/google-places';
 
 export default function SaveScreen() {
@@ -25,6 +26,7 @@ export default function SaveScreen() {
   const { activeMapId, activeMapName } = useActiveMap();
   const { data: tags } = useTags(activeMapId);
   const addPlace = useAddPlace();
+  const { handleMutationError } = useFreemiumGate();
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -89,7 +91,7 @@ export default function SaveScreen() {
           router.replace('/(tabs)/explore');
         },
         onError: (error) => {
-          Alert.alert('Error', error.message);
+          handleMutationError(error);
         },
       }
     );
