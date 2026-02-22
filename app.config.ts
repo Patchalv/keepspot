@@ -10,8 +10,8 @@ const getBundleId = () => {
 };
 
 const getAppName = () => {
-  if (IS_DEV) return "MapVault (Dev)";
-  if (IS_PREVIEW) return "MapVault (Preview)";
+  if (IS_DEV) return "(Dev) MapVault";
+  if (IS_PREVIEW) return "(Preview) MapVault";
   return "MapVault";
 };
 
@@ -36,7 +36,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     icon: "./assets/images/icon.png",
     bundleIdentifier: getBundleId(),
     infoPlist: {
+      NSLocationWhenInUseUsageDescription:
+        "MapVault uses your location to show saved places near you on the map.",
+      NSLocationAlwaysAndWhenInUseUsageDescription:
+        "MapVault uses your location to show saved places near you on the map.",
       ITSAppUsesNonExemptEncryption: false,
+    },
+    associatedDomains: ["applinks:mapvault.app"],
+    entitlements: {
+      "com.apple.developer.applesignin": ["Default"],
     },
   },
   android: {
@@ -64,6 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           "Allow $(PRODUCT_NAME) to use your location.",
       },
     ],
+    "react-native-purchases",
   ],
   extra: {
     revenueCatAppleApiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",

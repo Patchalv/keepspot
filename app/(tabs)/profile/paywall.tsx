@@ -1,13 +1,9 @@
-import { useState } from 'react';
 import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRevenueCat } from '@/hooks/use-revenuecat';
 import { useProfile } from '@/hooks/use-profile';
-import { type PurchasesPackage } from 'react-native-purchases';
-
-type PackageSelection = 'monthly' | 'annual';
 
 export default function PaywallScreen() {
   const { data: profile } = useProfile();
@@ -20,27 +16,11 @@ export default function PaywallScreen() {
     isRestoring,
   } = useRevenueCat();
 
-  const [selected, setSelected] = useState<PackageSelection>('annual');
-
   const isPremium = profile?.entitlement === 'premium';
 
-  const monthly = offerings?.current?.monthly;
   const annual = offerings?.current?.annual;
-
-  const monthlyPrice = monthly?.product.priceString ?? '$4.99';
-  const annualPrice = annual?.product.priceString ?? '$29.99';
-
-  // Calculate savings percentage
-  const monthlyAmount = monthly?.product.price ?? 4.99;
-  const annualAmount = annual?.product.price ?? 29.99;
-  const annualMonthly = annualAmount / 12;
-  const savingsPercent =
-    monthlyAmount > 0
-      ? Math.round(((monthlyAmount - annualMonthly) / monthlyAmount) * 100)
-      : 0;
-
-  const selectedPackage: PurchasesPackage | undefined =
-    selected === 'monthly' ? monthly ?? undefined : annual ?? undefined;
+  const annualPrice = annual?.product.priceString ?? '€9.99';
+  const selectedPackage = annual ?? undefined;
 
   const handlePurchase = async () => {
     if (!selectedPackage) return;
@@ -153,21 +133,14 @@ export default function PaywallScreen() {
           <ActivityIndicator size="large" className="mt-10" color="#3B82F6" />
         ) : (
           <>
-            {/* Package selection */}
-            <View className="mt-8 flex-row gap-3">
-              <PackageOption
-                label="Monthly"
-                price={`${monthlyPrice}/mo`}
-                selected={selected === 'monthly'}
-                onPress={() => setSelected('monthly')}
-              />
-              <PackageOption
-                label="Yearly"
-                price={`${annualPrice}/yr`}
-                badge={savingsPercent > 0 ? `Save ${savingsPercent}%` : undefined}
-                selected={selected === 'annual'}
-                onPress={() => setSelected('annual')}
-              />
+            {/* Price display */}
+            <View className="mt-8 items-center rounded-xl border-2 border-blue-500 bg-blue-50 p-5">
+              <Text className="text-sm font-semibold text-blue-700">
+                Yearly
+              </Text>
+              <Text className="mt-1 text-2xl font-bold text-blue-700">
+                {annualPrice}/year
+              </Text>
             </View>
 
             {/* Subscribe button */}
@@ -225,48 +198,5 @@ function FeatureRow({
         {premium}
       </Text>
     </View>
-  );
-}
-
-function PackageOption({
-  label,
-  price,
-  badge,
-  selected,
-  onPress,
-}: {
-  label: string;
-  price: string;
-  badge?: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      className={`flex-1 rounded-xl border-2 p-4 ${
-        selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
-      }`}
-      onPress={onPress}
-    >
-      {badge && (
-        <View className="mb-2 self-start rounded-full bg-amber-100 px-2 py-0.5">
-          <Text className="text-xs font-semibold text-amber-700">{badge}</Text>
-        </View>
-      )}
-      <Text
-        className={`text-sm font-semibold ${
-          selected ? 'text-blue-700' : 'text-gray-900'
-        }`}
-      >
-        {label}
-      </Text>
-      <Text
-        className={`mt-1 text-lg font-bold ${
-          selected ? 'text-blue-700' : 'text-gray-900'
-        }`}
-      >
-        {price}
-      </Text>
-    </Pressable>
   );
 }
