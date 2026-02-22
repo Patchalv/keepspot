@@ -28,10 +28,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/images/splash-icon.png',
     resizeMode: 'contain',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F8F4E8',
   },
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
+    icon: './assets/images/icon.png',
     bundleIdentifier: getBundleId(),
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -40,7 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#F8F4E8',
     },
     package: getBundleId(),
     edgeToEdgeEnabled: true,
