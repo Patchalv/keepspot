@@ -136,7 +136,7 @@ export type Database = {
       }
       map_places: {
         Row: {
-          added_by: string
+          added_by: string | null
           created_at: string
           id: string
           map_id: string
@@ -144,7 +144,7 @@ export type Database = {
           place_id: string
         }
         Insert: {
-          added_by: string
+          added_by?: string | null
           created_at?: string
           id?: string
           map_id: string
@@ -152,7 +152,7 @@ export type Database = {
           place_id: string
         }
         Update: {
-          added_by?: string
+          added_by?: string | null
           created_at?: string
           id?: string
           map_id?: string
@@ -186,19 +186,19 @@ export type Database = {
       maps: {
         Row: {
           created_at: string
-          created_by: string
+          created_by: string | null
           id: string
           name: string
         }
         Insert: {
           created_at?: string
-          created_by: string
+          created_by?: string | null
           id?: string
           name: string
         }
         Update: {
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           id?: string
           name?: string
         }
@@ -356,7 +356,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_map_member: { Args: { check_map_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

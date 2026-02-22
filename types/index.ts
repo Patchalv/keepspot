@@ -31,7 +31,7 @@ export interface MapPlaceWithDetails {
   id: string;
   note: string | null;
   created_at: string;
-  added_by: string;
+  added_by: string | null;
   map_id: string;
   place_id: string;
   places: Place;
