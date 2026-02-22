@@ -10,12 +10,14 @@ import { useAllMapPlaces } from '@/hooks/use-all-map-places';
 import { useTags } from '@/hooks/use-tags';
 import { useFilteredPlaces } from '@/hooks/use-filtered-places';
 import { useToggleVisited } from '@/hooks/use-toggle-visited';
+import { useUpdatePlaceTags } from '@/hooks/use-update-place-tags';
+import { useDeletePlace } from '@/hooks/use-delete-place';
 import { ExploreHeader } from '@/components/explore-header/explore-header';
 import { MapMarkers } from '@/components/map-markers/map-markers';
 import { PlaceDetailSheet } from '@/components/place-detail-sheet/place-detail-sheet';
 import { FilterSheet } from '@/components/filter-sheet/filter-sheet';
 import { PlaceList } from '@/components/place-list/place-list';
-import type { ViewMode, VisitedFilter } from '@/types';
+import type { Tag, ViewMode, VisitedFilter } from '@/types';
 
 // Madrid fallback coordinates
 const DEFAULT_CENTER: [number, number] = [-3.7038, 40.4168];
@@ -38,6 +40,8 @@ export default function ExploreScreen() {
 
   const { data: tags } = useTags(isAllMaps ? null : activeMapId);
   const { mutate: toggleVisited } = useToggleVisited(activeMapId);
+  const { mutate: updatePlaceTag } = useUpdatePlaceTags(activeMapId);
+  const { mutate: deletePlace } = useDeletePlace(activeMapId);
 
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('map');
@@ -63,6 +67,12 @@ export default function ExploreScreen() {
   });
 
   const selectedPlace = filteredPlaces.find((p) => p.id === selectedPlaceId) ?? null;
+
+  // Fetch tags for the selected place's map (handles All Maps mode)
+  const selectedPlaceMapId = selectedPlace?.map_id ?? null;
+  const { data: selectedPlaceTags } = useTags(
+    isAllMaps ? selectedPlaceMapId : activeMapId
+  );
 
   const center: [number, number] = location
     ? [location.longitude, location.latitude]
@@ -117,6 +127,22 @@ export default function ExploreScreen() {
       toggleVisited({ mapPlaceId, visited });
     },
     [toggleVisited]
+  );
+
+  const handleTogglePlaceTag = useCallback(
+    (mapPlaceId: string, tagId: string, tag: Tag, currentlyAssigned: boolean) => {
+      updatePlaceTag({ mapPlaceId, tagId, tag, currentlyAssigned });
+    },
+    [updatePlaceTag]
+  );
+
+  const handleDeletePlace = useCallback(
+    (mapPlaceId: string) => {
+      deletePlace(mapPlaceId);
+      detailSheetRef.current?.close();
+      setSelectedPlaceId(null);
+    },
+    [deletePlace]
   );
 
   const handleRefresh = useCallback(() => {
@@ -177,7 +203,10 @@ export default function ExploreScreen() {
       <PlaceDetailSheet
         ref={detailSheetRef}
         place={selectedPlace}
+        availableTags={selectedPlaceTags ?? []}
         onToggleVisited={handleToggleVisited}
+        onToggleTag={handleTogglePlaceTag}
+        onDelete={handleDeletePlace}
         onClose={handleCloseDetail}
       />
 
