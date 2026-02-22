@@ -1,9 +1,109 @@
-import { View, Text } from 'react-native';
+import { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { usePlaceSearch } from '@/hooks/use-place-search';
+import { useActiveMap } from '@/hooks/use-active-map';
+import type { PlacePrediction } from '@/lib/google-places';
 
 export default function AddScreen() {
+  const { predictions, isSearching, search, clear } = usePlaceSearch();
+  const { activeMapName } = useActiveMap();
+  const [query, setQuery] = useState('');
+
+  const handleChangeText = (text: string) => {
+    setQuery(text);
+    search(text);
+  };
+
+  const handleSelect = (prediction: PlacePrediction) => {
+    router.push({
+      pathname: '/(tabs)/add/save' as never,
+      params: {
+        placeId: prediction.placeId,
+        name: prediction.name,
+        address: prediction.address,
+      },
+    });
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    clear();
+  };
+
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-lg font-semibold">Add Place</Text>
-    </View>
+    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      <View className="px-4 pb-3 pt-2">
+        <Text className="text-2xl font-bold">Add Place</Text>
+        {activeMapName && (
+          <Text className="mt-1 text-sm text-gray-500">
+            Saving to {activeMapName}
+          </Text>
+        )}
+      </View>
+
+      <View className="mx-4 mb-3 flex-row items-center rounded-xl bg-gray-100 px-4">
+        <TextInput
+          className="flex-1 py-3 text-base"
+          placeholder="Search for a place..."
+          placeholderTextColor="#9CA3AF"
+          value={query}
+          onChangeText={handleChangeText}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+        />
+        {query.length > 0 && (
+          <Pressable onPress={handleClear} hitSlop={8}>
+            <Text className="text-base text-gray-400">✕</Text>
+          </Pressable>
+        )}
+      </View>
+
+      {isSearching && (
+        <ActivityIndicator size="small" className="my-4" color="#6B7280" />
+      )}
+
+      {!query && !isSearching && (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-center text-base text-gray-400">
+            Search for a restaurant, cafe, bar, or any place to add to your map.
+          </Text>
+        </View>
+      )}
+
+      {query.length > 0 && !isSearching && predictions.length === 0 && (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-center text-base text-gray-400">
+            No results found. Try a different search.
+          </Text>
+        </View>
+      )}
+
+      <FlatList
+        data={predictions}
+        keyExtractor={(item) => item.placeId}
+        keyboardShouldPersistTaps="handled"
+        renderItem={({ item }) => (
+          <Pressable
+            className="mx-4 border-b border-gray-100 px-2 py-3 active:bg-gray-50"
+            onPress={() => handleSelect(item)}
+          >
+            <Text className="text-base font-medium">{item.name}</Text>
+            <Text className="mt-0.5 text-sm text-gray-500">
+              {item.address}
+            </Text>
+          </Pressable>
+        )}
+      />
+    </SafeAreaView>
   );
 }
