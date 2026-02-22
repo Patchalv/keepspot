@@ -12,7 +12,11 @@ import { useUpdateMap } from '@/hooks/use-update-map';
 import { useDeleteMap } from '@/hooks/use-delete-map';
 import { useLeaveMap } from '@/hooks/use-leave-map';
 import { useCreateTag, useUpdateTag, useDeleteTag } from '@/hooks/use-manage-tags';
+import { useInvites } from '@/hooks/use-invites';
+import { useCreateInvite } from '@/hooks/use-create-invite';
 import { TagEditor } from '@/components/tag-editor/tag-editor';
+import { InviteSection } from '@/components/invite-section/invite-section';
+import { InviteCreator } from '@/components/invite-creator/invite-creator';
 import type { Tag } from '@/types';
 
 export default function MapSettingsScreen() {
@@ -28,8 +32,11 @@ export default function MapSettingsScreen() {
   const { mutate: createTag, isPending: isCreatingTag } = useCreateTag();
   const { mutate: updateTag, isPending: isUpdatingTag } = useUpdateTag();
   const { mutate: deleteTag, isPending: isDeletingTag } = useDeleteTag();
+  const { data: invites } = useInvites(id ?? null);
+  const { mutate: createInvite, isPending: isCreatingInvite } = useCreateInvite();
 
   const tagEditorRef = useRef<BottomSheetModal>(null);
+  const inviteCreatorRef = useRef<BottomSheetModal>(null);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
 
   // Find current map and role
@@ -147,6 +154,25 @@ export default function MapSettingsScreen() {
       });
     },
     [deleteTag]
+  );
+
+  const handleOpenInviteCreator = useCallback(() => {
+    inviteCreatorRef.current?.present();
+  }, []);
+
+  const handleCreateInvite = useCallback(
+    (input: {
+      mapId: string;
+      role: 'editor';
+      expiresInDays: number | null;
+      maxUses: number | null;
+    }) => {
+      createInvite(input, {
+        onSuccess: () => inviteCreatorRef.current?.dismiss(),
+        onError: (err) => Alert.alert('Error', err.message),
+      });
+    },
+    [createInvite]
   );
 
   if (!map) {
@@ -310,6 +336,12 @@ export default function MapSettingsScreen() {
             })}
           </View>
 
+          {/* Invites Section */}
+          <InviteSection
+            invites={invites}
+            onCreateInvite={handleOpenInviteCreator}
+          />
+
           {/* Danger Zone */}
           <View className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
             <Text className="mb-3 text-sm font-semibold uppercase tracking-wide text-red-600">
@@ -349,6 +381,16 @@ export default function MapSettingsScreen() {
             onUpdateTag={handleUpdateTag}
             onDeleteTag={handleDeleteTag}
             isPending={isCreatingTag || isUpdatingTag || isDeletingTag}
+          />
+        )}
+
+        {/* Invite Creator Bottom Sheet */}
+        {id && (
+          <InviteCreator
+            ref={inviteCreatorRef}
+            mapId={id}
+            onCreateInvite={handleCreateInvite}
+            isPending={isCreatingInvite}
           />
         )}
       </View>

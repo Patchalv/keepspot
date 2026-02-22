@@ -1,6 +1,6 @@
 import '@/global.css';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useFonts } from 'expo-font';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -28,18 +28,29 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const pendingDeepLink = useRef<string | null>(null);
 
   useEffect(() => {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const inInviteRoute = segments[0] === 'invite';
 
     if (!isAuthenticated && !inAuthGroup) {
-      // Redirect to sign-in if not authenticated
+      // Store invite deep link before redirecting to sign-in
+      if (inInviteRoute && segments[1]) {
+        pendingDeepLink.current = `/invite/${segments[1]}`;
+      }
       router.replace('/(auth)/sign-in');
     } else if (isAuthenticated && inAuthGroup) {
-      // Redirect to explore if authenticated but on auth screen
-      router.replace('/(tabs)/explore');
+      // After sign-in, redirect to pending deep link or explore
+      if (pendingDeepLink.current) {
+        const path = pendingDeepLink.current;
+        pendingDeepLink.current = null;
+        router.replace(path as never);
+      } else {
+        router.replace('/(tabs)/explore');
+      }
     }
   }, [isAuthenticated, isLoading, segments]);
 
