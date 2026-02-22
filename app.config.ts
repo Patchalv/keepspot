@@ -68,11 +68,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     revenueCatAppleApiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",
     eas: {
-      projectId: "e68615bd-089b-438c-bf12-3693f0cbcc58",
+      projectId: "1ec7ed48-2f17-4c59-9e71-0f5aea7ea1f7",
     },
   },
   updates: {
-    url: "https://u.expo.dev/e68615bd-089b-438c-bf12-3693f0cbcc58",
+    url: "https://u.expo.dev/1ec7ed48-2f17-4c59-9e71-0f5aea7ea1f7",
   },
   runtimeVersion: {
     policy: "sdkVersion",
