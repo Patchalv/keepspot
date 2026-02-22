@@ -20,11 +20,19 @@ export function useCreateMap() {
       });
 
       if (error) {
-        const context = error.context as Record<string, unknown> | undefined;
-        const message =
-          typeof context?.error === 'string'
-            ? context.error
-            : 'Failed to create map';
+        let message = 'Failed to create map';
+        if (error.context instanceof Response) {
+          try {
+            const body = await error.context.json();
+            if (typeof body.error === 'string') {
+              message = body.error;
+            } else if (typeof body.message === 'string') {
+              message = body.message;
+            }
+          } catch {
+            // Response body wasn't valid JSON
+          }
+        }
         throw new Error(message);
       }
 
