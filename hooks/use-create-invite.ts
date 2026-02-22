@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as Crypto from 'expo-crypto';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
 import { APP_SCHEME } from '@/lib/constants';
@@ -24,7 +25,7 @@ export function useCreateInvite() {
     mutationFn: async (input: CreateInviteInput): Promise<CreateInviteResult> => {
       if (!user) throw new Error('Not authenticated');
 
-      const token = crypto.randomUUID();
+      const token = Crypto.randomUUID();
       const expiresAt = input.expiresInDays
         ? new Date(Date.now() + input.expiresInDays * 86_400_000).toISOString()
         : null;
