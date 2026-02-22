@@ -86,7 +86,7 @@ export default function SaveScreen() {
       },
       {
         onSuccess: () => {
-          router.back();
+          router.replace('/(tabs)/explore');
         },
         onError: (error) => {
           Alert.alert('Error', error.message);
