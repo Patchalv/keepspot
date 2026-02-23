@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useActiveMap } from '@/hooks/use-active-map';
 import { useTags } from '@/hooks/use-tags';
 import { useAddPlace } from '@/hooks/use-add-place';
 import { useFreemiumGate } from '@/hooks/use-freemium-gate';
 import { getPlaceDetails } from '@/lib/google-places';
+import { MapPickerSheet } from '@/components/map-picker-sheet/map-picker-sheet';
 
 export default function SaveScreen() {
   const { placeId, name, address } = useLocalSearchParams<{
@@ -23,8 +26,16 @@ export default function SaveScreen() {
     address: string;
   }>();
 
-  const { activeMapId, activeMapName } = useActiveMap();
-  const { data: tags } = useTags(activeMapId);
+  const { activeMapId, activeMapName, isAllMaps, maps } = useActiveMap();
+  const [overrideMapId, setOverrideMapId] = useState<string | null>(null);
+  const mapPickerRef = useRef<BottomSheetModal>(null);
+
+  const effectiveMapId = isAllMaps ? overrideMapId : activeMapId;
+  const effectiveMapName = isAllMaps
+    ? (maps.find((m) => m.id === overrideMapId)?.name ?? null)
+    : activeMapName;
+
+  const { data: tags } = useTags(effectiveMapId);
   const addPlace = useAddPlace();
   const { handleMutationError } = useFreemiumGate();
 
@@ -60,6 +71,11 @@ export default function SaveScreen() {
     };
   }, [placeId]);
 
+  // Reset selected tags when the effective map changes (tags are per-map)
+  useEffect(() => {
+    setSelectedTagIds([]);
+  }, [effectiveMapId]);
+
   const toggleTag = (tagId: string) => {
     setSelectedTagIds((prev) =>
       prev.includes(tagId)
@@ -71,7 +87,7 @@ export default function SaveScreen() {
   const googleCategory = placeDetails?.types?.[0]?.replace(/_/g, ' ') ?? null;
 
   const handleSave = () => {
-    if (!activeMapId || !placeDetails || !placeId || !name) return;
+    if (!effectiveMapId || !placeDetails || !placeId || !name) return;
 
     addPlace.mutate(
       {
@@ -81,7 +97,7 @@ export default function SaveScreen() {
         latitude: placeDetails.latitude,
         longitude: placeDetails.longitude,
         googleCategory,
-        mapId: activeMapId,
+        mapId: effectiveMapId,
         note,
         tagIds: selectedTagIds,
         visited,
@@ -97,7 +113,7 @@ export default function SaveScreen() {
     );
   };
 
-  const canSave = !isLoadingDetails && !!placeDetails && !!activeMapId;
+  const canSave = !isLoadingDetails && !!placeDetails && !!effectiveMapId;
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
@@ -202,11 +218,28 @@ export default function SaveScreen() {
         </Pressable>
 
         {/* Map label */}
-        {activeMapName && (
+        {isAllMaps ? (
+          <Pressable
+            className="mt-6 flex-row items-center justify-center"
+            onPress={() => mapPickerRef.current?.present()}
+          >
+            <Text className="text-center text-sm text-blue-500">
+              {effectiveMapName
+                ? `Saving to ${effectiveMapName}`
+                : 'Tap to select a map'}
+            </Text>
+            <FontAwesome
+              name="chevron-down"
+              size={10}
+              color="#3B82F6"
+              style={{ marginLeft: 6 }}
+            />
+          </Pressable>
+        ) : activeMapName ? (
           <Text className="mt-6 text-center text-sm text-gray-400">
             Saving to {activeMapName}
           </Text>
-        )}
+        ) : null}
 
         {/* Save button */}
         <Pressable
@@ -231,6 +264,13 @@ export default function SaveScreen() {
           )}
         </Pressable>
       </ScrollView>
+
+      <MapPickerSheet
+        ref={mapPickerRef}
+        maps={maps}
+        selectedMapId={overrideMapId}
+        onSelectMap={setOverrideMapId}
+      />
     </SafeAreaView>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,22 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { usePlaceSearch } from '@/hooks/use-place-search';
 import { useActiveMap } from '@/hooks/use-active-map';
 import type { PlacePrediction } from '@/lib/google-places';
 
 export default function AddScreen() {
-  const { predictions, isSearching, search, clear } = usePlaceSearch();
-  const { activeMapName } = useActiveMap();
+  const { predictions, isSearching, error, search, clear } = usePlaceSearch();
+  const { activeMapName, isAllMaps } = useActiveMap();
   const [query, setQuery] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      setQuery('');
+      clear();
+    }, [clear])
+  );
 
   const handleChangeText = (text: string) => {
     setQuery(text);
@@ -45,7 +52,9 @@ export default function AddScreen() {
         <Text className="text-2xl font-bold">Add Place</Text>
         {activeMapName && (
           <Text className="mt-1 text-sm text-gray-500">
-            Saving to {activeMapName}
+            {isAllMaps
+              ? "You'll choose a map when saving"
+              : `Saving to ${activeMapName}`}
           </Text>
         )}
       </View>
@@ -72,6 +81,12 @@ export default function AddScreen() {
         <ActivityIndicator size="small" className="my-4" color="#6B7280" />
       )}
 
+      {error && !isSearching && (
+        <View className="mx-4 mt-2 rounded-xl bg-red-50 px-4 py-3">
+          <Text className="text-sm text-red-600">{error}</Text>
+        </View>
+      )}
+
       {!query && !isSearching && (
         <View className="flex-1 items-center justify-center px-8">
           <Text className="text-center text-base text-gray-400">
@@ -80,7 +95,7 @@ export default function AddScreen() {
         </View>
       )}
 
-      {query.length > 0 && !isSearching && predictions.length === 0 && (
+      {query.length > 0 && !isSearching && !error && predictions.length === 0 && (
         <View className="flex-1 items-center justify-center px-8">
           <Text className="text-center text-base text-gray-400">
             No results found. Try a different search.
