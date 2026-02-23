@@ -860,7 +860,7 @@ Receives purchase events from RevenueCat, updates `profiles.entitlement`.
 | Invite         | `(tabs)/profile/map/[id]/invite`           | Map invites                                           | Generate link button, share sheet, existing invite links                                                          |
 | Paywall        | `(tabs)/profile/paywall`                   | Profile entitlement                                   | Feature comparison, purchase button (RevenueCat)                                                                  |
 | Invite Handler | `invite/[token]` (deep link)               | None (Edge Function)                                  | Loading state → redirect to explore with new map active                                                           |
-| Onboarding     | Overlay on Explore (data-driven)           | Active map places                                     | Empty state card (map/list variants), filter spotlight tooltip overlay                                             |
+| Onboarding     | Overlay on Explore (data-driven)           | Active map places                                     | Empty state card (map/list variants), filter spotlight tooltip overlay                                            |
 
 ### Navigation Structure
 
@@ -912,6 +912,7 @@ Get the project scaffolded, auth working, and the database set up.
 - [x] **Task 1.9** — Set up TanStack Query provider and Supabase query helpers
 
 **Additional work completed:**
+
 - [x] Fixed RLS recursion on `map_members` with SECURITY DEFINER helper (`20260222000001`)
 - [x] Added policy for members to leave maps (`20260222000002`)
 - [x] Added user cleanup trigger on account deletion (`20260222000003`)
@@ -933,6 +934,7 @@ The "retrieval" flow — seeing and filtering saved places on a map.
 - [x] **Task 2.11** — Implement pull-to-refresh on both map and list views
 
 **Additional work completed:**
+
 - [x] Delete place functionality (`use-delete-place.ts`, button in place detail sheet)
 - [x] Edit tags on existing places (`use-update-place-tags.ts`, inline editing in place detail sheet)
 
@@ -959,6 +961,7 @@ Multiple maps, map switching, map settings.
 - [x] **Task 4.6** — Build tag management UI on Map Settings: add/edit/delete tags with name, emoji, and color picker
 
 **Additional work completed:**
+
 - [x] Leave map functionality (`use-leave-map.ts`)
 
 ### Milestone 5: Sharing & Invites ✅
@@ -982,6 +985,7 @@ RevenueCat integration and premium gating.
 - [x] **Task 6.5** — Test purchase flow end-to-end in sandbox
 
 **Additional work completed:**
+
 - [x] Variant-aware RevenueCat (disabled in `.dev` builds, only active with production bundle ID)
 - [x] Client-side entitlement sync fallback via `CustomerInfoUpdate` listener
 - [x] Comprehensive payment testing documentation (`docs/payments.md`)
@@ -992,8 +996,8 @@ Onboarding, edge cases, App Store submission.
 
 - [x] **Task 7.1** — Build onboarding tooltip tour (2 steps: empty state prompt + filter spotlight) shown on first launch (depends on: Milestone 2, 3)
 - [x] **Task 7.2** — Implement visited toggle optimistic update (instant UI response)
-- [ ] **Task 7.3** — Add loading states and error handling across all screens (depends on: all milestones)
-- [ ] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
+- [x] **Task 7.3** — Add loading states and error handling across all screens (depends on: all milestones)
+- [x] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
 - [x] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues
 - [x] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
 - [ ] **Task 7.7** — Set up Universal Links: buy `mapvault.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://mapvault.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
@@ -1005,17 +1009,17 @@ Onboarding, edge cases, App Store submission.
 
 Items required for App Store approval that were not in the original plan.
 
-- [ ] **Task 8.1** — Account deletion UI: add "Delete Account" option in Profile screen. Apple requires apps with account creation to offer account deletion. The DB cleanup trigger already exists (`20260222000003`), but there is no user-facing flow to initiate deletion. (depends on: Milestone 1)
-- [ ] **Task 8.2** — Privacy policy & Terms of Service: write and host at a public URL. Required by App Store Connect before submission. (depends on: nothing)
+- [x] **Task 8.1** — Account deletion UI: add "Delete Account" option in Profile screen. Apple requires apps with account creation to offer account deletion. The DB cleanup trigger already exists (`20260222000003`), but there is no user-facing flow to initiate deletion. (depends on: Milestone 1)
+- [x] **Task 8.2** — Privacy policy & Terms of Service: write and host at a public URL. Required by App Store Connect before submission. (depends on: nothing)
 - [ ] **Task 8.3** — App privacy nutrition labels: declare data collection practices in App Store Connect (location, identifiers, usage data). (depends on: 8.2)
-- [ ] **Task 8.4** — App Store screenshots: generate screenshots for required device sizes (6.7", 6.5", 5.5" at minimum). (depends on: 7.6)
+- [x] **Task 8.4** — App Store screenshots: generate screenshots for required device sizes (6.7", 6.5", 5.5" at minimum). (depends on: 7.6)
 - [ ] **Task 8.5** — Export compliance declaration in App Store Connect. (depends on: nothing)
 
 ### Milestone 9: Missing Features & UX Gaps (NEW)
 
 Features referenced in the PRD or discovered as gaps during development.
 
-- [ ] **Task 9.1** — Edit place note: the place detail sheet shows notes read-only. Users can add a note when saving but cannot edit it afterward. Add an edit note UI to the place detail sheet. (depends on: Milestone 2)
+- [x] **Task 9.1** — Edit place note: the place detail sheet shows notes read-only. Users can add a note when saving but cannot edit it afterward. Add an edit note UI to the place detail sheet. (depends on: Milestone 2)
 - [x] **Task 9.2** — Empty state for Explore: "Save your first place" card on empty map/list with CTA to Add tab. Combined with Task 7.1 onboarding flow. (depends on: Milestone 2)
 - [ ] **Task 9.3** — Tag reordering: tags have a `position` column in the database but there is no UI to reorder them (e.g., drag-and-drop on Map Settings). (depends on: 4.6)
 - [ ] **Task 9.4** — Crash reporting: integrate Sentry (or similar) for production error monitoring. No crash reporting exists currently. (depends on: nothing)
