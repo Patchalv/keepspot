@@ -47,8 +47,9 @@
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "6759535400",
+        "appleId": "p.alvarez@gmail.com",
         "appleTeamId": "NLVM332ZPW",
+        "ascAppId": "6759535400",
         "ascApiKeyId": "6CYNGT76TF",
         "ascApiKeyIssuerId": "c1e13bc8-7e7b-46c0-a7b5-7731026c6cf1",
         "ascApiKeyPath": "./keys/AuthKey_6CYNGT76TF.p8"
