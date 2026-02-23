@@ -16,6 +16,7 @@ import { useActiveMap } from '@/hooks/use-active-map';
 import { useTags } from '@/hooks/use-tags';
 import { useAddPlace } from '@/hooks/use-add-place';
 import { useFreemiumGate } from '@/hooks/use-freemium-gate';
+import { track } from '@/lib/analytics';
 import { getPlaceDetails } from '@/lib/google-places';
 import { MapPickerSheet } from '@/components/map-picker-sheet/map-picker-sheet';
 
@@ -38,6 +39,16 @@ export default function SaveScreen() {
   const { data: tags } = useTags(effectiveMapId);
   const addPlace = useAddPlace();
   const { handleMutationError } = useFreemiumGate();
+  const didSaveRef = useRef(false);
+
+  // Track abandonment on unmount
+  useEffect(() => {
+    return () => {
+      if (!didSaveRef.current) {
+        track('place_save_abandoned', {});
+      }
+    };
+  }, []);
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -104,6 +115,18 @@ export default function SaveScreen() {
       },
       {
         onSuccess: () => {
+          didSaveRef.current = true;
+          const tagNames = tags
+            ?.filter((t) => selectedTagIds.includes(t.id))
+            .map((t) => t.name) ?? [];
+          track('place_saved', {
+            map_id: effectiveMapId!,
+            tag_count: selectedTagIds.length,
+            tags: tagNames,
+            has_note: !!note.trim(),
+            visited,
+            google_category: googleCategory,
+          });
           router.dismiss();
           router.replace('/(tabs)/explore');
         },

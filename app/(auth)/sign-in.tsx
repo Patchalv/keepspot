@@ -1,8 +1,19 @@
 import { signInWithApple, signInWithGoogle } from "@/lib/auth";
+import { track } from "@/lib/analytics";
+import { supabase } from "@/lib/supabase";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useEffect, useState } from "react";
 import { Alert, Image, Platform, Pressable, Text, View } from "react-native";
+
+async function trackIfNewUser(method: 'apple' | 'google') {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return;
+  const createdAt = new Date(data.user.created_at).getTime();
+  if (Date.now() - createdAt < 30_000) {
+    track('signup_completed', { method });
+  }
+}
 
 export default function SignInScreen() {
   const [appleAvailable, setAppleAvailable] = useState(false);
@@ -17,6 +28,8 @@ export default function SignInScreen() {
       const result = await signInWithApple();
       if (!result.success) {
         Alert.alert("Sign In Error", result.error);
+      } else {
+        trackIfNewUser('apple');
       }
     } catch (e: unknown) {
       const error = e as { code?: string };
@@ -31,6 +44,8 @@ export default function SignInScreen() {
       const result = await signInWithGoogle();
       if (!result.success) {
         Alert.alert("Sign In Error", result.error);
+      } else {
+        trackIfNewUser('google');
       }
     } catch {
       Alert.alert("Error", "An unexpected error occurred.");

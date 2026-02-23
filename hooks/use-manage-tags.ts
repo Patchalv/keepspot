@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { track } from '@/lib/analytics';
 import type { Tag } from '@/types';
 
 interface CreateTagInput {
@@ -61,6 +62,7 @@ export function useCreateTag() {
       return data as Tag;
     },
     onSuccess: (_data, variables) => {
+      track('tag_created', { map_id: variables.mapId, tag_name: variables.name });
       queryClient.invalidateQueries({ queryKey: ['tags', variables.mapId] });
     },
   });

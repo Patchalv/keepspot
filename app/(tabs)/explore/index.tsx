@@ -3,6 +3,7 @@ import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from 'expo-router';
 import Mapbox from '@/lib/mapbox';
 import { useLocation } from '@/hooks/use-location';
 import { useActiveMap } from '@/hooks/use-active-map';
@@ -15,6 +16,7 @@ import { useUpdatePlaceTags } from '@/hooks/use-update-place-tags';
 import { useDeletePlace } from '@/hooks/use-delete-place';
 import { useUpdatePlaceNote } from '@/hooks/use-update-place-note';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { track } from '@/lib/analytics';
 import { ExploreHeader } from '@/components/explore-header/explore-header';
 import { MapMarkers } from '@/components/map-markers/map-markers';
 import { PlaceDetailSheet } from '@/components/place-detail-sheet/place-detail-sheet';
@@ -88,6 +90,56 @@ export default function ExploreScreen() {
     ? [location.longitude, location.latitude]
     : DEFAULT_CENTER;
 
+  // Analytics: explore_viewed with 30-second cooldown
+  const lastExploreViewedRef = useRef(0);
+  useFocusEffect(
+    useCallback(() => {
+      const now = Date.now();
+      if (now - lastExploreViewedRef.current > 30_000) {
+        lastExploreViewedRef.current = now;
+        track('explore_viewed', {
+          view_mode: viewMode,
+          active_map: isAllMaps ? 'all' : 'single',
+        });
+      }
+    }, [viewMode, isAllMaps])
+  );
+
+  // Analytics: filter_applied
+  const prevFiltersRef = useRef({ selectedTagIds, visitedFilter, searchQuery });
+  const isInitialMountRef = useRef(true);
+  useEffect(() => {
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      return;
+    }
+
+    const prev = prevFiltersRef.current;
+    prevFiltersRef.current = { selectedTagIds, visitedFilter, searchQuery };
+
+    const tagsChanged = prev.selectedTagIds !== selectedTagIds;
+    const visitedChanged = prev.visitedFilter !== visitedFilter;
+    const searchChanged = prev.searchQuery !== searchQuery;
+
+    if (!tagsChanged && !visitedChanged && !searchChanged) return;
+
+    // If all filters cleared, filter_cleared handles that
+    if (selectedTagIds.length === 0 && visitedFilter === 'all' && !searchQuery) return;
+
+    const filterType = tagsChanged ? 'tag' : visitedChanged ? 'visited' : 'search';
+    const activeTagNames = tags
+      ?.filter((t) => selectedTagIds.includes(t.id))
+      .map((t) => t.name) ?? [];
+
+    track('filter_applied', {
+      filter_type: filterType,
+      active_tags: activeTagNames,
+      visited_filter: visitedFilter,
+      has_search_query: !!searchQuery,
+      results_count: filteredPlaces.length,
+    });
+  }, [selectedTagIds, visitedFilter, searchQuery, tags, filteredPlaces.length]);
+
   const activeFilterCount =
     (isAllMaps ? 0 : selectedTagIds.length) +
     (visitedFilter !== 'all' ? 1 : 0) +
@@ -134,16 +186,28 @@ export default function ExploreScreen() {
 
   // Handlers
   const handlePlacePress = useCallback((mapPlaceId: string) => {
+    const place = filteredPlaces.find((p) => p.id === mapPlaceId);
+    if (place) {
+      track('place_detail_viewed', {
+        map_place_id: mapPlaceId,
+        has_note: !!place.note,
+        is_visited: place.place_visits[0]?.visited ?? false,
+      });
+    }
     setSelectedPlaceId(mapPlaceId);
     detailSheetRef.current?.snapToIndex(0);
-  }, []);
+  }, [filteredPlaces]);
 
   const handleCloseDetail = useCallback(() => {
     setSelectedPlaceId(null);
   }, []);
 
   const handleToggleView = useCallback(() => {
-    setViewMode((prev) => (prev === 'map' ? 'list' : 'map'));
+    setViewMode((prev) => {
+      const newMode = prev === 'map' ? 'list' : 'map';
+      track('view_mode_switched', { new_mode: newMode });
+      return newMode;
+    });
   }, []);
 
   const handleOpenFilters = useCallback(() => {
@@ -160,6 +224,7 @@ export default function ExploreScreen() {
     setSelectedTagIds([]);
     setVisitedFilter('all');
     setSearchQuery('');
+    track('filter_cleared', {});
   }, []);
 
   const handleToggleVisited = useCallback(

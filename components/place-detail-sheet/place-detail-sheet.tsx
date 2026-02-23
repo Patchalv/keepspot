@@ -7,6 +7,7 @@ import BottomSheet, {
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import type { MapPlaceWithDetails, Tag } from '@/types';
 import { openDirections } from '@/lib/directions';
+import { track } from '@/lib/analytics';
 
 interface PlaceDetailSheetProps {
   place: MapPlaceWithDetails | null;
@@ -45,6 +46,7 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
 
     const handleDirections = useCallback(() => {
       if (!place) return;
+      track('directions_opened', { map_place_id: place.id });
       openDirections(
         place.places.latitude,
         place.places.longitude,

@@ -75,6 +75,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           "Allow $(PRODUCT_NAME) to use your location.",
       },
     ],
+    "expo-localization",
   ],
   extra: {
     revenueCatAppleApiKey: IS_DEV

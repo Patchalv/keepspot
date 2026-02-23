@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { identifyUser, resetUser } from '@/lib/analytics';
 import type { Session, User } from '@supabase/supabase-js';
 
 export function useAuth() {
@@ -18,6 +19,11 @@ export function useAuth() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session?.user) {
+        identifyUser(session.user.id);
+      } else {
+        resetUser();
+      }
     });
 
     return () => subscription.unsubscribe();

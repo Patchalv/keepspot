@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { usePlaceSearch } from '@/hooks/use-place-search';
 import { useActiveMap } from '@/hooks/use-active-map';
+import { track } from '@/lib/analytics';
 import type { PlacePrediction } from '@/lib/google-places';
 
 export default function AddScreen() {
@@ -22,6 +23,7 @@ export default function AddScreen() {
     useCallback(() => {
       setQuery('');
       clear();
+      track('place_search_started', {});
     }, [clear])
   );
 
@@ -31,6 +33,7 @@ export default function AddScreen() {
   };
 
   const handleSelect = (prediction: PlacePrediction) => {
+    track('place_search_result_selected', { google_category: null });
     router.push({
       pathname: '/(tabs)/add/save' as never,
       params: {

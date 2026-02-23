@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Purchases, { type PurchasesPackage } from 'react-native-purchases';
 import { useAuth } from '@/hooks/use-auth';
+import { updateUserProperties } from '@/lib/analytics';
 import {
   configureRevenueCat,
   isRevenueCatReady,
@@ -30,6 +31,7 @@ export function useRevenueCat() {
       try {
         const customerInfo = await Purchases.getCustomerInfo();
         const premium = isPremium(customerInfo);
+        updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
         queryClient.setQueryData<Profile>(['profile'], (old) => {
           if (!old) return old;
           return { ...old, entitlement: premium ? 'premium' : 'free' };
@@ -46,6 +48,7 @@ export function useRevenueCat() {
 
     const listener = (customerInfo: import('react-native-purchases').CustomerInfo) => {
       const premium = isPremium(customerInfo);
+      updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
       queryClient.setQueryData<Profile>(['profile'], (old) => {
         if (!old) return old;
         return { ...old, entitlement: premium ? 'premium' : 'free' };

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
+import { track } from '@/lib/analytics';
 import { ALL_MAPS_ID } from '@/lib/constants';
 import type { MapPlaceWithDetails } from '@/types';
 
@@ -75,6 +76,12 @@ export function useToggleVisited(activeMapId: string | null) {
           context.previousAll
         );
       }
+    },
+    onSuccess: (_data, variables) => {
+      track('visited_toggled', {
+        map_place_id: variables.mapPlaceId,
+        new_status: variables.visited,
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['map-places', activeMapId] });

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/hooks/use-profile';
 import { useMaps } from '@/hooks/use-maps';
+import { track } from '@/lib/analytics';
 import { ALL_MAPS_ID } from '@/lib/constants';
 
 export function useActiveMap() {
@@ -31,7 +32,11 @@ export function useActiveMap() {
         .eq('id', profile.id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, mapId) => {
+      track('map_switched', {
+        map_id: mapId === ALL_MAPS_ID ? 'all' : mapId,
+        source: 'dropdown',
+      });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });

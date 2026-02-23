@@ -17,7 +17,7 @@ export function useFreemiumGate() {
           { text: 'Cancel', style: 'cancel' },
           {
             text: 'View Plans',
-            onPress: () => router.push('/(tabs)/profile/paywall'),
+            onPress: () => router.push('/(tabs)/profile/paywall?trigger=place_limit'),
           },
         ],
       );

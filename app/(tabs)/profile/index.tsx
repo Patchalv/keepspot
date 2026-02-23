@@ -66,7 +66,7 @@ export default function ProfileScreen() {
         'Free accounts are limited to 1 map. Upgrade to premium for unlimited maps.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => router.push('/(tabs)/profile/paywall') },
+          { text: 'Upgrade', onPress: () => router.push('/(tabs)/profile/paywall?trigger=map_limit') },
         ]
       );
       return;
@@ -131,7 +131,7 @@ export default function ProfileScreen() {
 
         {/* Entitlement badge */}
         <Pressable
-          onPress={isFree ? () => router.push('/(tabs)/profile/paywall') : undefined}
+          onPress={isFree ? () => router.push('/(tabs)/profile/paywall?trigger=profile_tap') : undefined}
           className={`mt-2 rounded-full px-3 py-1 ${
             isFree ? 'bg-gray-100' : 'bg-amber-100'
           }`}

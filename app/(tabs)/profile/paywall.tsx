@@ -1,12 +1,15 @@
+import { useEffect } from 'react';
 import { View, Text, Pressable, Alert, ActivityIndicator, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRevenueCat } from '@/hooks/use-revenuecat';
 import { useProfile } from '@/hooks/use-profile';
+import { track } from '@/lib/analytics';
 import { LEGAL_URLS } from '@/lib/constants';
 
 export default function PaywallScreen() {
+  const { trigger } = useLocalSearchParams<{ trigger?: string }>();
   const { data: profile } = useProfile();
   const {
     offerings,
@@ -19,6 +22,15 @@ export default function PaywallScreen() {
 
   const isPremium = profile?.entitlement === 'premium';
 
+  useEffect(() => {
+    const validTriggers = ['map_limit', 'place_limit', 'profile_tap'] as const;
+    type PaywallTrigger = (typeof validTriggers)[number];
+    const paywallTrigger: PaywallTrigger = validTriggers.includes(trigger as PaywallTrigger)
+      ? (trigger as PaywallTrigger)
+      : 'profile_tap';
+    track('paywall_viewed', { trigger: paywallTrigger });
+  }, [trigger]);
+
   const annual = offerings?.current?.annual;
   const annualPrice = annual?.product.priceString ?? '€9.99';
   const selectedPackage = annual ?? undefined;
@@ -26,8 +38,10 @@ export default function PaywallScreen() {
   const handlePurchase = async () => {
     if (!selectedPackage) return;
 
+    track('purchase_started', {});
     try {
       await purchaseAsync(selectedPackage);
+      track('purchase_completed', {});
       Alert.alert('Welcome to Premium!', 'You now have unlimited access.', [
         { text: 'OK', onPress: () => router.back() },
       ]);
@@ -39,8 +53,10 @@ export default function PaywallScreen() {
         'userCancelled' in err &&
         (err as { userCancelled: boolean }).userCancelled
       ) {
+        track('purchase_failed', { reason: 'cancelled' });
         return;
       }
+      track('purchase_failed', { reason: 'error' });
       const message =
         err instanceof Error ? err.message : 'Purchase failed. Please try again.';
       Alert.alert('Purchase Failed', message);

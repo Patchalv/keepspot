@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
+import { track } from '@/lib/analytics';
 import { useAcceptInvite, type InviteError } from '@/hooks/use-accept-invite';
 
 type Status = 'loading' | 'success' | 'error';
@@ -35,6 +36,8 @@ export default function InviteScreen() {
         const result = await acceptInvite(token!);
 
         if (cancelled) return;
+
+        track('invite_accepted', { map_id: result.mapId });
 
         // Set the accepted map as active
         await supabase

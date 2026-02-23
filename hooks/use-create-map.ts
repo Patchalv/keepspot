@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { track } from '@/lib/analytics';
 import { EdgeFunctionError } from '@/lib/edge-function-error';
 
 interface CreateMapInput {
@@ -43,7 +44,8 @@ export function useCreateMap() {
 
       return data as CreateMapResult;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      track('map_created', { map_id: data.mapId });
       queryClient.invalidateQueries({ queryKey: ['maps'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },

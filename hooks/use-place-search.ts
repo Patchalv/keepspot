@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useLocation } from '@/hooks/use-location';
 import { searchPlaces, type PlacePrediction } from '@/lib/google-places';
+import { track } from '@/lib/analytics';
 import { PLACES_SEARCH } from '@/lib/constants';
 
 export function usePlaceSearch() {
@@ -29,6 +30,7 @@ export function usePlaceSearch() {
           setError(null);
           const results = await searchPlaces(input, location);
           setPredictions(results);
+          track('place_search_query', { query_length: input.length });
         } catch {
           setPredictions([]);
           setError('Search failed. Check your connection and try again.');

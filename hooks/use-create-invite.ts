@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
+import { track } from '@/lib/analytics';
 import { APP_SCHEME } from '@/lib/constants';
 import type { MapInvite, MapRole } from '@/types';
 
@@ -51,6 +52,7 @@ export function useCreateInvite() {
       };
     },
     onSuccess: (_data, variables) => {
+      track('invite_link_created', { map_id: variables.mapId });
       queryClient.invalidateQueries({ queryKey: ['invites', variables.mapId] });
     },
   });

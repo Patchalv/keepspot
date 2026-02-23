@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { ActivityIndicator, Alert, View, Text, Pressable, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { track } from '@/lib/analytics';
 import { APP_SCHEME } from '@/lib/constants';
 import type { MapInvite } from '@/types';
 
@@ -40,12 +41,15 @@ function getInviteLink(token: string): string {
 }
 
 export function InviteSection({ invites, isLoading, onCreateInvite }: InviteSectionProps) {
-  const handleShare = useCallback(async (token: string) => {
+  const handleShare = useCallback(async (token: string, mapId: string) => {
     const link = getInviteLink(token);
-    await Share.share({
+    const result = await Share.share({
       message: `Join my map on MapVault! ${link}`,
       url: link,
     });
+    if (result.action === Share.sharedAction) {
+      track('invite_link_shared', { map_id: mapId });
+    }
   }, []);
 
   const handleCopy = useCallback(async (token: string) => {
@@ -129,7 +133,7 @@ export function InviteSection({ invites, isLoading, onCreateInvite }: InviteSect
                         <FontAwesome name="copy" size={14} color="#6B7280" />
                       </Pressable>
                       <Pressable
-                        onPress={() => handleShare(invite.token)}
+                        onPress={() => handleShare(invite.token, invite.map_id)}
                         className="items-center justify-center rounded-lg bg-blue-500 px-3 py-2"
                       >
                         <FontAwesome name="share" size={14} color="#FFFFFF" />

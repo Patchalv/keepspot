@@ -8,7 +8,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PostHogProvider, usePostHog } from 'posthog-react-native';
 import { useAuth } from '@/hooks/use-auth';
+import { setPostHogInstance } from '@/lib/analytics';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -23,6 +25,14 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function PostHogConnector({ children }: { children: React.ReactNode }) {
+  const posthog = usePostHog();
+  useEffect(() => {
+    if (posthog) setPostHogInstance(posthog);
+  }, [posthog]);
+  return <>{children}</>;
+}
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -79,13 +89,28 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <BottomSheetModalProvider>
-          <AuthGate>
-            <Slot />
-          </AuthGate>
-        </BottomSheetModalProvider>
-      </QueryClientProvider>
+      <PostHogProvider
+        apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
+        options={{
+          host: process.env.EXPO_PUBLIC_POSTHOG_HOST!,
+          enableSessionReplay: false,
+          captureAppLifecycleEvents: true,
+        }}
+        autocapture={{
+          captureScreens: true,
+          captureTouches: false,
+        }}
+      >
+        <PostHogConnector>
+          <QueryClientProvider client={queryClient}>
+            <BottomSheetModalProvider>
+              <AuthGate>
+                <Slot />
+              </AuthGate>
+            </BottomSheetModalProvider>
+          </QueryClientProvider>
+        </PostHogConnector>
+      </PostHogProvider>
     </GestureHandlerRootView>
   );
 }
