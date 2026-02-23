@@ -124,6 +124,7 @@ functions/ ← Edge Functions
 - `docs/payments.md` — Payments system, RevenueCat, and testing guide
 - `docs/builds.md` — EAS build profiles and variants
 - `docs/analytics.md` — PostHog analytics events and instrumentation guide
+- `docs/sentry.md` — Sentry error tracking, config, and MCP tools guide
 - Read these before starting any new milestone
 
 ## Skills & Commands
