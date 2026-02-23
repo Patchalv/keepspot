@@ -91,6 +91,14 @@ export async function signInWithApple(): Promise<
         family_name: credential.fullName.familyName ?? undefined,
       },
     });
+
+    // Sync to profiles table (trigger already fired with NULL before updateUser ran)
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('profiles').update({ display_name: fullName }).eq('id', user.id);
+    }
   }
 
   return { success: true };
