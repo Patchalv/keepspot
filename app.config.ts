@@ -76,6 +76,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     "expo-localization",
+    [
+      "@sentry/react-native/expo",
+      {
+        url: "https://sentry.io/",
+        project: "mapvault",
+        organization: "patrick-alvarez",
+      },
+    ],
   ],
   extra: {
     revenueCatAppleApiKey: IS_DEV
