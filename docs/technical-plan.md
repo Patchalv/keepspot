@@ -897,92 +897,129 @@ Root (Expo Router Layout)
 
 ## 6. Implementation Milestones
 
-### Milestone 1: Project Foundation
+### Milestone 1: Project Foundation ✅
 
 Get the project scaffolded, auth working, and the database set up.
 
-- [ ] **Task 1.1** — Initialize Expo project with Expo Router, NativeWind, and TypeScript config (depends on: nothing)
-- [ ] **Task 1.2** — Set up Supabase project: create database, enable auth providers (Apple, Google) (depends on: nothing)
-- [ ] **Task 1.3** — Write SQL migration: create all tables, constraints, indexes (depends on: 1.2)
-- [ ] **Task 1.4** — Write SQL migration: create all RLS policies (depends on: 1.3)
-- [ ] **Task 1.5** — Create database trigger: on `auth.users` insert → create `profiles` row + default "My Map" + default tags + `map_members` owner entry (depends on: 1.3)
-- [ ] **Task 1.6** — Set up Supabase client in Expo (`supabase-js` + auth session management) (depends on: 1.1, 1.2)
-- [ ] **Task 1.7** — Build sign-in screen with Apple and Google Sign-In (depends on: 1.6)
-- [ ] **Task 1.8** — Set up auth-gated routing: unauthenticated → sign-in, authenticated → tabs (depends on: 1.7)
-- [ ] **Task 1.9** — Set up TanStack Query provider and Supabase query helpers (depends on: 1.6)
+- [x] **Task 1.1** — Initialize Expo project with Expo Router, NativeWind, and TypeScript config
+- [x] **Task 1.2** — Set up Supabase project: create database, enable auth providers (Apple, Google)
+- [x] **Task 1.3** — Write SQL migration: create all tables, constraints, indexes
+- [x] **Task 1.4** — Write SQL migration: create all RLS policies
+- [x] **Task 1.5** — Create database trigger: on `auth.users` insert → create `profiles` row + default "My Map" + default tags + `map_members` owner entry
+- [x] **Task 1.6** — Set up Supabase client in Expo (`supabase-js` + auth session management)
+- [x] **Task 1.7** — Build sign-in screen with Apple and Google Sign-In
+- [x] **Task 1.8** — Set up auth-gated routing: unauthenticated → sign-in, authenticated → tabs
+- [x] **Task 1.9** — Set up TanStack Query provider and Supabase query helpers
 
-### Milestone 2: Core Map Experience
+**Additional work completed:**
+- [x] Fixed RLS recursion on `map_members` with SECURITY DEFINER helper (`20260222000001`)
+- [x] Added policy for members to leave maps (`20260222000002`)
+- [x] Added user cleanup trigger on account deletion (`20260222000003`)
+
+### Milestone 2: Core Map Experience ✅
 
 The "retrieval" flow — seeing and filtering saved places on a map.
 
-- [ ] **Task 2.1** — Integrate Mapbox SDK (`@rnmapbox/maps`) with Expo, display basic map with user location (depends on: Milestone 1)
-- [ ] **Task 2.2** — Build Explore screen layout: map switcher dropdown at top, map/list toggle, map view as default (depends on: 2.1)
-- [ ] **Task 2.3** — Fetch active map's places + tags + visited status via TanStack Query (depends on: 1.9)
-- [ ] **Task 2.4** — Render saved places as custom Mapbox markers (emoji/color from tags) (depends on: 2.1, 2.3)
-- [ ] **Task 2.5** — Build place detail bottom sheet: name, address, tags, note, visited toggle, directions button (depends on: 2.4)
-- [ ] **Task 2.6** — Implement "Directions" button: open in default maps app via `Linking` (depends on: 2.5)
-- [ ] **Task 2.7** — Build filter bottom sheet: tag multi-select, visited/not-visited toggle, name search (depends on: 2.3)
-- [ ] **Task 2.8** — Implement client-side filtering logic, update map pins in real time (depends on: 2.7)
-- [ ] **Task 2.9** — Build list view: FlatList of place cards, same filter state as map (depends on: 2.3, 2.7)
-- [ ] **Task 2.10** — Implement map/list toggle, maintaining shared filter state (depends on: 2.8, 2.9)
-- [ ] **Task 2.11** — Implement pull-to-refresh on both map and list views (depends on: 2.3)
+- [x] **Task 2.1** — Integrate Mapbox SDK (`@rnmapbox/maps`) with Expo, display basic map with user location
+- [x] **Task 2.2** — Build Explore screen layout: map switcher dropdown at top, map/list toggle, map view as default
+- [x] **Task 2.3** — Fetch active map's places + tags + visited status via TanStack Query
+- [x] **Task 2.4** — Render saved places as custom Mapbox markers (emoji/color from tags)
+- [x] **Task 2.5** — Build place detail bottom sheet: name, address, tags, note, visited toggle, directions button
+- [x] **Task 2.6** — Implement "Directions" button: open in default maps app via `Linking`
+- [x] **Task 2.7** — Build filter bottom sheet: tag multi-select, visited/not-visited toggle, name search
+- [x] **Task 2.8** — Implement client-side filtering logic, update map pins in real time
+- [x] **Task 2.9** — Build list view: FlatList of place cards, same filter state as map
+- [x] **Task 2.10** — Implement map/list toggle, maintaining shared filter state
+- [x] **Task 2.11** — Implement pull-to-refresh on both map and list views
 
-### Milestone 3: Add Place Flow
+**Additional work completed:**
+- [x] Delete place functionality (`use-delete-place.ts`, button in place detail sheet)
+- [x] Edit tags on existing places (`use-update-place-tags.ts`, inline editing in place detail sheet)
+
+### Milestone 3: Add Place Flow ✅
 
 The "input" flow — saving a new recommendation.
 
-- [ ] **Task 3.1** — Set up Google Places API: get API key, configure billing, restrict key (depends on: nothing)
-- [ ] **Task 3.2** — Build Add screen: search input with Google Places Autocomplete (depends on: 3.1, Milestone 1)
-- [ ] **Task 3.3** — Build Save screen: place preview, tag picker (chips), note input, visited toggle, "Saving to [map]" label (depends on: 3.2)
-- [ ] **Task 3.4** — Implement save mutation: upsert place → insert map_place → insert tags → insert visited status (depends on: 3.3)
-- [ ] **Task 3.5** — Write `add-place` Edge Function: validate map membership, enforce 50-place free tier limit (depends on: 3.4)
-- [ ] **Task 3.6** — Cache invalidation: after save, refetch active map places so new pin appears on Explore (depends on: 3.4)
+- [x] **Task 3.1** — Set up Google Places API: get API key, configure billing, restrict key
+- [x] **Task 3.2** — Build Add screen: search input with Google Places Autocomplete
+- [x] **Task 3.3** — Build Save screen: place preview, tag picker (chips), note input, visited toggle, "Saving to [map]" label
+- [x] **Task 3.4** — Implement save mutation: upsert place → insert map_place → insert tags → insert visited status
+- [x] **Task 3.5** — Write `add-place` Edge Function: validate map membership, enforce 50-place free tier limit
+- [x] **Task 3.6** — Cache invalidation: after save, refetch active map places so new pin appears on Explore
 
-### Milestone 4: Map Management
+### Milestone 4: Map Management ✅
 
 Multiple maps, map switching, map settings.
 
-- [ ] **Task 4.1** — Build map switcher dropdown on Explore: list user's maps + "All Maps" option, set active map (depends on: Milestone 2)
-- [ ] **Task 4.2** — Implement "All Maps" query: fetch places across all user's maps (depends on: 4.1)
-- [ ] **Task 4.3** — Write `create-map` Edge Function: enforce 1-map free tier limit, create map + owner + default tags (depends on: Milestone 1)
-- [ ] **Task 4.4** — Build Profile screen: user info, list of maps with active indicator, create map button (depends on: Milestone 1)
-- [ ] **Task 4.5** — Build Map Settings screen: rename map, manage members, leave/delete map (depends on: 4.4)
-- [ ] **Task 4.6** — Build tag management UI on Map Settings: add/edit/delete tags with name, emoji, and color picker (depends on: 4.5)
+- [x] **Task 4.1** — Build map switcher dropdown on Explore: list user's maps + "All Maps" option, set active map
+- [x] **Task 4.2** — Implement "All Maps" query: fetch places across all user's maps
+- [x] **Task 4.3** — Write `create-map` Edge Function: enforce 1-map free tier limit, create map + owner + default tags
+- [x] **Task 4.4** — Build Profile screen: user info, list of maps with active indicator, create map button
+- [x] **Task 4.5** — Build Map Settings screen: rename map, manage members, leave/delete map
+- [x] **Task 4.6** — Build tag management UI on Map Settings: add/edit/delete tags with name, emoji, and color picker
 
-### Milestone 5: Sharing & Invites
+**Additional work completed:**
+- [x] Leave map functionality (`use-leave-map.ts`)
+
+### Milestone 5: Sharing & Invites ✅
 
 Invite links, deep linking, shared map access.
 
-- [ ] **Task 5.1** — Write `accept-invite` Edge Function: validate token, add user to map_members (depends on: Milestone 1)
-- [ ] **Task 5.2** — Build Invite screen: generate link button, copy/share via system share sheet (depends on: 4.5)
-- [ ] **Task 5.3** — Set up Expo deep linking for `mapvault.app/invite/[token]` URLs (depends on: Milestone 1)
-- [ ] **Task 5.4** — Build invite handler screen: validate token → add to map → redirect to Explore with new map active (depends on: 5.1, 5.3)
-- [ ] **Task 5.5** — Handle edge cases: expired invite, already a member, invalid token (depends on: 5.4)
+- [x] **Task 5.1** — Write `accept-invite` Edge Function: validate token, add user to map_members
+- [x] **Task 5.2** — Build Invite screen: generate link button, copy/share via system share sheet
+- [x] **Task 5.3** — Set up Expo deep linking for `mapvault://invite/[token]` URLs (custom scheme, not Universal Links yet)
+- [x] **Task 5.4** — Build invite handler screen: validate token → add to map → redirect to Explore with new map active
+- [x] **Task 5.5** — Handle edge cases: expired invite, already a member, invalid token
 
-### Milestone 6: Payments & Freemium
+### Milestone 6: Payments & Freemium ✅
 
 RevenueCat integration and premium gating.
 
-- [ ] **Task 6.1** — Set up RevenueCat: create project, configure Apple IAP product, link to Supabase user IDs (depends on: nothing)
-- [ ] **Task 6.2** — Write `revenuecat-webhook` Edge Function: receive events, update profiles.entitlement (depends on: 6.1)
-- [ ] **Task 6.3** — Build Paywall screen: feature comparison, purchase button using RevenueCat SDK (depends on: 6.1)
-- [ ] **Task 6.4** — Add premium gates in UI: intercept create-map and add-place when limits reached, redirect to paywall (depends on: 6.3)
-- [ ] **Task 6.5** — Test purchase flow end-to-end in sandbox (depends on: 6.4)
+- [x] **Task 6.1** — Set up RevenueCat: create project, configure Apple IAP product, link to Supabase user IDs
+- [x] **Task 6.2** — Write `revenuecat-webhook` Edge Function: receive events, update profiles.entitlement
+- [x] **Task 6.3** — Build Paywall screen: feature comparison, purchase button using RevenueCat SDK
+- [x] **Task 6.4** — Add premium gates in UI: intercept create-map and add-place when limits reached, redirect to paywall
+- [x] **Task 6.5** — Test purchase flow end-to-end in sandbox
+
+**Additional work completed:**
+- [x] Variant-aware RevenueCat (disabled in `.dev` builds, only active with production bundle ID)
+- [x] Client-side entitlement sync fallback via `CustomerInfoUpdate` listener
+- [x] Comprehensive payment testing documentation (`docs/payments.md`)
 
 ### Milestone 7: Polish & Launch
 
 Onboarding, edge cases, App Store submission.
 
 - [ ] **Task 7.1** — Build onboarding tooltip tour (2 steps: how to add, how to filter) shown on first launch (depends on: Milestone 2, 3)
-- [ ] **Task 7.2** — Implement visited toggle optimistic update (instant UI response) (depends on: 2.5)
+- [x] **Task 7.2** — Implement visited toggle optimistic update (instant UI response)
 - [ ] **Task 7.3** — Add loading states and error handling across all screens (depends on: all milestones)
 - [ ] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
-- [ ] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues (depends on: all milestones)
+- [x] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues
 - [ ] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
 - [ ] **Task 7.7** — Set up Universal Links: buy `mapvault.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://mapvault.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
 - [ ] **Task 7.8** — EAS build for App Store submission (depends on: all milestones)
 - [ ] **Task 7.9** — TestFlight beta testing (depends on: 7.8)
 - [ ] **Task 7.10** — App Store submission (depends on: 7.9)
+
+### Milestone 8: App Store Compliance (NEW)
+
+Items required for App Store approval that were not in the original plan.
+
+- [ ] **Task 8.1** — Account deletion UI: add "Delete Account" option in Profile screen. Apple requires apps with account creation to offer account deletion. The DB cleanup trigger already exists (`20260222000003`), but there is no user-facing flow to initiate deletion. (depends on: Milestone 1)
+- [ ] **Task 8.2** — Privacy policy & Terms of Service: write and host at a public URL. Required by App Store Connect before submission. (depends on: nothing)
+- [ ] **Task 8.3** — App privacy nutrition labels: declare data collection practices in App Store Connect (location, identifiers, usage data). (depends on: 8.2)
+- [ ] **Task 8.4** — App Store screenshots: generate screenshots for required device sizes (6.7", 6.5", 5.5" at minimum). (depends on: 7.6)
+- [ ] **Task 8.5** — Export compliance declaration in App Store Connect. (depends on: nothing)
+
+### Milestone 9: Missing Features & UX Gaps (NEW)
+
+Features referenced in the PRD or discovered as gaps during development.
+
+- [ ] **Task 9.1** — Edit place note: the place detail sheet shows notes read-only. Users can add a note when saving but cannot edit it afterward. Add an edit note UI to the place detail sheet. (depends on: Milestone 2)
+- [ ] **Task 9.2** — Empty state for Explore: when a user first signs up with zero places, show a "Save your first place" prompt or illustration on the empty map/list. PRD Section 5 mentions this under onboarding. (depends on: Milestone 2)
+- [ ] **Task 9.3** — Tag reordering: tags have a `position` column in the database but there is no UI to reorder them (e.g., drag-and-drop on Map Settings). (depends on: 4.6)
+- [ ] **Task 9.4** — Crash reporting: integrate Sentry (or similar) for production error monitoring. No crash reporting exists currently. (depends on: nothing)
+- [ ] **Task 9.5** — Analytics instrumentation: the PRD defines save frequency and retrieval frequency as core success metrics (PRD Section 6), but no analytics are tracked. (depends on: nothing)
 
 ---
 
@@ -1000,7 +1037,7 @@ Onboarding, edge cases, App Store submission.
 
 ### Open Questions (Technical)
 
-1. **Google Places API version** — The New (v2) API has different pricing and features than the legacy API. Need to verify autocomplete + place details pricing with session tokens.
-2. **Mapbox access token security** — The token is embedded in the app. Mapbox allows URL/bundle restrictions, but need to configure this properly.
-3. **Deep link domain** — Need to register `mapvault.app` (or similar) and set up Apple App Site Association for Universal Links.
-4. **Default tag set** — PRD lists "Restaurant", "Bar", "Friend". Technical plan adds "Cafe". Final list TBD.
+1. ~~**Google Places API version** — The New (v2) API has different pricing and features than the legacy API. Need to verify autocomplete + place details pricing with session tokens.~~ **RESOLVED:** Using Google Places API (New) with debounced autocomplete (300ms). Implemented in `lib/google-places.ts`.
+2. **Mapbox access token security** — The token is embedded in the app. Mapbox allows URL/bundle restrictions, but need to configure this properly. **STILL OPEN.**
+3. **Deep link domain** — Need to register `mapvault.app` (or similar) and set up Apple App Site Association for Universal Links. **STILL OPEN — currently using custom scheme `mapvault://` only (Task 7.7).**
+4. ~~**Default tag set** — PRD lists "Restaurant", "Bar", "Friend". Technical plan adds "Cafe". Final list TBD.~~ **RESOLVED:** Restaurant, Bar, Cafe, Friend — set in signup trigger and `create-map` Edge Function.
