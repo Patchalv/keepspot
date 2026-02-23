@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { identifyUser, resetUser } from '@/lib/analytics';
+import * as Sentry from '@sentry/react-native';
 import type { Session, User } from '@supabase/supabase-js';
 
 export function useAuth() {
@@ -21,8 +22,10 @@ export function useAuth() {
       setSession(session);
       if (session?.user) {
         identifyUser(session.user.id);
+        Sentry.setUser({ id: session.user.id, email: session.user.email });
       } else {
         resetUser();
+        Sentry.setUser(null);
       }
     });
 
