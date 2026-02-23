@@ -12,6 +12,7 @@ import { useFilteredPlaces } from '@/hooks/use-filtered-places';
 import { useToggleVisited } from '@/hooks/use-toggle-visited';
 import { useUpdatePlaceTags } from '@/hooks/use-update-place-tags';
 import { useDeletePlace } from '@/hooks/use-delete-place';
+import { useUpdatePlaceNote } from '@/hooks/use-update-place-note';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { ExploreHeader } from '@/components/explore-header/explore-header';
 import { MapMarkers } from '@/components/map-markers/map-markers';
@@ -45,6 +46,7 @@ export default function ExploreScreen() {
   const { mutate: toggleVisited } = useToggleVisited(activeMapId);
   const { mutate: updatePlaceTag } = useUpdatePlaceTags(activeMapId);
   const { mutate: deletePlace } = useDeletePlace(activeMapId);
+  const { mutate: updatePlaceNote } = useUpdatePlaceNote(activeMapId);
 
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('map');
@@ -170,6 +172,13 @@ export default function ExploreScreen() {
     [updatePlaceTag]
   );
 
+  const handleUpdateNote = useCallback(
+    (mapPlaceId: string, note: string | null) => {
+      updatePlaceNote({ mapPlaceId, note });
+    },
+    [updatePlaceNote]
+  );
+
   const handleDeletePlace = useCallback(
     (mapPlaceId: string) => {
       deletePlace(mapPlaceId);
@@ -246,6 +255,7 @@ export default function ExploreScreen() {
         availableTags={selectedPlaceTags ?? []}
         onToggleVisited={handleToggleVisited}
         onToggleTag={handleTogglePlaceTag}
+        onUpdateNote={handleUpdateNote}
         onDelete={handleDeletePlace}
         onClose={handleCloseDetail}
       />

@@ -1,6 +1,9 @@
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetScrollView,
+  BottomSheetTextInput,
+} from '@gorhom/bottom-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import type { MapPlaceWithDetails, Tag } from '@/types';
 import { openDirections } from '@/lib/directions';
@@ -15,21 +18,25 @@ interface PlaceDetailSheetProps {
     tag: Tag,
     currentlyAssigned: boolean
   ) => void;
+  onUpdateNote: (mapPlaceId: string, note: string | null) => void;
   onDelete: (mapPlaceId: string) => void;
   onClose: () => void;
 }
 
 export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
   function PlaceDetailSheet(
-    { place, availableTags, onToggleVisited, onToggleTag, onDelete, onClose },
+    { place, availableTags, onToggleVisited, onToggleTag, onUpdateNote, onDelete, onClose },
     ref
   ) {
     const isVisited = place?.place_visits[0]?.visited ?? false;
     const [isEditingTags, setIsEditingTags] = useState(false);
+    const [isEditingNote, setIsEditingNote] = useState(false);
+    const [draftNote, setDraftNote] = useState('');
 
     // Reset edit mode when place changes
     useEffect(() => {
       setIsEditingTags(false);
+      setIsEditingNote(false);
     }, [place?.id]);
 
     const assignedTagIds = new Set(
@@ -49,6 +56,22 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
       if (!place) return;
       onToggleVisited(place.id, !isVisited);
     }, [place, isVisited, onToggleVisited]);
+
+    const handleStartEditingNote = useCallback(() => {
+      setDraftNote(place?.note ?? '');
+      setIsEditingNote(true);
+    }, [place?.note]);
+
+    const handleSaveNote = useCallback(() => {
+      if (!place) return;
+      const trimmed = draftNote.trim();
+      onUpdateNote(place.id, trimmed || null);
+      setIsEditingNote(false);
+    }, [place, draftNote, onUpdateNote]);
+
+    const handleCancelNote = useCallback(() => {
+      setIsEditingNote(false);
+    }, []);
 
     const handleDelete = useCallback(() => {
       if (!place) return;
@@ -253,21 +276,112 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
               )}
 
               {/* Note */}
-              {place.note && (
-                <View
-                  style={{
-                    backgroundColor: '#F9FAFB',
-                    borderRadius: 12,
-                    padding: 12,
-                    marginBottom: 16,
-                  }}
-                >
-                  <Text
-                    style={{ fontSize: 14, color: '#374151', lineHeight: 20 }}
+              {isEditingNote ? (
+                <View style={{ marginBottom: 16 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 8,
+                    }}
                   >
-                    {place.note}
-                  </Text>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '500',
+                        color: '#6B7280',
+                      }}
+                    >
+                      Edit Note
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 16 }}>
+                      <Pressable onPress={handleCancelNote} hitSlop={8}>
+                        <FontAwesome name="times" size={16} color="#EF4444" />
+                      </Pressable>
+                      <Pressable onPress={handleSaveNote} hitSlop={8}>
+                        <FontAwesome name="check" size={16} color="#10B981" />
+                      </Pressable>
+                    </View>
+                  </View>
+                  <BottomSheetTextInput
+                    value={draftNote}
+                    onChangeText={setDraftNote}
+                    placeholder="Add a note..."
+                    multiline
+                    style={{
+                      backgroundColor: '#F9FAFB',
+                      borderRadius: 12,
+                      padding: 12,
+                      fontSize: 14,
+                      color: '#374151',
+                      lineHeight: 20,
+                      minHeight: 80,
+                      textAlignVertical: 'top',
+                      borderWidth: 1,
+                      borderColor: '#D1D5DB',
+                    }}
+                  />
                 </View>
+              ) : (
+                <Pressable
+                  onPress={handleStartEditingNote}
+                  style={{ marginBottom: 16 }}
+                >
+                  {place.note ? (
+                    <View
+                      style={{
+                        backgroundColor: '#F9FAFB',
+                        borderRadius: 12,
+                        padding: 12,
+                        flexDirection: 'row',
+                        alignItems: 'flex-start',
+                        gap: 8,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          flex: 1,
+                          fontSize: 14,
+                          color: '#374151',
+                          lineHeight: 20,
+                        }}
+                      >
+                        {place.note}
+                      </Text>
+                      <FontAwesome
+                        name="pencil"
+                        size={12}
+                        color="#9CA3AF"
+                        style={{ marginTop: 4 }}
+                      />
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: '#F3F4F6',
+                        borderRadius: 16,
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
+                        gap: 4,
+                        alignSelf: 'flex-start',
+                      }}
+                    >
+                      <FontAwesome name="pencil" size={11} color="#9CA3AF" />
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#9CA3AF',
+                        }}
+                      >
+                        Add note
+                      </Text>
+                    </View>
+                  )}
+                </Pressable>
               )}
 
               {/* Action Buttons */}
