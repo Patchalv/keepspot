@@ -10,16 +10,34 @@ import { useMaps } from '@/hooks/use-maps';
 import { useActiveMap } from '@/hooks/use-active-map';
 import { useCreateMap } from '@/hooks/use-create-map';
 import { useFreemiumGate } from '@/hooks/use-freemium-gate';
+import { LoadingState } from '@/components/loading-state/loading-state';
+import { ErrorState } from '@/components/error-state/error-state';
 import { FREE_TIER, LEGAL_URLS } from '@/lib/constants';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { data: profile } = useProfile();
-  const { data: mapMembers } = useMaps();
+  const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile, refetch: refetchProfile } = useProfile();
+  const { data: mapMembers, isLoading: isLoadingMaps, isError: isErrorMaps, refetch: refetchMaps } = useMaps();
   const { activeMapId } = useActiveMap();
   const { mutate: createMap, isPending: isCreating } = useCreateMap();
   const { handleMutationError } = useFreemiumGate();
+
+  const isLoading = isLoadingProfile || isLoadingMaps;
+  const isError = isErrorProfile || isErrorMaps;
+
+  if (isLoading) {
+    return <LoadingState message="Loading your profile..." />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        message="Couldn't load your profile. Check your connection and try again."
+        onRetry={() => { refetchProfile(); refetchMaps(); }}
+      />
+    );
+  }
 
   const maps = mapMembers ?? [];
   const ownedMapCount = maps.filter((m) => m.role === 'owner').length;

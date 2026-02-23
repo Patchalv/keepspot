@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Mapbox from '@/lib/mapbox';
@@ -20,6 +21,7 @@ import { PlaceDetailSheet } from '@/components/place-detail-sheet/place-detail-s
 import { FilterSheet } from '@/components/filter-sheet/filter-sheet';
 import { PlaceList } from '@/components/place-list/place-list';
 import { EmptyState } from '@/components/empty-state/empty-state';
+import { ErrorState } from '@/components/error-state/error-state';
 import { SpotlightTooltip } from '@/components/spotlight-tooltip/spotlight-tooltip';
 import type { Tag, ViewMode, VisitedFilter } from '@/types';
 
@@ -38,6 +40,8 @@ export default function ExploreScreen() {
 
   const {
     data: places,
+    isLoading: isLoadingPlaces,
+    isError: isErrorPlaces,
     isRefetching,
     refetch,
   } = activePlacesQuery;
@@ -220,9 +224,52 @@ export default function ExploreScreen() {
             <MapMarkers places={filteredPlaces} onPlacePress={handlePlacePress} />
           </Mapbox.MapView>
           {showEmptyState && <EmptyState variant="map" />}
+          {isLoadingPlaces && !showEmptyState && (
+            <View
+              pointerEvents="none"
+              className="absolute inset-0 z-[5] items-center justify-center"
+            >
+              <View className="rounded-2xl bg-white/90 p-4 shadow-lg">
+                <ActivityIndicator size="large" color="#3B82F6" />
+              </View>
+            </View>
+          )}
+          {isErrorPlaces && !isLoadingPlaces && !showEmptyState && (
+            <View
+              pointerEvents="box-none"
+              className="absolute inset-0 z-[5] items-center justify-center"
+            >
+              <View className="mx-8 items-center rounded-2xl bg-white/95 px-6 py-8 shadow-lg">
+                <View className="mb-4 h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                  <FontAwesome name="exclamation-circle" size={32} color="#EF4444" />
+                </View>
+                <Text className="mb-2 text-center text-lg font-semibold text-gray-900">
+                  Couldn&apos;t load places
+                </Text>
+                <Text className="mb-6 text-center text-sm text-gray-500">
+                  Check your connection and try again.
+                </Text>
+                <Pressable
+                  onPress={handleRefresh}
+                  className="rounded-full bg-blue-500 px-6 py-3 active:bg-blue-600"
+                >
+                  <Text className="text-base font-semibold text-white">Try Again</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
         </>
       ) : showEmptyState ? (
         <EmptyState variant="list" />
+      ) : isLoadingPlaces ? (
+        <View style={{ flex: 1, backgroundColor: '#F3F4F6' }} className="items-center justify-center">
+          <ActivityIndicator size="large" color="#3B82F6" />
+        </View>
+      ) : isErrorPlaces ? (
+        <ErrorState
+          message="Couldn't load places. Check your connection and try again."
+          onRetry={handleRefresh}
+        />
       ) : (
         <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
           <PlaceList

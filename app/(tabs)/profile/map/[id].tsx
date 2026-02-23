@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { View, Text, TextInput, Pressable, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -17,22 +17,24 @@ import { useCreateInvite } from '@/hooks/use-create-invite';
 import { TagEditor } from '@/components/tag-editor/tag-editor';
 import { InviteSection } from '@/components/invite-section/invite-section';
 import { InviteCreator } from '@/components/invite-creator/invite-creator';
+import { LoadingState } from '@/components/loading-state/loading-state';
+import { ErrorState } from '@/components/error-state/error-state';
 import type { Tag } from '@/types';
 
 export default function MapSettingsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { data: mapMembers } = useMaps();
-  const { data: tags } = useTags(id ?? null);
-  const { data: members } = useMapMembers(id ?? null);
+  const { data: mapMembers, isLoading: isLoadingMaps, isError: isErrorMaps, refetch: refetchMaps } = useMaps();
+  const { data: tags, isLoading: isLoadingTags } = useTags(id ?? null);
+  const { data: members, isLoading: isLoadingMembers } = useMapMembers(id ?? null);
   const { mutate: updateMap, isPending: isUpdating } = useUpdateMap();
   const { mutate: deleteMap, isPending: isDeleting } = useDeleteMap();
   const { mutate: leaveMap, isPending: isLeaving } = useLeaveMap();
   const { mutate: createTag, isPending: isCreatingTag } = useCreateTag();
   const { mutate: updateTag, isPending: isUpdatingTag } = useUpdateTag();
   const { mutate: deleteTag, isPending: isDeletingTag } = useDeleteTag();
-  const { data: invites } = useInvites(id ?? null);
+  const { data: invites, isLoading: isLoadingInvites } = useInvites(id ?? null);
   const { mutate: createInvite, isPending: isCreatingInvite } = useCreateInvite();
 
   const tagEditorRef = useRef<BottomSheetModal>(null);
@@ -175,6 +177,19 @@ export default function MapSettingsScreen() {
     [createInvite]
   );
 
+  if (isLoadingMaps) {
+    return <LoadingState />;
+  }
+
+  if (isErrorMaps) {
+    return (
+      <ErrorState
+        message="Couldn't load map details."
+        onRetry={refetchMaps}
+      />
+    );
+  }
+
   if (!map) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
@@ -254,7 +269,9 @@ export default function MapSettingsScreen() {
                 </Text>
               </Pressable>
             </View>
-            {tags && tags.length > 0 ? (
+            {isLoadingTags ? (
+              <ActivityIndicator size="small" color="#9CA3AF" />
+            ) : tags && tags.length > 0 ? (
               <View className="flex-row flex-wrap gap-2">
                 {tags.map((tag) => (
                   <Pressable
@@ -290,7 +307,9 @@ export default function MapSettingsScreen() {
                 Members
               </Text>
             </View>
-            {members?.map((member) => {
+            {isLoadingMembers ? (
+              <ActivityIndicator size="small" color="#9CA3AF" />
+            ) : members?.map((member) => {
               const name = member.profiles?.display_name ?? 'Unknown';
               const memberInitials = name
                 .split(' ')
@@ -339,6 +358,7 @@ export default function MapSettingsScreen() {
           {/* Invites Section */}
           <InviteSection
             invites={invites}
+            isLoading={isLoadingInvites}
             onCreateInvite={handleOpenInviteCreator}
           />
 

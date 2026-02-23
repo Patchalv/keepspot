@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Alert, View, Text, Pressable, Share } from 'react-native';
+import { ActivityIndicator, Alert, View, Text, Pressable, Share } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { APP_SCHEME } from '@/lib/constants';
@@ -7,6 +7,7 @@ import type { MapInvite } from '@/types';
 
 interface InviteSectionProps {
   invites: MapInvite[] | undefined;
+  isLoading?: boolean;
   onCreateInvite: () => void;
 }
 
@@ -38,7 +39,7 @@ function getInviteLink(token: string): string {
   return `${APP_SCHEME}://invite/${token}`;
 }
 
-export function InviteSection({ invites, onCreateInvite }: InviteSectionProps) {
+export function InviteSection({ invites, isLoading, onCreateInvite }: InviteSectionProps) {
   const handleShare = useCallback(async (token: string) => {
     const link = getInviteLink(token);
     await Share.share({
@@ -72,7 +73,9 @@ export function InviteSection({ invites, onCreateInvite }: InviteSectionProps) {
       </View>
 
       {/* Invite List */}
-      {invites && invites.length > 0 ? (
+      {isLoading ? (
+        <ActivityIndicator size="small" color="#9CA3AF" />
+      ) : invites && invites.length > 0 ? (
         <View>
           {invites.map((invite) => {
             const expired = isExpired(invite);

@@ -7,6 +7,7 @@ export function usePlaceSearch() {
   const { location } = useLocation();
   const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const search = useCallback(
@@ -25,10 +26,12 @@ export function usePlaceSearch() {
 
       timerRef.current = setTimeout(async () => {
         try {
+          setError(null);
           const results = await searchPlaces(input, location);
           setPredictions(results);
         } catch {
           setPredictions([]);
+          setError('Search failed. Check your connection and try again.');
         } finally {
           setIsSearching(false);
         }
@@ -43,7 +46,8 @@ export function usePlaceSearch() {
     }
     setPredictions([]);
     setIsSearching(false);
+    setError(null);
   }, []);
 
-  return { predictions, isSearching, search, clear };
+  return { predictions, isSearching, error, search, clear };
 }
