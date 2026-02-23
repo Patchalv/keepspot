@@ -105,7 +105,7 @@ export default function DeleteAccountScreen() {
               Active Subscription
             </Text>
             <Text className="mt-1 text-sm leading-5 text-amber-700">
-              You have an active subscription. Deleting your account won't
+              You have an active subscription. Deleting your account won&apos;t
               automatically cancel it. Please cancel in Settings {'>'} Apple ID{' '}
               {'>'} Subscriptions first.
             </Text>
