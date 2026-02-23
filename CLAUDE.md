@@ -11,7 +11,7 @@ Expo (React Native) + Supabase + Mapbox + Google Places API.
 - `npx tsc --noEmit` — TypeScript check (run after code changes)
 - `eas build --profile <name> --platform ios` — Build for iOS (see `docs/builds.md` for profiles)
 - `supabase db push` — Push migration to Supabase
-- `supabase functions deploy <name>` — Deploy Edge Function to Supabase
+- `supabase functions deploy <name> --no-verify-jwt` — Deploy Edge Function to Supabase
 - `supabase functions serve` — Run Edge Functions locally
 
 ## Architecture
@@ -109,6 +109,9 @@ functions/ ← Edge Functions
 - Never hardcode API keys. Use environment variables via `.env`
 - Mapbox tokens go in `app.json` under `plugins`
 - Google Places API key must be restricted in Google Cloud Console
+- Always deploy Edge Functions with `--no-verify-jwt` — the relay's JWT
+  verification rejects ES256 tokens. Functions validate auth internally via
+  `auth.getUser()` so this is safe.
 - When creating Supabase queries, always handle the error case
 - Bottom sheets use `@gorhom/bottom-sheet` — follow existing patterns
 - For new screens, create the route file in `app/` directory first

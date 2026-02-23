@@ -11,3 +11,4 @@ Follow these steps:
 5. Use service role key for operations that bypass RLS
 6. Return proper HTTP status codes and JSON error messages
 7. Add the function to the Edge Functions section of CLAUDE.md if new
+8. Deploy with `supabase functions deploy $ARGUMENTS --no-verify-jwt`
