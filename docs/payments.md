@@ -99,14 +99,15 @@ Defined in `lib/constants.ts`:
 
 ## Testing Guide
 
-### Simulator Limitations
+### Development Build Behavior
 
-The iOS simulator **cannot** make real purchases or fetch products from App Store Connect. On simulator:
-- Paywall shows the fallback price (€9.99) instead of the real App Store price
-- Subscribe button will fail (StoreKit can't resolve the product)
-- RevenueCat logs will show "Error fetching offerings"
+RevenueCat is **completely disabled** in development builds (`.dev` bundle ID). The SDK is never initialized because the API key is bound to the production bundle ID. This means:
+- No RevenueCat errors or logs in the console
+- Paywall shows the fallback price (€9.99) with the subscribe button disabled (no package)
+- Entitlement badge still works (reads from database)
+- Freemium gates still work (enforced server-side via Edge Functions)
 
-This is expected. **Use a physical device** for all purchase testing (see `docs/builds.md` for the `development:payments` build profile).
+This is by design. **Use the `development:payments` build profile** on a physical device for all purchase testing (see `docs/builds.md`).
 
 ### Webhook Testing (No Device Needed)
 

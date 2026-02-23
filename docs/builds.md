@@ -27,7 +27,7 @@ All profiles are defined in `eas.json`.
 
 ### `development` / `development:simulator` / `development:device`
 
-Standard development builds with the `.dev` bundle ID. Use for everyday development.
+Standard development builds with the `.dev` bundle ID. Use for everyday development. **RevenueCat is disabled** in these builds (the API key is only valid for the production bundle ID). Freemium limits and entitlements still work via server-side enforcement and the database. Use `development:payments` for payment testing.
 
 ```bash
 # Simulator
