@@ -4,6 +4,7 @@ import Purchases, { type PurchasesPackage } from 'react-native-purchases';
 import { useAuth } from '@/hooks/use-auth';
 import {
   configureRevenueCat,
+  isRevenueCatReady,
   identifyUser,
   getOfferings,
   purchasePackage,
@@ -21,6 +22,9 @@ export function useRevenueCat() {
     if (!user) return;
 
     configureRevenueCat();
+
+    if (!isRevenueCatReady()) return;
+
     identifyUser(user.id).then(async () => {
       // Sync entitlement to profile cache as client-side fallback
       try {
@@ -38,6 +42,8 @@ export function useRevenueCat() {
 
   // Listen for real-time purchase events
   useEffect(() => {
+    if (!isRevenueCatReady()) return;
+
     const listener = (customerInfo: import('react-native-purchases').CustomerInfo) => {
       const premium = isPremium(customerInfo);
       queryClient.setQueryData<Profile>(['profile'], (old) => {
@@ -57,7 +63,7 @@ export function useRevenueCat() {
     queryKey: ['rc-offerings'],
     queryFn: getOfferings,
     staleTime: 30 * 60 * 1000, // 30 minutes
-    enabled: !!user,
+    enabled: !!user && isRevenueCatReady(),
   });
 
   const purchase = useMutation({
