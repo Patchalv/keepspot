@@ -123,6 +123,7 @@ functions/ ← Edge Functions
 - `docs/technical-plan.md` — Technical plan (how to build it)
 - `docs/payments.md` — Payments system, RevenueCat, and testing guide
 - `docs/builds.md` — EAS build profiles and variants
+- `docs/analytics.md` — PostHog analytics events and instrumentation guide
 - Read these before starting any new milestone
 
 ## Skills & Commands
