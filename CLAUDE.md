@@ -5,11 +5,13 @@ Expo (React Native) + Supabase + Mapbox + Google Places API.
 
 ## Commands
 
-- `npx expo start` — Start dev server
-- `npx expo start --ios` — Start on iOS simulator
+- `npm run start:dev` — Start dev server (development variant, `.dev` bundle ID)
+- `npx expo start --dev-client` — Start dev server (production bundle ID, for payments testing)
 - `npx expo lint` — Run linter
 - `npx tsc --noEmit` — TypeScript check (run after code changes)
+- `eas build --profile <name> --platform ios` — Build for iOS (see `docs/builds.md` for profiles)
 - `supabase db push` — Push migration to Supabase
+- `supabase functions deploy <name>` — Deploy Edge Function to Supabase
 - `supabase functions serve` — Run Edge Functions locally
 
 ## Architecture
@@ -116,6 +118,8 @@ functions/ ← Edge Functions
 
 - `docs/prd.md` — Product requirements (what and why)
 - `docs/technical-plan.md` — Technical plan (how to build it)
+- `docs/payments.md` — Payments system, RevenueCat, and testing guide
+- `docs/builds.md` — EAS build profiles and variants
 - Read these before starting any new milestone
 
 ## Skills & Commands
