@@ -113,6 +113,7 @@ serve(async (req) => {
       },
     );
   } catch (err) {
+    console.error("revenuecat-webhook error:", err);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       {

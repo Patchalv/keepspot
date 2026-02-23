@@ -72,7 +72,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           "Allow $(PRODUCT_NAME) to use your location.",
       },
     ],
-    "react-native-purchases",
   ],
   extra: {
     revenueCatAppleApiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",

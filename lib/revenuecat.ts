@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import Purchases, {
+  LOG_LEVEL,
   type CustomerInfo,
   type PurchasesOfferings,
   type PurchasesPackage,
@@ -23,6 +24,10 @@ export function configureRevenueCat(): void {
     apiKey,
     appUserID: null, // anonymous until login
   });
+
+  if (__DEV__) {
+    Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+  }
 
   isConfigured = true;
 }
