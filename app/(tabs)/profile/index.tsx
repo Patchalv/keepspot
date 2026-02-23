@@ -219,6 +219,14 @@ export default function ProfileScreen() {
           Terms of Service
         </Text>
       </View>
+
+      {/* Delete Account */}
+      <Text
+        className="mt-3 text-center text-xs text-gray-400"
+        onPress={() => router.push('/(tabs)/profile/delete-account')}
+      >
+        Delete account
+      </Text>
     </ScrollView>
   );
 }
