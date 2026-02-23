@@ -12,11 +12,14 @@ import { useFilteredPlaces } from '@/hooks/use-filtered-places';
 import { useToggleVisited } from '@/hooks/use-toggle-visited';
 import { useUpdatePlaceTags } from '@/hooks/use-update-place-tags';
 import { useDeletePlace } from '@/hooks/use-delete-place';
+import { useOnboarding } from '@/hooks/use-onboarding';
 import { ExploreHeader } from '@/components/explore-header/explore-header';
 import { MapMarkers } from '@/components/map-markers/map-markers';
 import { PlaceDetailSheet } from '@/components/place-detail-sheet/place-detail-sheet';
 import { FilterSheet } from '@/components/filter-sheet/filter-sheet';
 import { PlaceList } from '@/components/place-list/place-list';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { SpotlightTooltip } from '@/components/spotlight-tooltip/spotlight-tooltip';
 import type { Tag, ViewMode, VisitedFilter } from '@/types';
 
 // Madrid fallback coordinates
@@ -57,6 +60,7 @@ export default function ExploreScreen() {
   // Refs
   const detailSheetRef = useRef<BottomSheet>(null);
   const filterSheetRef = useRef<BottomSheetModal>(null);
+  const filterButtonRef = useRef<View>(null);
 
   // Derived
   const filteredPlaces = useFilteredPlaces({
@@ -82,6 +86,36 @@ export default function ExploreScreen() {
     (isAllMaps ? 0 : selectedTagIds.length) +
     (visitedFilter !== 'all' ? 1 : 0) +
     (searchQuery ? 1 : 0);
+
+  // Onboarding
+  const { showEmptyState, showFilterSpotlight, dismissSpotlight } =
+    useOnboarding({
+      placesData: places,
+      activeFilterCount,
+    });
+
+  const [filterButtonRect, setFilterButtonRect] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (showFilterSpotlight) {
+      // Small delay to ensure layout is complete after data loads
+      const timer = setTimeout(() => {
+        filterButtonRef.current?.measureInWindow((x, y, width, height) => {
+          if (width > 0 && height > 0) {
+            setFilterButtonRect({ x, y, width, height });
+          }
+        });
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setFilterButtonRect(null);
+    }
+  }, [showFilterSpotlight]);
 
   // Reset filters when switching maps
   useEffect(() => {
@@ -159,22 +193,27 @@ export default function ExploreScreen() {
   return (
     <View style={{ flex: 1 }}>
       {viewMode === 'map' ? (
-        <Mapbox.MapView
-          style={{ flex: 1 }}
-          styleURL={Mapbox.StyleURL.Street}
-          logoEnabled={false}
-          attributionEnabled={false}
-          scaleBarEnabled={false}
-        >
-          <Mapbox.Camera
-            zoomLevel={13}
-            centerCoordinate={center}
-            animationMode="flyTo"
-            animationDuration={0}
-          />
-          <Mapbox.LocationPuck puckBearingEnabled puckBearing="heading" />
-          <MapMarkers places={filteredPlaces} onPlacePress={handlePlacePress} />
-        </Mapbox.MapView>
+        <>
+          <Mapbox.MapView
+            style={{ flex: 1 }}
+            styleURL={Mapbox.StyleURL.Street}
+            logoEnabled={false}
+            attributionEnabled={false}
+            scaleBarEnabled={false}
+          >
+            <Mapbox.Camera
+              zoomLevel={13}
+              centerCoordinate={center}
+              animationMode="flyTo"
+              animationDuration={0}
+            />
+            <Mapbox.LocationPuck puckBearingEnabled puckBearing="heading" />
+            <MapMarkers places={filteredPlaces} onPlacePress={handlePlacePress} />
+          </Mapbox.MapView>
+          {showEmptyState && <EmptyState variant="map" />}
+        </>
+      ) : showEmptyState ? (
+        <EmptyState variant="list" />
       ) : (
         <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
           <PlaceList
@@ -197,6 +236,7 @@ export default function ExploreScreen() {
         onOpenFilters={handleOpenFilters}
         activeFilterCount={activeFilterCount}
         onRefresh={viewMode === 'map' ? handleRefresh : undefined}
+        filterButtonRef={filterButtonRef}
       />
 
       {/* Place Detail Sheet */}
@@ -223,6 +263,16 @@ export default function ExploreScreen() {
         onClearAll={handleClearFilters}
         isAllMaps={isAllMaps}
       />
+
+      {/* Filter spotlight tooltip (onboarding step 2) */}
+      {showFilterSpotlight && filterButtonRect && (
+        <SpotlightTooltip
+          targetRect={filterButtonRect}
+          title="Filter your places"
+          description="Use filters to find places by tags, visited status, or search by name."
+          onDismiss={dismissSpotlight}
+        />
+      )}
     </View>
   );
 }

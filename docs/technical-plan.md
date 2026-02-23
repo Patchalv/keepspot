@@ -860,7 +860,7 @@ Receives purchase events from RevenueCat, updates `profiles.entitlement`.
 | Invite         | `(tabs)/profile/map/[id]/invite`           | Map invites                                           | Generate link button, share sheet, existing invite links                                                          |
 | Paywall        | `(tabs)/profile/paywall`                   | Profile entitlement                                   | Feature comparison, purchase button (RevenueCat)                                                                  |
 | Invite Handler | `invite/[token]` (deep link)               | None (Edge Function)                                  | Loading state → redirect to explore with new map active                                                           |
-| Onboarding     | Overlay on first explore load              | None                                                  | 2-step tooltip tour                                                                                               |
+| Onboarding     | Overlay on Explore (data-driven)           | Active map places                                     | Empty state card (map/list variants), filter spotlight tooltip overlay                                             |
 
 ### Navigation Structure
 
@@ -990,7 +990,7 @@ RevenueCat integration and premium gating.
 
 Onboarding, edge cases, App Store submission.
 
-- [ ] **Task 7.1** — Build onboarding tooltip tour (2 steps: how to add, how to filter) shown on first launch (depends on: Milestone 2, 3)
+- [x] **Task 7.1** — Build onboarding tooltip tour (2 steps: empty state prompt + filter spotlight) shown on first launch (depends on: Milestone 2, 3)
 - [x] **Task 7.2** — Implement visited toggle optimistic update (instant UI response)
 - [ ] **Task 7.3** — Add loading states and error handling across all screens (depends on: all milestones)
 - [ ] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
@@ -1016,7 +1016,7 @@ Items required for App Store approval that were not in the original plan.
 Features referenced in the PRD or discovered as gaps during development.
 
 - [ ] **Task 9.1** — Edit place note: the place detail sheet shows notes read-only. Users can add a note when saving but cannot edit it afterward. Add an edit note UI to the place detail sheet. (depends on: Milestone 2)
-- [ ] **Task 9.2** — Empty state for Explore: when a user first signs up with zero places, show a "Save your first place" prompt or illustration on the empty map/list. PRD Section 5 mentions this under onboarding. (depends on: Milestone 2)
+- [x] **Task 9.2** — Empty state for Explore: "Save your first place" card on empty map/list with CTA to Add tab. Combined with Task 7.1 onboarding flow. (depends on: Milestone 2)
 - [ ] **Task 9.3** — Tag reordering: tags have a `position` column in the database but there is no UI to reorder them (e.g., drag-and-drop on Map Settings). (depends on: 4.6)
 - [ ] **Task 9.4** — Crash reporting: integrate Sentry (or similar) for production error monitoring. No crash reporting exists currently. (depends on: nothing)
 - [ ] **Task 9.5** — Analytics instrumentation: the PRD defines save frequency and retrieval frequency as core success metrics (PRD Section 6), but no analytics are tracked. (depends on: nothing)

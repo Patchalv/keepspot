@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -20,6 +20,7 @@ interface ExploreHeaderProps {
   onOpenFilters: () => void;
   activeFilterCount: number;
   onRefresh?: () => void;
+  filterButtonRef?: RefObject<View | null>;
 }
 
 export function ExploreHeader({
@@ -32,6 +33,7 @@ export function ExploreHeader({
   onOpenFilters,
   activeFilterCount,
   onRefresh,
+  filterButtonRef,
 }: ExploreHeaderProps) {
   const insets = useSafeAreaInsets();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -125,19 +127,21 @@ export function ExploreHeader({
           )}
 
           {/* Filter button */}
-          <Pressable
-            className="relative h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm"
-            onPress={onOpenFilters}
-          >
-            <FontAwesome name="sliders" size={16} color="#374151" />
-            {activeFilterCount > 0 && (
-              <View className="absolute -right-1 -top-1 h-5 w-5 items-center justify-center rounded-full bg-blue-500">
-                <Text className="text-xs font-bold text-white">
-                  {activeFilterCount}
-                </Text>
-              </View>
-            )}
-          </Pressable>
+          <View ref={filterButtonRef} collapsable={false}>
+            <Pressable
+              className="relative h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm"
+              onPress={onOpenFilters}
+            >
+              <FontAwesome name="sliders" size={16} color="#374151" />
+              {activeFilterCount > 0 && (
+                <View className="absolute -right-1 -top-1 h-5 w-5 items-center justify-center rounded-full bg-blue-500">
+                  <Text className="text-xs font-bold text-white">
+                    {activeFilterCount}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+          </View>
 
           {/* View toggle */}
           <Pressable
