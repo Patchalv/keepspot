@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
+import { View, Text, Pressable, Alert, ScrollView, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -10,7 +10,7 @@ import { useMaps } from '@/hooks/use-maps';
 import { useActiveMap } from '@/hooks/use-active-map';
 import { useCreateMap } from '@/hooks/use-create-map';
 import { useFreemiumGate } from '@/hooks/use-freemium-gate';
-import { FREE_TIER } from '@/lib/constants';
+import { FREE_TIER, LEGAL_URLS } from '@/lib/constants';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -202,6 +202,23 @@ export default function ProfileScreen() {
       >
         <Text className="text-base font-semibold text-red-600">Sign Out</Text>
       </Pressable>
+
+      {/* Legal Links */}
+      <View className="mt-4 flex-row justify-center">
+        <Text
+          className="text-xs text-gray-400"
+          onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
+        >
+          Privacy Policy
+        </Text>
+        <Text className="mx-2 text-xs text-gray-300">|</Text>
+        <Text
+          className="text-xs text-gray-400"
+          onPress={() => Linking.openURL(LEGAL_URLS.terms)}
+        >
+          Terms of Service
+        </Text>
+      </View>
     </ScrollView>
   );
 }

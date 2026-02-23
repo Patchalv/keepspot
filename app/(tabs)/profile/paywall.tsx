@@ -1,9 +1,10 @@
-import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, Alert, ActivityIndicator, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRevenueCat } from '@/hooks/use-revenuecat';
 import { useProfile } from '@/hooks/use-profile';
+import { LEGAL_URLS } from '@/lib/constants';
 
 export default function PaywallScreen() {
   const { data: profile } = useProfile();
@@ -174,6 +175,25 @@ export default function PaywallScreen() {
                 </Text>
               )}
             </Pressable>
+
+            {/* Legal links (required by Apple for auto-renewable subscriptions) */}
+            <Text className="mt-4 text-center text-xs leading-5 text-gray-400">
+              By subscribing, you agree to our{' '}
+              <Text
+                className="text-xs text-gray-500 underline"
+                onPress={() => Linking.openURL(LEGAL_URLS.terms)}
+              >
+                Terms of Service
+              </Text>{' '}
+              and{' '}
+              <Text
+                className="text-xs text-gray-500 underline"
+                onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
+              >
+                Privacy Policy
+              </Text>
+              .
+            </Text>
           </>
         )}
       </View>

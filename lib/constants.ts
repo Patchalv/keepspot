@@ -21,6 +21,11 @@ export const ERROR_CODES = {
   freemiumLimitExceeded: 'FREEMIUM_LIMIT_EXCEEDED',
 } as const;
 
+export const LEGAL_URLS = {
+  privacy: 'https://mapvault.app/privacy',
+  terms: 'https://mapvault.app/terms',
+} as const;
+
 export const TAG_COLORS = [
   '#EF4444', // red
   '#F97316', // orange
