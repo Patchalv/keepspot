@@ -1,9 +1,17 @@
 import { signInWithApple, signInWithGoogle } from "@/lib/auth";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as AppleAuthentication from "expo-apple-authentication";
+import { useEffect, useState } from "react";
 import { Alert, Image, Platform, Pressable, Text, View } from "react-native";
 
 export default function SignInScreen() {
+  const [appleAvailable, setAppleAvailable] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === "ios") {
+      AppleAuthentication.isAvailableAsync().then(setAppleAvailable);
+    }
+  }, []);
   const handleAppleSignIn = async () => {
     try {
       const result = await signInWithApple();
@@ -41,7 +49,7 @@ export default function SignInScreen() {
       </Text>
 
       <View className="w-full gap-4">
-        {Platform.OS === "ios" && (
+        {appleAvailable && (
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={
               AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN

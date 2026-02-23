@@ -6,7 +6,10 @@ import { supabase } from '@/lib/supabase';
 export async function signInWithGoogle(): Promise<
   { success: true } | { success: false; error: string }
 > {
-  const redirectTo = makeRedirectUri();
+  const redirectTo = makeRedirectUri({ scheme: 'mapvault' });
+  if (__DEV__) {
+    console.log('[Auth] Redirect URI:', redirectTo);
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
