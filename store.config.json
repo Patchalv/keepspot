@@ -1,0 +1,19 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "MapVault",
+        "subtitle": "Save & rediscover places",
+        "description": "Stop losing great recommendations. MapVault helps you save places from friends, social media, and your own discoveries — then find the right one when you need it.\n\nSearch for any restaurant, bar, cafe, or spot by name, tag it, add a note, and save it to your map. When it's time to go out, filter by tag or visited status to find exactly what you're looking for, right where you are.\n\nFeatures:\n\n- Save places with tags, notes, and visited status\n- See all your saved places on an interactive map\n- Filter by tag, visited/not visited, or search by name\n- Get directions to any saved place in one tap\n- Create multiple maps for different cities or occasions\n- Share maps with your partner or friends — everyone can add and browse places\n- Personal visited tracking — your status stays private on shared maps\n\nMapVault is free to use with one map and up to 50 saved places. Upgrade to Premium for unlimited maps, unlimited places, and shared maps.",
+        "keywords": ["places", "map", "recommendations", "restaurants", "bars", "travel", "food", "saved places", "city guide"],
+        "releaseNotes": "Initial release of MapVault.",
+        "promoText": "Never waste a trusted recommendation again.",
+        "supportUrl": "https://mapvault.app/support",
+        "privacyPolicyUrl": "https://mapvault.app/privacy",
+        "marketingUrl": "https://mapvault.app"
+      }
+    },
+    "categories": ["TRAVEL", "FOOD_AND_DRINK"]
+  }
+}

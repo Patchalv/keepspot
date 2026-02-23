@@ -26,11 +26,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   owner: "patchalv",
-  splash: {
-    image: "./assets/images/splash-icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#F8F4E8",
-  },
   ios: {
     supportsTablet: false,
     icon: "./assets/images/icon.png",
@@ -65,6 +60,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-apple-authentication",
     "@rnmapbox/maps",
+    [
+      "expo-splash-screen",
+      {
+        backgroundColor: "#F8F4E8",
+        image: "./assets/images/splash-icon.png",
+        imageWidth: 200,
+      },
+    ],
     [
       "expo-location",
       {

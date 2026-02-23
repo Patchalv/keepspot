@@ -995,7 +995,7 @@ Onboarding, edge cases, App Store submission.
 - [ ] **Task 7.3** — Add loading states and error handling across all screens (depends on: all milestones)
 - [ ] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
 - [x] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues
-- [ ] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
+- [x] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
 - [ ] **Task 7.7** — Set up Universal Links: buy `mapvault.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://mapvault.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
 - [ ] **Task 7.8** — EAS build for App Store submission (depends on: all milestones)
 - [ ] **Task 7.9** — TestFlight beta testing (depends on: 7.8)
