@@ -2,14 +2,16 @@
 
 Changes required on the mapvault.app marketing website to support iOS Universal Links and Android App Links for MapVault's invite flow.
 
+**Important:** The app registers both `mapvault.app` and `www.mapvault.app` for universal links. The `.well-known` files below **must be served from both domains**. Apple does not follow redirects when fetching the AASA file, so a redirect from one domain to the other is not sufficient — both must serve the files directly.
+
 ## 1. Apple App Site Association (AASA) File
 
 **Path:** `/.well-known/apple-app-site-association`
 
 **Requirements:**
-- Served at exactly `https://mapvault.app/.well-known/apple-app-site-association`
+- Served at both `https://mapvault.app/.well-known/apple-app-site-association` and `https://www.mapvault.app/.well-known/apple-app-site-association`
 - `Content-Type: application/json`
-- No redirects (must resolve directly at that path)
+- No redirects (must resolve directly at that path on each domain)
 - Accessible over HTTPS
 - No file extension (not `.json`)
 
@@ -29,14 +31,18 @@ Changes required on the mapvault.app marketing website to support iOS Universal 
 }
 ```
 
-**Validation:** After deploying, verify at `https://app-site-association.cdn-apple.com/a/v1/mapvault.app` — Apple caches this file via their CDN. Initial propagation can take up to 24 hours.
+**Validation:** After deploying, verify at both:
+- `https://app-site-association.cdn-apple.com/a/v1/mapvault.app`
+- `https://app-site-association.cdn-apple.com/a/v1/www.mapvault.app`
+
+Apple caches this file via their CDN. Initial propagation can take up to 24 hours.
 
 ## 2. Android Asset Links File
 
 **Path:** `/.well-known/assetlinks.json`
 
 **Requirements:**
-- Served at exactly `https://mapvault.app/.well-known/assetlinks.json`
+- Served at both `https://mapvault.app/.well-known/assetlinks.json` and `https://www.mapvault.app/.well-known/assetlinks.json`
 - `Content-Type: application/json`
 - No redirects
 
@@ -56,6 +62,10 @@ Changes required on the mapvault.app marketing website to support iOS Universal 
 ```
 
 **Note:** If you later enroll in Google Play App Signing, you'll also need to add Google Play's signing certificate fingerprint to the array (found in Google Play Console > Setup > App signing).
+
+**Validation:** After deploying, verify at both:
+- `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://mapvault.app&relation=delegate_permission/common.handle_all_urls`
+- `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://www.mapvault.app&relation=delegate_permission/common.handle_all_urls`
 
 ## 3. Invite Fallback Page
 
@@ -83,7 +93,7 @@ When invite links are shared in messaging apps (iMessage, WhatsApp, Slack), they
 <meta property="og:title" content="You've been invited to a map on MapVault" />
 <meta property="og:description" content="Tap to open in MapVault and start exploring saved places." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://mapvault.app/invite/{token}" />
+<meta property="og:url" content="https://www.mapvault.app/invite/{token}" />
 ```
 
 ### Reference Implementation
@@ -123,9 +133,9 @@ This is a minimal reference. Adapt the styling to match the mapvault.app marketi
 
 ## Summary Checklist
 
-- [ ] Serve AASA file at `/.well-known/apple-app-site-association` (exact content above, no redirects, `application/json`)
-- [ ] Serve Android asset links at `/.well-known/assetlinks.json` (replace SHA-256 placeholder)
+- [ ] Serve AASA file at `/.well-known/apple-app-site-association` on **both** `mapvault.app` and `www.mapvault.app` (exact content above, no redirects, `application/json`)
+- [ ] Serve Android asset links at `/.well-known/assetlinks.json` on **both** domains
 - [ ] Create `/invite/[token]` fallback page with app deep link, auto-redirect on mobile, and App Store link
 - [ ] Add Open Graph meta tags to invite fallback page for link preview cards
-- [ ] Verify AASA via `https://app-site-association.cdn-apple.com/a/v1/mapvault.app` (may take up to 24h)
-- [ ] Verify Android asset links via `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://mapvault.app&relation=delegate_permission/common.handle_all_urls`
+- [ ] Verify AASA via Apple CDN for both domains (may take up to 24h)
+- [ ] Verify Android asset links via Google DAL API for both domains

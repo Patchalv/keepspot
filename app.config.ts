@@ -37,7 +37,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         "MapVault uses your location to show saved places near you on the map.",
       ITSAppUsesNonExemptEncryption: false,
     },
-    associatedDomains: ["applinks:mapvault.app"],
+    associatedDomains: ["applinks:mapvault.app", "applinks:www.mapvault.app"],
     entitlements: {
       "com.apple.developer.applesignin": ["Default"],
     },
@@ -58,6 +58,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           {
             scheme: "https",
             host: "mapvault.app",
+            pathPrefix: "/invite/",
+          },
+          {
+            scheme: "https",
+            host: "www.mapvault.app",
             pathPrefix: "/invite/",
           },
         ],

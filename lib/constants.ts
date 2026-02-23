@@ -15,7 +15,7 @@ export const PLACES_SEARCH = {
 
 export const APP_SCHEME = 'mapvault';
 
-export const APP_DOMAIN = 'https://mapvault.app';
+export const APP_DOMAIN = 'https://www.mapvault.app';
 
 export const ALL_MAPS_ID = '__all__' as const;
 
@@ -24,8 +24,8 @@ export const ERROR_CODES = {
 } as const;
 
 export const LEGAL_URLS = {
-  privacy: 'https://mapvault.app/privacy',
-  terms: 'https://mapvault.app/terms',
+  privacy: 'https://www.mapvault.app/privacy',
+  terms: 'https://www.mapvault.app/terms',
 } as const;
 
 export const TAG_COLORS = [
