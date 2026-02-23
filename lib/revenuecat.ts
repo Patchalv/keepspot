@@ -16,8 +16,9 @@ export function isRevenueCatReady(): boolean {
 export function configureRevenueCat(): void {
   if (isConfigured) return;
 
-  const apiKey =
-    (Constants.expoConfig?.extra?.revenueCatAppleApiKey as string) ?? '';
+  const apiKey = Platform.OS === 'ios'
+    ? (Constants.expoConfig?.extra?.revenueCatAppleApiKey as string) ?? ''
+    : (Constants.expoConfig?.extra?.revenueCatGoogleApiKey as string) ?? '';
 
   if (!apiKey) {
     console.warn('RevenueCat: No API key configured');
