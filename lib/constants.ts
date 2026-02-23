@@ -15,6 +15,8 @@ export const PLACES_SEARCH = {
 
 export const APP_SCHEME = 'mapvault';
 
+export const APP_DOMAIN = 'https://mapvault.app';
+
 export const ALL_MAPS_ID = '__all__' as const;
 
 export const ERROR_CODES = {

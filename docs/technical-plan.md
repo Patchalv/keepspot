@@ -1000,7 +1000,7 @@ Onboarding, edge cases, App Store submission.
 - [x] **Task 7.4** — Handle "Saving to [map name]" confirmation on Add flow when in "All Maps" view (depends on: 4.2, 3.3)
 - [x] **Task 7.5** — Test on physical iOS device, fix any Mapbox or auth issues
 - [x] **Task 7.6** — App icon, splash screen, App Store metadata (depends on: nothing)
-- [ ] **Task 7.7** — Set up Universal Links: buy `mapvault.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://mapvault.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
+- [x] **Task 7.7** — Set up Universal Links: buy `mapvault.app` domain, host Apple App Site Association file, add `associatedDomains` to `app.config.ts`, update invite link format to `https://mapvault.app/invite/[token]` with fallback to App Store for users without the app (depends on: Milestone 5)
 - [ ] **Task 7.8** — EAS build for App Store submission (depends on: all milestones)
 - [ ] **Task 7.9** — TestFlight beta testing (depends on: 7.8)
 - [ ] **Task 7.10** — App Store submission (depends on: 7.9)
@@ -1022,8 +1022,8 @@ Features referenced in the PRD or discovered as gaps during development.
 - [x] **Task 9.1** — Edit place note: the place detail sheet shows notes read-only. Users can add a note when saving but cannot edit it afterward. Add an edit note UI to the place detail sheet. (depends on: Milestone 2)
 - [x] **Task 9.2** — Empty state for Explore: "Save your first place" card on empty map/list with CTA to Add tab. Combined with Task 7.1 onboarding flow. (depends on: Milestone 2)
 - [ ] **Task 9.3** — Tag reordering: tags have a `position` column in the database but there is no UI to reorder them (e.g., drag-and-drop on Map Settings). (depends on: 4.6)
-- [ ] **Task 9.4** — Crash reporting: integrate Sentry (or similar) for production error monitoring. No crash reporting exists currently. (depends on: nothing)
-- [ ] **Task 9.5** — Analytics instrumentation: the PRD defines save frequency and retrieval frequency as core success metrics (PRD Section 6), but no analytics are tracked. (depends on: nothing)
+- [x] **Task 9.4** — Crash reporting: integrate Sentry (or similar) for production error monitoring. No crash reporting exists currently. (depends on: nothing)
+- [x] **Task 9.5** — Analytics instrumentation: the PRD defines save frequency and retrieval frequency as core success metrics (PRD Section 6), but no analytics are tracked. (depends on: nothing)
 
 ---
 
@@ -1043,5 +1043,5 @@ Features referenced in the PRD or discovered as gaps during development.
 
 1. ~~**Google Places API version** — The New (v2) API has different pricing and features than the legacy API. Need to verify autocomplete + place details pricing with session tokens.~~ **RESOLVED:** Using Google Places API (New) with debounced autocomplete (300ms). Implemented in `lib/google-places.ts`.
 2. **Mapbox access token security** — The token is embedded in the app. Mapbox allows URL/bundle restrictions, but need to configure this properly. **STILL OPEN.**
-3. **Deep link domain** — Need to register `mapvault.app` (or similar) and set up Apple App Site Association for Universal Links. **STILL OPEN — currently using custom scheme `mapvault://` only (Task 7.7).**
+3. ~~**Deep link domain** — Need to register `mapvault.app` (or similar) and set up Apple App Site Association for Universal Links.~~ **RESOLVED:** Domain `mapvault.app` registered. iOS `associatedDomains` and Android `intentFilters` configured in `app.config.ts`. Invite links now use `https://mapvault.app/invite/[token]`. AASA and `assetlinks.json` specs in `docs/universal-links-website.md`. Custom scheme `mapvault://` kept as fallback.
 4. ~~**Default tag set** — PRD lists "Restaurant", "Bar", "Friend". Technical plan adds "Cafe". Final list TBD.~~ **RESOLVED:** Restaurant, Bar, Cafe, Friend — set in signup trigger and `create-map` Edge Function.

@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, View, Text, Pressable, Share } from 'react-na
 import * as Clipboard from 'expo-clipboard';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { track } from '@/lib/analytics';
-import { APP_SCHEME } from '@/lib/constants';
+import { APP_DOMAIN } from '@/lib/constants';
 import type { MapInvite } from '@/types';
 
 interface InviteSectionProps {
@@ -37,7 +37,7 @@ function formatUses(invite: MapInvite): string {
 }
 
 function getInviteLink(token: string): string {
-  return `${APP_SCHEME}://invite/${token}`;
+  return `${APP_DOMAIN}/invite/${token}`;
 }
 
 export function InviteSection({ invites, isLoading, onCreateInvite }: InviteSectionProps) {

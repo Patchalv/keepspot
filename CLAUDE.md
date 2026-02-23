@@ -59,7 +59,9 @@ Expo (React Native) + Supabase + Mapbox + Google Places API.
 
 - Use `router.push()` / `router.replace()` from `expo-router`
 - For links: `<Link href="/explore">` from `expo-router`
-- Deep links use scheme `mapvault://` (configured in app.json)
+- Invite links use Universal Links: `https://mapvault.app/invite/[token]`
+- Custom scheme `mapvault://` is kept as fallback (used by web fallback page)
+- iOS: `associatedDomains` in `app.config.ts`; Android: `intentFilters` in `app.config.ts`
 - Tab layout: `(tabs)/` with three tabs: explore, add, profile
 - Auth routing: `(auth)/` group for unauthenticated screens
 
@@ -71,7 +73,7 @@ app/ ← Expo Router file-based routes
 explore/ ← Map/list view
 add/ ← Add place flow
 profile/ ← Profile & map management
-invite/[token].tsx ← Deep link handler
+invite/[token].tsx ← Universal Link / deep link handler
 components/ ← Shared UI components
 hooks/ ← Custom hooks (data fetching, auth, etc.)
 lib/ ← Utilities (supabase client, constants)
@@ -125,6 +127,7 @@ functions/ ← Edge Functions
 - `docs/builds.md` — EAS build profiles and variants
 - `docs/analytics.md` — PostHog analytics events and instrumentation guide
 - `docs/sentry.md` — Sentry error tracking, config, and MCP tools guide
+- `docs/universal-links-website.md` — AASA, assetlinks.json, and invite fallback page specs for mapvault.app
 - Read these before starting any new milestone
 
 ## Skills & Commands

@@ -50,6 +50,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: getBundleId(),
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
+    intentFilters: [
+      {
+        action: "VIEW",
+        autoVerify: true,
+        data: [
+          {
+            scheme: "https",
+            host: "mapvault.app",
+            pathPrefix: "/invite/",
+          },
+        ],
+        category: ["BROWSABLE", "DEFAULT"],
+      },
+    ],
   },
   web: {
     bundler: "metro",

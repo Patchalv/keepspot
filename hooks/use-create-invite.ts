@@ -3,7 +3,7 @@ import * as Crypto from 'expo-crypto';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/use-auth';
 import { track } from '@/lib/analytics';
-import { APP_SCHEME } from '@/lib/constants';
+import { APP_DOMAIN } from '@/lib/constants';
 import type { MapInvite, MapRole } from '@/types';
 
 interface CreateInviteInput {
@@ -48,7 +48,7 @@ export function useCreateInvite() {
 
       return {
         invite: data,
-        link: `${APP_SCHEME}://invite/${token}`,
+        link: `${APP_DOMAIN}/invite/${token}`,
       };
     },
     onSuccess: (_data, variables) => {
