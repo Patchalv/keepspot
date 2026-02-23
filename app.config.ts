@@ -108,6 +108,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     revenueCatAppleApiKey: IS_DEV
       ? ""
       : (process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? ""),
+    revenueCatGoogleApiKey: IS_DEV
+      ? ""
+      : (process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY ?? ""),
     eas: {
       projectId: "1ec7ed48-2f17-4c59-9e71-0f5aea7ea1f7",
     },
