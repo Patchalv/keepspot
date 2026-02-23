@@ -104,6 +104,7 @@ export default function SaveScreen() {
       },
       {
         onSuccess: () => {
+          router.dismiss();
           router.replace('/(tabs)/explore');
         },
         onError: (error) => {
