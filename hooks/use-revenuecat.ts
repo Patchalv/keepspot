@@ -49,11 +49,12 @@ export function useRevenueCat() {
     const listener = (customerInfo: import('react-native-purchases').CustomerInfo) => {
       const premium = isPremium(customerInfo);
       updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
+      // Cancel in-flight refetches so they don't overwrite this update
+      queryClient.cancelQueries({ queryKey: ['profile'] });
       queryClient.setQueryData<Profile>(['profile'], (old) => {
         if (!old) return old;
         return { ...old, entitlement: premium ? 'premium' : 'free' };
       });
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
     };
 
     Purchases.addCustomerInfoUpdateListener(listener);
@@ -71,15 +72,33 @@ export function useRevenueCat() {
 
   const purchase = useMutation({
     mutationFn: (pkg: PurchasesPackage) => purchasePackage(pkg),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    onSuccess: (customerInfo) => {
+      const premium = isPremium(customerInfo);
+      queryClient.cancelQueries({ queryKey: ['profile'] });
+      queryClient.setQueryData<Profile>(['profile'], (old) => {
+        if (!old) return old;
+        return { ...old, entitlement: premium ? 'premium' : 'free' };
+      });
+      // Delayed invalidation — gives webhook time to update DB
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+      }, 10_000);
     },
   });
 
   const restore = useMutation({
     mutationFn: restorePurchases,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    onSuccess: (customerInfo) => {
+      const premium = isPremium(customerInfo);
+      queryClient.cancelQueries({ queryKey: ['profile'] });
+      queryClient.setQueryData<Profile>(['profile'], (old) => {
+        if (!old) return old;
+        return { ...old, entitlement: premium ? 'premium' : 'free' };
+      });
+      // Delayed invalidation — gives webhook time to update DB
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+      }, 10_000);
     },
   });
 
