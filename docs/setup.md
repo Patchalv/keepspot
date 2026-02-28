@@ -34,7 +34,8 @@ cp .env.example .env
 | `EXPO_PUBLIC_SUPABASE_URL` | [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API → Project URL |
 | `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Same page → `anon` `public` key |
 | `EXPO_PUBLIC_MAPBOX_TOKEN` | [Mapbox Account](https://account.mapbox.com/) → Access tokens |
-| `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY` | [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials |
+| `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS` | [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials (restricted to iOS bundle ID) |
+| `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID` | Same — separate key restricted to Android package name + SHA-1 |
 | `EXPO_PUBLIC_POSTHOG_API_KEY` | [PostHog](https://eu.posthog.com/) → Project Settings → Project API Key |
 | `EXPO_PUBLIC_POSTHOG_HOST` | `https://eu.i.posthog.com` (EU instance, hardcoded) |
 | `EXPO_PUBLIC_REVENUECAT_API_KEY` | [RevenueCat Dashboard](https://app.revenuecat.com/) → Project → API Keys → Apple public key |

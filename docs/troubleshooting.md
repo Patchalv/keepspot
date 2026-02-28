@@ -99,9 +99,10 @@ Freemium limits are enforced server-side in Edge Functions, so there's no client
 **Symptom:** Place search shows nothing or returns generic results.
 
 **Check:**
-- `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY` is set in `.env`
-- The key has "Places API (New)" enabled in Google Cloud Console
-- The key's iOS bundle ID restriction matches your build variant's bundle ID
+- `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS` and `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID` are set in `.env`
+- Both keys have "Places API (New)" enabled in Google Cloud Console
+- The iOS key's bundle ID restriction matches your build variant's bundle ID
+- The Android key's package name + SHA-1 restriction matches your build
 - If no location permission granted, search results lack location bias (expected — results are just less relevant)
 
 ## Auth & Sign-In

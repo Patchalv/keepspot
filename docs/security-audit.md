@@ -8,6 +8,7 @@
 ## Session 1: Immediate — Credential Rotation & Git Cleanup
 
 ### 1.1 Rotate all exposed API keys
+
 The `.env` file was committed to git history. Even though it's now in `.gitignore`, all keys are extractable from past commits.
 
 - [ ] Rotate Mapbox token in the Mapbox dashboard
@@ -21,20 +22,23 @@ The `.env` file was committed to git history. Even though it's now in `.gitignor
 - [ ] Verify app still works with new keys
 
 ### 1.2 Purge `.env` from git history — DONE (2026-02-28)
+
 - [x] Used `git-filter-repo --invert-paths --path .env` to rewrite history
 - [x] Force pushed cleaned history to origin
 - [x] Verified `.env` is gone from all commits: `git log --all --full-history -- .env` returns nothing
 - [x] Confirmed `.env` still exists locally and is in `.gitignore`
 
 ### 1.3 Add `.env.example` with placeholder values
-- [ ] Ensure `.env.example` exists with dummy values (no real keys)
-- [ ] Verify `.env` is in `.gitignore` (already is, but double-check)
+
+- [x] Ensure `.env.example` exists with dummy values (no real keys)
+- [x] Verify `.env` is in `.gitignore` (already is, but double-check)
 
 ---
 
 ## Session 2: High Priority — Google Places API Proxy
 
 ### 2.1 Create `search-places` Edge Function
+
 The Google Places API key currently ships in the client binary via `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY`. Anyone can extract it and abuse it.
 
 - [ ] Create `supabase/functions/search-places/index.ts`
@@ -46,8 +50,9 @@ The Google Places API key currently ships in the client binary via `EXPO_PUBLIC_
 - [ ] Deploy with `supabase functions deploy search-places --no-verify-jwt`
 
 ### 2.2 Update client to use Edge Function
+
 - [ ] Update `lib/google-places.ts` to call the Edge Function instead of Google directly
-- [ ] Remove `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY` from `.env` and app config
+- [ ] Remove `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS` and `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID` from `.env` and app config
 - [ ] Test autocomplete search works end-to-end
 - [ ] Test place details fetch works end-to-end
 - [ ] Verify the API key is no longer in the client bundle
@@ -57,9 +62,11 @@ The Google Places API key currently ships in the client binary via `EXPO_PUBLIC_
 ## Session 3: High Priority — Edge Function Hardening
 
 ### 3.1 Fix CORS headers
+
 All 5 Edge Functions currently use `Access-Control-Allow-Origin: *`.
 
 **Files to update:**
+
 - `supabase/functions/accept-invite/index.ts`
 - `supabase/functions/add-place/index.ts`
 - `supabase/functions/create-map/index.ts`
@@ -73,6 +80,7 @@ All 5 Edge Functions currently use `Access-Control-Allow-Origin: *`.
 - [ ] Deploy all updated functions
 
 ### 3.2 Fix Bearer token parsing
+
 Currently uses `authHeader.replace("Bearer ", "")` which is fragile.
 
 - [ ] Create a shared auth utility (e.g., `supabase/functions/_shared/auth.ts`)
@@ -89,6 +97,7 @@ Currently uses `authHeader.replace("Bearer ", "")` which is fragile.
 - [ ] Deploy all updated functions
 
 ### 3.3 Add input length validation
+
 - [ ] In `add-place/index.ts`: validate `note` max 1000 chars, `google_place_id` max 200 chars
 - [ ] In `create-map/index.ts`: validate `name` max 200 chars
 - [ ] In `accept-invite/index.ts`: validate `token` is valid UUID format
@@ -96,6 +105,7 @@ Currently uses `authHeader.replace("Bearer ", "")` which is fragile.
 - [ ] Deploy all updated functions
 
 ### 3.4 Add rate limiting
+
 - [ ] Choose approach: Upstash Redis (recommended) or in-memory counter
 - [ ] Create shared rate limit utility (`supabase/functions/_shared/rate-limit.ts`)
 - [ ] Apply to `accept-invite`: 10 requests/minute per user (prevents token brute-force)
@@ -110,6 +120,7 @@ Currently uses `authHeader.replace("Bearer ", "")` which is fragile.
 ## Session 4: Medium Priority — RLS & Database Fixes
 
 ### 4.1 Tighten `places` table INSERT policy
+
 Currently any authenticated user can INSERT into `places` directly, bypassing the `add-place` Edge Function's freemium checks.
 
 **File:** `supabase/migrations/` (new migration)
@@ -122,6 +133,7 @@ Currently any authenticated user can INSERT into `places` directly, bypassing th
 - [ ] Push migration with `supabase db push`
 
 ### 4.2 Review `places` SELECT policy (decision needed)
+
 Currently any authenticated user can read ALL places. This is likely intentional since places are shared Google reference data.
 
 - [ ] **Decision:** Is it acceptable that any user can see all places? If yes, document this as intentional. If no, restrict SELECT to map members only.
@@ -129,6 +141,7 @@ Currently any authenticated user can read ALL places. This is likely intentional
 - [ ] Push migration if changes made
 
 ### 4.3 Make invite acceptance atomic
+
 **File:** `supabase/functions/accept-invite/index.ts`
 
 The member INSERT and `use_count` INCREMENT are separate operations.
@@ -143,6 +156,7 @@ The member INSERT and `use_count` INCREMENT are separate operations.
 ## Session 5: Medium Priority — Webhook Security
 
 ### 5.1 Add RevenueCat webhook signature verification
+
 **File:** `supabase/functions/revenuecat-webhook/index.ts`
 
 Currently only checks a Bearer token. Should also verify the webhook body signature.
@@ -160,6 +174,7 @@ Currently only checks a Bearer token. Should also verify the webhook body signat
 ## Session 6: Low Priority — Client Hardening
 
 ### 6.1 Migrate auth tokens to secure storage
+
 **File:** `lib/supabase.ts`
 
 Currently uses `AsyncStorage` (unencrypted on iOS). Low risk since tokens are short-lived.
@@ -171,12 +186,14 @@ Currently uses `AsyncStorage` (unencrypted on iOS). Low risk since tokens are sh
 - [ ] Verify token refresh still works
 
 ### 6.2 Guard production console logs
+
 - [ ] Wrap `console.warn` in `lib/revenuecat.ts:24` with `if (__DEV__)`
 - [ ] Wrap `console.warn` in `app/(tabs)/explore/index.tsx` (recenter error) with `if (__DEV__)`
 - [ ] Search for any other unguarded `console.*` calls in production code
 - [ ] Consider adding an ESLint rule: `no-console` with `allow: []` (or a custom logger)
 
 ### 6.3 Review Sentry session replay privacy
+
 **File:** `app/_layout.tsx`
 
 `replaysOnErrorSampleRate: 1` captures full session replay on every error.
@@ -187,6 +204,7 @@ Currently uses `AsyncStorage` (unencrypted on iOS). Low risk since tokens are sh
 - [ ] Or add a `beforeSendReplay` hook to strip sensitive data
 
 ### 6.4 Consider certificate pinning (optional)
+
 - [ ] Evaluate if certificate pinning is worth the maintenance cost
 - [ ] If yes: implement for Supabase and RevenueCat endpoints
 - [ ] Note: cert pinning requires updating the app on every cert rotation

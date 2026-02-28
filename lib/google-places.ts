@@ -1,6 +1,11 @@
+import { Platform } from 'react-native';
+
 import { PLACES_SEARCH } from '@/lib/constants';
 
-const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY!;
+const API_KEY =
+  Platform.OS === 'ios'
+    ? process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS!
+    : process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID!;
 
 export interface PlacePrediction {
   placeId: string;
