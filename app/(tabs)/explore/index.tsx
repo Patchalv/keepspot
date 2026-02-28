@@ -4,6 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import * as Location from 'expo-location';
 import Mapbox from '@/lib/mapbox';
 import { useLocation } from '@/hooks/use-location';
 import { useActiveMap } from '@/hooks/use-active-map';
@@ -285,15 +286,20 @@ export default function ExploreScreen() {
     [deletePlace]
   );
 
-  const handleRecenter = useCallback(() => {
-    if (location) {
+  const handleRecenter = useCallback(async () => {
+    try {
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
       cameraRef.current?.setCamera({
-        centerCoordinate: [location.longitude, location.latitude],
+        centerCoordinate: [position.coords.longitude, position.coords.latitude],
         zoomLevel: 14,
         animationDuration: 600,
       });
+    } catch {
+      // Permission denied or location unavailable — no-op
     }
-  }, [location]);
+  }, []);
 
   const handleRefresh = useCallback(() => {
     refetch();
