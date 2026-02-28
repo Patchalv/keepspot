@@ -1,0 +1,212 @@
+# MapVault Security Audit
+
+**Date:** 2026-02-28
+**Overall Rating:** Good foundation with actionable gaps
+
+---
+
+## Session 1: Immediate — Credential Rotation & Git Cleanup
+
+### 1.1 Rotate all exposed API keys
+The `.env` file was committed to git history. Even though it's now in `.gitignore`, all keys are extractable from past commits.
+
+- [ ] Rotate Mapbox token in the Mapbox dashboard
+- [ ] Rotate Google Places API key in Google Cloud Console
+- [ ] Rotate PostHog API key in PostHog dashboard
+- [ ] Rotate Sentry auth token in Sentry settings
+- [ ] Rotate RevenueCat public API key in RevenueCat dashboard
+- [ ] Rotate RevenueCat secret API key (exposed in `.env` comment)
+- [ ] Update `.env` with new keys locally
+- [ ] Update EAS Secrets with new keys for CI builds
+- [ ] Verify app still works with new keys
+
+### 1.2 Purge `.env` from git history
+- [ ] Install BFG Repo-Cleaner (`brew install bfg`)
+- [ ] Run `bfg --delete-files .env` on a mirror clone
+- [ ] Run `git reflog expire --expire=now --all && git gc --prune=now --aggressive`
+- [ ] Force push cleaned history (coordinate with any collaborators)
+- [ ] Verify `.env` is gone from all commits: `git log --all --full-history -- .env`
+
+### 1.3 Add `.env.example` with placeholder values
+- [ ] Ensure `.env.example` exists with dummy values (no real keys)
+- [ ] Verify `.env` is in `.gitignore` (already is, but double-check)
+
+---
+
+## Session 2: High Priority — Google Places API Proxy
+
+### 2.1 Create `search-places` Edge Function
+The Google Places API key currently ships in the client binary via `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY`. Anyone can extract it and abuse it.
+
+- [ ] Create `supabase/functions/search-places/index.ts`
+- [ ] Move Google Places API key to Edge Function environment secrets (`supabase secrets set GOOGLE_PLACES_API_KEY=...`)
+- [ ] Implement autocomplete endpoint (proxy `places.googleapis.com/v1/places:autocomplete`)
+- [ ] Implement place details endpoint (proxy `places.googleapis.com/v1/places/{id}`)
+- [ ] Authenticate requests via Bearer token (same pattern as other Edge Functions)
+- [ ] Add per-user rate limiting (e.g., 60 requests/minute per user)
+- [ ] Deploy with `supabase functions deploy search-places --no-verify-jwt`
+
+### 2.2 Update client to use Edge Function
+- [ ] Update `lib/google-places.ts` to call the Edge Function instead of Google directly
+- [ ] Remove `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY` from `.env` and app config
+- [ ] Test autocomplete search works end-to-end
+- [ ] Test place details fetch works end-to-end
+- [ ] Verify the API key is no longer in the client bundle
+
+---
+
+## Session 3: High Priority — Edge Function Hardening
+
+### 3.1 Fix CORS headers
+All 5 Edge Functions currently use `Access-Control-Allow-Origin: *`.
+
+**Files to update:**
+- `supabase/functions/accept-invite/index.ts`
+- `supabase/functions/add-place/index.ts`
+- `supabase/functions/create-map/index.ts`
+- `supabase/functions/delete-account/index.ts`
+- `supabase/functions/revenuecat-webhook/index.ts`
+
+- [ ] Create a shared CORS utility (e.g., `supabase/functions/_shared/cors.ts`)
+- [ ] Set `Access-Control-Allow-Origin` to `https://mapvault.app` (or remove entirely since mobile apps don't send Origin)
+- [ ] Update all 5 Edge Functions to use the shared CORS config
+- [ ] Test that mobile app requests still work (they don't rely on CORS)
+- [ ] Deploy all updated functions
+
+### 3.2 Fix Bearer token parsing
+Currently uses `authHeader.replace("Bearer ", "")` which is fragile.
+
+- [ ] Create a shared auth utility (e.g., `supabase/functions/_shared/auth.ts`)
+- [ ] Implement proper validation:
+  ```ts
+  export function extractBearerToken(req: Request): string | null {
+    const header = req.headers.get("Authorization");
+    if (!header?.startsWith("Bearer ")) return null;
+    const token = header.slice(7);
+    return token || null;
+  }
+  ```
+- [ ] Update all 5 Edge Functions to use the shared utility
+- [ ] Deploy all updated functions
+
+### 3.3 Add input length validation
+- [ ] In `add-place/index.ts`: validate `note` max 1000 chars, `google_place_id` max 200 chars
+- [ ] In `create-map/index.ts`: validate `name` max 200 chars
+- [ ] In `accept-invite/index.ts`: validate `token` is valid UUID format
+- [ ] Return 400 Bad Request for invalid inputs
+- [ ] Deploy all updated functions
+
+### 3.4 Add rate limiting
+- [ ] Choose approach: Upstash Redis (recommended) or in-memory counter
+- [ ] Create shared rate limit utility (`supabase/functions/_shared/rate-limit.ts`)
+- [ ] Apply to `accept-invite`: 10 requests/minute per user (prevents token brute-force)
+- [ ] Apply to `add-place`: 30 requests/minute per user
+- [ ] Apply to `create-map`: 10 requests/minute per user
+- [ ] Apply to `delete-account`: 3 requests/minute per user
+- [ ] Apply to `revenuecat-webhook`: 30 requests/minute per IP
+- [ ] Deploy all updated functions
+
+---
+
+## Session 4: Medium Priority — RLS & Database Fixes
+
+### 4.1 Tighten `places` table INSERT policy
+Currently any authenticated user can INSERT into `places` directly, bypassing the `add-place` Edge Function's freemium checks.
+
+**File:** `supabase/migrations/` (new migration)
+
+- [ ] Create new migration to drop the permissive INSERT policy on `places`
+- [ ] Either: restrict INSERT to service role only (Edge Function uses service role)
+- [ ] Or: add a check that the inserting user is a member of a map (if client inserts are needed)
+- [ ] Verify the `add-place` Edge Function still works (it uses `createClient` with service role)
+- [ ] Test that direct client inserts are properly blocked
+- [ ] Push migration with `supabase db push`
+
+### 4.2 Review `places` SELECT policy (decision needed)
+Currently any authenticated user can read ALL places. This is likely intentional since places are shared Google reference data.
+
+- [ ] **Decision:** Is it acceptable that any user can see all places? If yes, document this as intentional. If no, restrict SELECT to map members only.
+- [ ] If restricting: create migration with membership check in SELECT policy
+- [ ] Push migration if changes made
+
+### 4.3 Make invite acceptance atomic
+**File:** `supabase/functions/accept-invite/index.ts`
+
+The member INSERT and `use_count` INCREMENT are separate operations.
+
+- [ ] Create a Postgres function `accept_invite(invite_id, user_id, role)` that does both in a transaction
+- [ ] Update `accept-invite` Edge Function to call the Postgres function
+- [ ] Test with concurrent invite acceptances
+- [ ] Deploy updated function
+
+---
+
+## Session 5: Medium Priority — Webhook Security
+
+### 5.1 Add RevenueCat webhook signature verification
+**File:** `supabase/functions/revenuecat-webhook/index.ts`
+
+Currently only checks a Bearer token. Should also verify the webhook body signature.
+
+- [ ] Check RevenueCat docs for their webhook signing method
+- [ ] Add webhook body signature verification (HMAC-SHA256)
+- [ ] Add timestamp validation (reject webhooks older than 5 minutes)
+- [ ] Add idempotency handling (track processed webhook IDs to prevent replays)
+- [ ] Store webhook secret in Supabase Edge Function secrets
+- [ ] Deploy updated function
+- [ ] Test with RevenueCat webhook tester
+
+---
+
+## Session 6: Low Priority — Client Hardening
+
+### 6.1 Migrate auth tokens to secure storage
+**File:** `lib/supabase.ts`
+
+Currently uses `AsyncStorage` (unencrypted on iOS). Low risk since tokens are short-lived.
+
+- [ ] Install `expo-secure-store`
+- [ ] Create a Supabase storage adapter that wraps `SecureStore`
+- [ ] Update `lib/supabase.ts` to use the secure adapter
+- [ ] Test login/logout/session persistence on iOS and Android
+- [ ] Verify token refresh still works
+
+### 6.2 Guard production console logs
+- [ ] Wrap `console.warn` in `lib/revenuecat.ts:24` with `if (__DEV__)`
+- [ ] Wrap `console.warn` in `app/(tabs)/explore/index.tsx` (recenter error) with `if (__DEV__)`
+- [ ] Search for any other unguarded `console.*` calls in production code
+- [ ] Consider adding an ESLint rule: `no-console` with `allow: []` (or a custom logger)
+
+### 6.3 Review Sentry session replay privacy
+**File:** `app/_layout.tsx`
+
+`replaysOnErrorSampleRate: 1` captures full session replay on every error.
+
+- [ ] Review what data appears in Sentry session replays (location, places, user input)
+- [ ] Configure Sentry data scrubbing rules to mask sensitive fields
+- [ ] Consider reducing `replaysOnErrorSampleRate` to `0.2`
+- [ ] Or add a `beforeSendReplay` hook to strip sensitive data
+
+### 6.4 Consider certificate pinning (optional)
+- [ ] Evaluate if certificate pinning is worth the maintenance cost
+- [ ] If yes: implement for Supabase and RevenueCat endpoints
+- [ ] Note: cert pinning requires updating the app on every cert rotation
+
+---
+
+## What's Already Secure (No Action Needed)
+
+These areas were reviewed and found to be properly implemented:
+
+- **RLS on all 10 tables** — policies correctly scope data to map members, enforce owner/editor roles
+- **Freemium limits** — enforced server-side in Edge Functions, not bypassable from client
+- **OAuth & Apple Sign-In** — standard Supabase flows, proper token handling
+- **Invite tokens** — UUID v4 (128-bit entropy), expiration, max-use, duplicate checks
+- **Account deletion** — comprehensive cascade cleanup, ownership transfer, GDPR-compliant
+- **Client query scoping** — all hooks filter by user ID with `enabled` guards
+- **No dynamic code execution** — no WebViews, no dangerous eval patterns
+- **HTTPS everywhere** — all API endpoints, no HTTP fallbacks
+- **TypeScript strict mode** — type safety throughout
+- **Payment validation** — RevenueCat webhook authenticates, Edge Functions re-verify entitlement
+- **Location privacy** — user GPS position is never stored in the database
+- **Visit privacy** — place visit status is scoped per-user via RLS
