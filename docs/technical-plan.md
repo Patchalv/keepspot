@@ -1013,7 +1013,7 @@ Items required for App Store approval that were not in the original plan.
 - [x] **Task 8.2** — Privacy policy & Terms of Service: write and host at a public URL. Required by App Store Connect before submission. (depends on: nothing)
 - [ ] **Task 8.3** — App privacy nutrition labels: declare data collection practices in App Store Connect (location, identifiers, usage data). (depends on: 8.2)
 - [x] **Task 8.4** — App Store screenshots: generate screenshots for required device sizes (6.7", 6.5", 5.5" at minimum). (depends on: 7.6)
-- [ ] **Task 8.5** — Export compliance declaration in App Store Connect. (depends on: nothing)
+- [x] **Task 8.5** — Export compliance declaration. Handled via `ITSAppUsesNonExemptEncryption: false` in `app.config.ts` Info.plist, which satisfies the App Store Connect requirement automatically.
 
 ### Milestone 9: Missing Features & UX Gaps (NEW)
 
