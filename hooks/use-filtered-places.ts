@@ -41,7 +41,8 @@ export function useFilteredPlaces({
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter((p) =>
-        p.places.name.toLowerCase().includes(query)
+        p.places.name.toLowerCase().includes(query) ||
+        (p.note && p.note.toLowerCase().includes(query))
       );
     }
 
