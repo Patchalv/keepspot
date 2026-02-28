@@ -76,6 +76,7 @@ export default function ExploreScreen() {
   const detailSheetRef = useRef<BottomSheet>(null);
   const filterSheetRef = useRef<BottomSheetModal>(null);
   const filterButtonRef = useRef<View>(null);
+  const hasInitializedLocationRef = useRef(false);
 
   // Derived
   const filteredPlaces = useFilteredPlaces({
@@ -118,6 +119,20 @@ export default function ExploreScreen() {
       }
     }
   }, [focusLat, focusLng]);
+
+  // Fly to user location once it becomes available (initial load only)
+  useEffect(() => {
+    if (location && !hasInitializedLocationRef.current) {
+      hasInitializedLocationRef.current = true;
+      // Don't override if we're already focusing on a newly added place
+      if (focusLat && focusLng) return;
+      cameraRef.current?.setCamera({
+        centerCoordinate: [location.longitude, location.latitude],
+        zoomLevel: 13,
+        animationDuration: 600,
+      });
+    }
+  }, [location, focusLat, focusLng]);
 
   // Analytics: explore_viewed with 30-second cooldown
   const lastExploreViewedRef = useRef(0);
