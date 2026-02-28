@@ -57,23 +57,15 @@ The `.env` file was committed to git history. Even though it's now in `.gitignor
 
 ## Session 3: High Priority — Edge Function Hardening
 
-### 3.1 Fix CORS headers
+### 3.1 Remove CORS headers — DONE (2026-02-28)
 
-All 5 Edge Functions currently use `Access-Control-Allow-Origin: *`.
+**Decision:** Removed CORS headers entirely rather than restricting the origin to `mapvault.app`. MapVault is a mobile-only app — React Native HTTP clients don't send `Origin` headers, so CORS is irrelevant. Removing `Access-Control-Allow-Origin: *` means browsers will now block any cross-origin requests to these endpoints, which is a security improvement (prevents browser-based abuse) with zero impact on the mobile app. A shared CORS utility was unnecessary since no CORS handling is needed at all.
 
-**Files to update:**
-
-- `supabase/functions/accept-invite/index.ts`
-- `supabase/functions/add-place/index.ts`
-- `supabase/functions/create-map/index.ts`
-- `supabase/functions/delete-account/index.ts`
-- `supabase/functions/revenuecat-webhook/index.ts`
-
-- [ ] Create a shared CORS utility (e.g., `supabase/functions/_shared/cors.ts`)
-- [ ] Set `Access-Control-Allow-Origin` to `https://mapvault.app` (or remove entirely since mobile apps don't send Origin)
-- [ ] Update all 5 Edge Functions to use the shared CORS config
-- [ ] Test that mobile app requests still work (they don't rely on CORS)
-- [ ] Deploy all updated functions
+- [x] Removed `corsHeaders` constant from all 5 Edge Functions
+- [x] Removed OPTIONS preflight handler from all 5 Edge Functions
+- [x] Removed `...corsHeaders` spread from all response headers (kept `Content-Type: application/json`)
+- [x] Verified no remaining `corsHeaders` references
+- [x] TypeScript check passes
 
 ### 3.2 Fix Bearer token parsing
 
