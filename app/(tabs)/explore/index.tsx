@@ -3,7 +3,7 @@ import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Mapbox from '@/lib/mapbox';
 import { useLocation } from '@/hooks/use-location';
 import { useActiveMap } from '@/hooks/use-active-map';
@@ -31,6 +31,12 @@ import type { Tag, ViewMode, VisitedFilter } from '@/types';
 const DEFAULT_CENTER: [number, number] = [-3.7038, 40.4168];
 
 export default function ExploreScreen() {
+  const { focusLat, focusLng } = useLocalSearchParams<{
+    focusLat?: string;
+    focusLng?: string;
+  }>();
+  const cameraRef = useRef<Mapbox.Camera>(null);
+  const lastFocusedRef = useRef<string | null>(null);
   const { location } = useLocation();
   const { activeMapId, activeMapName, maps, setActiveMap, isAllMaps } =
     useActiveMap();
@@ -89,6 +95,28 @@ export default function ExploreScreen() {
   const center: [number, number] = location
     ? [location.longitude, location.latitude]
     : DEFAULT_CENTER;
+
+  // Fly to newly added place when focus params are present
+  useEffect(() => {
+    if (focusLat && focusLng) {
+      const key = `${focusLat},${focusLng}`;
+      if (lastFocusedRef.current === key) return;
+      lastFocusedRef.current = key;
+
+      const lat = parseFloat(focusLat);
+      const lng = parseFloat(focusLng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const timer = setTimeout(() => {
+          cameraRef.current?.setCamera({
+            centerCoordinate: [lng, lat],
+            zoomLevel: 15,
+            animationDuration: 800,
+          });
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [focusLat, focusLng]);
 
   // Analytics: explore_viewed with 30-second cooldown
   const lastExploreViewedRef = useRef(0);
@@ -280,10 +308,11 @@ export default function ExploreScreen() {
             scaleBarEnabled={false}
           >
             <Mapbox.Camera
-              zoomLevel={13}
-              centerCoordinate={center}
-              animationMode="flyTo"
-              animationDuration={0}
+              ref={cameraRef}
+              defaultSettings={{
+                centerCoordinate: center,
+                zoomLevel: 13,
+              }}
             />
             <Mapbox.LocationPuck puckBearingEnabled puckBearing="heading" />
             <MapMarkers places={filteredPlaces} onPlacePress={handlePlacePress} />

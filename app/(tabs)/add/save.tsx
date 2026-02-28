@@ -127,8 +127,16 @@ export default function SaveScreen() {
             visited,
             google_category: googleCategory,
           });
+          // Dismiss the save screen from the add tab stack, then switch
+          // to explore with focus coordinates so the map flies to the new place
           router.dismiss();
-          router.replace('/(tabs)/explore');
+          router.replace({
+            pathname: '/(tabs)/explore',
+            params: {
+              focusLat: String(placeDetails.latitude),
+              focusLng: String(placeDetails.longitude),
+            },
+          });
         },
         onError: (error) => {
           handleMutationError(error);
