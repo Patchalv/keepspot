@@ -243,6 +243,26 @@ export default function ProfileScreen() {
         })}
       </View>
 
+      {/* Premium Upgrade CTA */}
+      {isFree && (
+        <Pressable
+          onPress={() =>
+            router.push("/(tabs)/profile/paywall?trigger=profile_cta")
+          }
+          className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4"
+        >
+          <Text className="text-sm font-semibold text-amber-900">
+            Upgrade to MapVault Premium
+          </Text>
+          <Text className="mt-1 text-xs text-amber-700">
+            Unlimited maps, places, and sharing with friends.
+          </Text>
+          <Text className="mt-2 text-xs font-semibold text-amber-600">
+            Learn more →
+          </Text>
+        </Pressable>
+      )}
+
       {/* Sign Out */}
       <Pressable
         onPress={handleSignOut}
