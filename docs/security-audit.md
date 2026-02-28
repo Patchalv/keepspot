@@ -20,12 +20,11 @@ The `.env` file was committed to git history. Even though it's now in `.gitignor
 - [ ] Update EAS Secrets with new keys for CI builds
 - [ ] Verify app still works with new keys
 
-### 1.2 Purge `.env` from git history
-- [ ] Install BFG Repo-Cleaner (`brew install bfg`)
-- [ ] Run `bfg --delete-files .env` on a mirror clone
-- [ ] Run `git reflog expire --expire=now --all && git gc --prune=now --aggressive`
-- [ ] Force push cleaned history (coordinate with any collaborators)
-- [ ] Verify `.env` is gone from all commits: `git log --all --full-history -- .env`
+### 1.2 Purge `.env` from git history — DONE (2026-02-28)
+- [x] Used `git-filter-repo --invert-paths --path .env` to rewrite history
+- [x] Force pushed cleaned history to origin
+- [x] Verified `.env` is gone from all commits: `git log --all --full-history -- .env` returns nothing
+- [x] Confirmed `.env` still exists locally and is in `.gitignore`
 
 ### 1.3 Add `.env.example` with placeholder values
 - [ ] Ensure `.env.example` exists with dummy values (no real keys)
