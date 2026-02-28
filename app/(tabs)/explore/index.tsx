@@ -285,6 +285,16 @@ export default function ExploreScreen() {
     [deletePlace]
   );
 
+  const handleRecenter = useCallback(() => {
+    if (location) {
+      cameraRef.current?.setCamera({
+        centerCoordinate: [location.longitude, location.latitude],
+        zoomLevel: 14,
+        animationDuration: 600,
+      });
+    }
+  }, [location]);
+
   const handleRefresh = useCallback(() => {
     refetch();
   }, [refetch]);
@@ -385,6 +395,7 @@ export default function ExploreScreen() {
         onToggleView={handleToggleView}
         onOpenFilters={handleOpenFilters}
         activeFilterCount={activeFilterCount}
+        onRecenter={viewMode === 'map' ? handleRecenter : undefined}
         onRefresh={viewMode === 'map' ? handleRefresh : undefined}
         filterButtonRef={filterButtonRef}
       />

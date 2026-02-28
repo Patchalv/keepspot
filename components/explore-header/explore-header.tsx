@@ -19,6 +19,7 @@ interface ExploreHeaderProps {
   onToggleView: () => void;
   onOpenFilters: () => void;
   activeFilterCount: number;
+  onRecenter?: () => void;
   onRefresh?: () => void;
   filterButtonRef?: RefObject<View | null>;
 }
@@ -32,6 +33,7 @@ export function ExploreHeader({
   onToggleView,
   onOpenFilters,
   activeFilterCount,
+  onRecenter,
   onRefresh,
   filterButtonRef,
 }: ExploreHeaderProps) {
@@ -123,6 +125,16 @@ export function ExploreHeader({
               onPress={onRefresh}
             >
               <FontAwesome name="refresh" size={16} color="#374151" />
+            </Pressable>
+          )}
+
+          {/* Recenter button (map view only) */}
+          {viewMode === 'map' && onRecenter && (
+            <Pressable
+              className="h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm"
+              onPress={onRecenter}
+            >
+              <FontAwesome name="crosshairs" size={16} color="#374151" />
             </Pressable>
           )}
 
