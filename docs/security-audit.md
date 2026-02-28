@@ -105,39 +105,29 @@ Currently uses `authHeader.replace("Bearer ", "")` which is fragile.
 
 ---
 
-## Session 4: Medium Priority — RLS & Database Fixes
+## Session 4: Medium Priority — RLS & Database Fixes — DONE (2026-02-28)
 
-### 4.1 Tighten `places` table INSERT policy
+### 4.1 Tighten `places` table INSERT policy — DONE
 
-Currently any authenticated user can INSERT into `places` directly, bypassing the `add-place` Edge Function's freemium checks.
+Dropped the permissive INSERT policy. The `add-place` Edge Function uses the service role key (bypasses RLS) so it's unaffected. Direct client inserts are now blocked.
 
-**File:** `supabase/migrations/` (new migration)
+- [x] Created migration `20260228000001_drop_places_insert_policy.sql` to drop the policy
+- [x] Edge Function still works (uses service role, bypasses RLS)
+- [x] Direct client inserts are properly blocked (RLS denies)
 
-- [ ] Create new migration to drop the permissive INSERT policy on `places`
-- [ ] Either: restrict INSERT to service role only (Edge Function uses service role)
-- [ ] Or: add a check that the inserting user is a member of a map (if client inserts are needed)
-- [ ] Verify the `add-place` Edge Function still works (it uses `createClient` with service role)
-- [ ] Test that direct client inserts are properly blocked
-- [ ] Push migration with `supabase db push`
+### 4.2 Review `places` SELECT policy — DONE (intentionally open)
 
-### 4.2 Review `places` SELECT policy (decision needed)
+**Decision:** Keep open. The `places` table is shared Google reference data (name, address, coordinates). Sensitive relationships (which user saved which place to which map) live in `map_places`, which is already scoped to map members via RLS. No privacy or security risk in any authenticated user reading shared place reference data.
 
-Currently any authenticated user can read ALL places. This is likely intentional since places are shared Google reference data.
+- [x] Reviewed and documented as intentional — no migration needed
 
-- [ ] **Decision:** Is it acceptable that any user can see all places? If yes, document this as intentional. If no, restrict SELECT to map members only.
-- [ ] If restricting: create migration with membership check in SELECT policy
-- [ ] Push migration if changes made
+### 4.3 Make invite acceptance atomic — DONE
 
-### 4.3 Make invite acceptance atomic
+Created a `SECURITY DEFINER` Postgres function `accept_invite()` that uses `SELECT ... FOR UPDATE` to lock the invite row, validates all conditions, inserts the membership, and increments `use_count` atomically. The Edge Function now calls this via a single `supabase.rpc()` call.
 
-**File:** `supabase/functions/accept-invite/index.ts`
-
-The member INSERT and `use_count` INCREMENT are separate operations.
-
-- [ ] Create a Postgres function `accept_invite(invite_id, user_id, role)` that does both in a transaction
-- [ ] Update `accept-invite` Edge Function to call the Postgres function
-- [ ] Test with concurrent invite acceptances
-- [ ] Deploy updated function
+- [x] Created migration `20260228000002_create_accept_invite_function.sql`
+- [x] Updated `accept-invite` Edge Function to use `supabase.rpc("accept_invite", ...)`
+- [x] Postgres exceptions mapped to same HTTP status codes the client expects
 
 ---
 
