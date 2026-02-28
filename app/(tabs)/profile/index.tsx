@@ -1,24 +1,41 @@
-import { View, Text, Pressable, Alert, ScrollView, Linking } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { supabase } from '@/lib/supabase';
-import { logOutUser } from '@/lib/revenuecat';
-import { useAuth } from '@/hooks/use-auth';
-import { useProfile } from '@/hooks/use-profile';
-import { useMaps } from '@/hooks/use-maps';
-import { useActiveMap } from '@/hooks/use-active-map';
-import { useCreateMap } from '@/hooks/use-create-map';
-import { useFreemiumGate } from '@/hooks/use-freemium-gate';
-import { LoadingState } from '@/components/loading-state/loading-state';
-import { ErrorState } from '@/components/error-state/error-state';
-import { FREE_TIER, LEGAL_URLS } from '@/lib/constants';
+import { ErrorState } from "@/components/error-state/error-state";
+import { LoadingState } from "@/components/loading-state/loading-state";
+import { useActiveMap } from "@/hooks/use-active-map";
+import { useAuth } from "@/hooks/use-auth";
+import { useCreateMap } from "@/hooks/use-create-map";
+import { useFreemiumGate } from "@/hooks/use-freemium-gate";
+import { useMaps } from "@/hooks/use-maps";
+import { useProfile } from "@/hooks/use-profile";
+import { FREE_TIER, LEGAL_URLS } from "@/lib/constants";
+import { logOutUser } from "@/lib/revenuecat";
+import { supabase } from "@/lib/supabase";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { router } from "expo-router";
+import {
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile, refetch: refetchProfile } = useProfile();
-  const { data: mapMembers, isLoading: isLoadingMaps, isError: isErrorMaps, refetch: refetchMaps } = useMaps();
+  const {
+    data: profile,
+    isLoading: isLoadingProfile,
+    isError: isErrorProfile,
+    refetch: refetchProfile,
+  } = useProfile();
+  const {
+    data: mapMembers,
+    isLoading: isLoadingMaps,
+    isError: isErrorMaps,
+    refetch: refetchMaps,
+  } = useMaps();
   const { activeMapId } = useActiveMap();
   const { mutate: createMap, isPending: isCreating } = useCreateMap();
   const { handleMutationError } = useFreemiumGate();
@@ -34,20 +51,23 @@ export default function ProfileScreen() {
     return (
       <ErrorState
         message="Couldn't load your profile. Check your connection and try again."
-        onRetry={() => { refetchProfile(); refetchMaps(); }}
+        onRetry={() => {
+          refetchProfile();
+          refetchMaps();
+        }}
       />
     );
   }
 
   const maps = mapMembers ?? [];
-  const ownedMapCount = maps.filter((m) => m.role === 'owner').length;
-  const isFree = profile?.entitlement === 'free';
-  const displayName = profile?.display_name ?? 'User';
-  const email = user?.email ?? '';
+  const ownedMapCount = maps.filter((m) => m.role === "owner").length;
+  const isFree = profile?.entitlement === "free";
+  const displayName = profile?.display_name ?? "User";
+  const email = user?.email ?? "";
   const initials = displayName
-    .split(' ')
+    .split(" ")
     .map((w) => w[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 
@@ -55,55 +75,59 @@ export default function ProfileScreen() {
     await logOutUser();
     const { error } = await supabase.auth.signOut();
     if (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert("Error", error.message);
     }
   };
 
   const handleNewMap = () => {
     if (isFree && ownedMapCount >= FREE_TIER.maxMaps) {
       Alert.alert(
-        'Map Limit Reached',
-        'Free accounts are limited to 1 map. Upgrade to premium for unlimited maps.',
+        "Map Limit Reached",
+        "Free accounts are limited to 1 map. Upgrade to premium for unlimited maps.",
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => router.push('/(tabs)/profile/paywall?trigger=map_limit') },
-        ]
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Upgrade",
+            onPress: () =>
+              router.push("/(tabs)/profile/paywall?trigger=map_limit"),
+          },
+        ],
       );
       return;
     }
 
     Alert.prompt(
-      'New Map',
-      'Enter a name for your new map',
+      "New Map",
+      "Enter a name for your new map",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Create',
+          text: "Create",
           onPress: (name?: string) => {
             if (!name?.trim()) return;
             createMap(
               { name: name.trim() },
               {
                 onSuccess: () => {
-                  router.navigate('/(tabs)/explore');
+                  router.navigate("/(tabs)/explore");
                 },
                 onError: (err) => {
                   handleMutationError(err);
                 },
-              }
+              },
             );
           },
         },
       ],
-      'plain-text',
-      '',
-      'default'
+      "plain-text",
+      "",
+      "default",
     );
   };
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#FFFFFF' }}
+      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
         paddingBottom: insets.bottom + 32,
@@ -131,17 +155,21 @@ export default function ProfileScreen() {
 
         {/* Entitlement badge */}
         <Pressable
-          onPress={isFree ? () => router.push('/(tabs)/profile/paywall?trigger=profile_tap') : undefined}
+          onPress={
+            isFree
+              ? () => router.push("/(tabs)/profile/paywall?trigger=profile_tap")
+              : undefined
+          }
           className={`mt-2 rounded-full px-3 py-1 ${
-            isFree ? 'bg-gray-100' : 'bg-amber-100'
+            isFree ? "bg-gray-100" : "bg-amber-100"
           }`}
         >
           <Text
             className={`text-xs font-semibold uppercase ${
-              isFree ? 'text-gray-600' : 'text-amber-700'
+              isFree ? "text-gray-600" : "text-amber-700"
             }`}
           >
-            {isFree ? 'free - upgrade' : 'premium'}
+            {isFree ? "free - upgrade" : "premium"}
           </Text>
         </Pressable>
       </View>
@@ -152,7 +180,9 @@ export default function ProfileScreen() {
       {/* My Maps Section */}
       <View className="mb-6">
         <View className="mb-3 flex-row items-center justify-between">
-          <Text className="text-base font-semibold text-gray-900">My Maps</Text>
+          <Text className="text-base font-semibold text-gray-900">
+            Manage Maps
+          </Text>
           <Pressable
             onPress={handleNewMap}
             disabled={isCreating}
@@ -178,7 +208,7 @@ export default function ProfileScreen() {
               {/* Active dot */}
               <View
                 className={`mr-3 h-2.5 w-2.5 rounded-full ${
-                  isActive ? 'bg-green-500' : 'bg-transparent'
+                  isActive ? "bg-green-500" : "bg-transparent"
                 }`}
               />
 
@@ -192,14 +222,14 @@ export default function ProfileScreen() {
               {/* Role badge */}
               <View
                 className={`mr-3 rounded-full px-2 py-0.5 ${
-                  membership.role === 'owner' ? 'bg-blue-100' : 'bg-gray-100'
+                  membership.role === "owner" ? "bg-blue-100" : "bg-gray-100"
                 }`}
               >
                 <Text
                   className={`text-xs font-medium capitalize ${
-                    membership.role === 'owner'
-                      ? 'text-blue-700'
-                      : 'text-gray-600'
+                    membership.role === "owner"
+                      ? "text-blue-700"
+                      : "text-gray-600"
                   }`}
                 >
                   {membership.role}
@@ -241,7 +271,7 @@ export default function ProfileScreen() {
       {/* Delete Account */}
       <Text
         className="mt-3 text-center text-xs text-gray-400"
-        onPress={() => router.push('/(tabs)/profile/delete-account')}
+        onPress={() => router.push("/(tabs)/profile/delete-account")}
       >
         Delete account
       </Text>
