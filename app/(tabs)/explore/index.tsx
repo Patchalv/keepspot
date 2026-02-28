@@ -286,7 +286,10 @@ export default function ExploreScreen() {
     [deletePlace]
   );
 
+  const isRecenteringRef = useRef(false);
   const handleRecenter = useCallback(async () => {
+    if (isRecenteringRef.current) return;
+    isRecenteringRef.current = true;
     try {
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
@@ -296,8 +299,12 @@ export default function ExploreScreen() {
         zoomLevel: 14,
         animationDuration: 600,
       });
-    } catch {
-      // Permission denied or location unavailable — no-op
+    } catch (error) {
+      if (__DEV__) {
+        console.warn('Recenter failed:', error);
+      }
+    } finally {
+      isRecenteringRef.current = false;
     }
   }, []);
 
