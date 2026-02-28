@@ -1,12 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
 const GRANT_EVENTS = new Set([
   "INITIAL_PURCHASE",
   "RENEWAL",
@@ -18,10 +12,6 @@ const GRANT_EVENTS = new Set([
 const REVOKE_EVENTS = new Set(["EXPIRATION", "REFUND"]);
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
   try {
     // 1. Verify webhook secret
     const authHeader = req.headers.get("Authorization");
@@ -32,7 +22,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Unauthorized" }),
         {
           status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
         },
       );
     }
@@ -46,7 +36,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Invalid event payload" }),
         {
           status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
         },
       );
     }
@@ -59,7 +49,7 @@ serve(async (req) => {
         JSON.stringify({ message: "Skipped anonymous user" }),
         {
           status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
         },
       );
     }
@@ -77,7 +67,7 @@ serve(async (req) => {
         JSON.stringify({ message: `No action for event type: ${type}` }),
         {
           status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
         },
       );
     }
@@ -98,7 +88,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Failed to update profile entitlement" }),
         {
           status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
         },
       );
     }
@@ -109,7 +99,7 @@ serve(async (req) => {
       }),
       {
         status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
       },
     );
   } catch (err) {
@@ -118,7 +108,7 @@ serve(async (req) => {
       JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
       },
     );
   }

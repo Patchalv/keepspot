@@ -1,17 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -23,7 +13,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -35,7 +25,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -46,7 +36,7 @@ serve(async (req) => {
     if (!token || typeof token !== "string" || token.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: "Invite token is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -60,7 +50,7 @@ serve(async (req) => {
     if (inviteError || !invite) {
       return new Response(
         JSON.stringify({ error: "This invite link is invalid", code: "INVITE_NOT_FOUND" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 404, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -68,7 +58,7 @@ serve(async (req) => {
     if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
       return new Response(
         JSON.stringify({ error: "This invite has expired", code: "INVITE_EXPIRED" }),
-        { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 410, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -76,7 +66,7 @@ serve(async (req) => {
     if (invite.max_uses !== null && invite.use_count >= invite.max_uses) {
       return new Response(
         JSON.stringify({ error: "This invite has reached its maximum uses", code: "INVITE_MAX_USES" }),
-        { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 410, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -91,7 +81,7 @@ serve(async (req) => {
     if (existingMember) {
       return new Response(
         JSON.stringify({ error: "You are already a member of this map", code: "ALREADY_MEMBER" }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 409, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -103,7 +93,7 @@ serve(async (req) => {
     if (memberError) {
       return new Response(
         JSON.stringify({ error: "Failed to join map" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -128,18 +118,18 @@ serve(async (req) => {
     if (mapError || !map) {
       return new Response(
         JSON.stringify({ error: "Failed to fetch map details" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
     return new Response(
       JSON.stringify({ mapId: invite.map_id, mapName: map.name, role: invite.role }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 });

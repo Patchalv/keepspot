@@ -1,17 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -23,7 +13,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -35,7 +25,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 401, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -57,7 +47,7 @@ serve(async (req) => {
     if (!googlePlaceId || !name || latitude == null || longitude == null || !mapId) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: googlePlaceId, name, latitude, longitude, mapId" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -72,14 +62,14 @@ serve(async (req) => {
     if (memberError) {
       return new Response(
         JSON.stringify({ error: "Failed to verify map membership" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
     if (!membership) {
       return new Response(
         JSON.stringify({ error: "You are not a member of this map" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 403, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -93,7 +83,7 @@ serve(async (req) => {
     if (profileError) {
       return new Response(
         JSON.stringify({ error: "Failed to fetch user profile" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -106,7 +96,7 @@ serve(async (req) => {
       if (countError) {
         return new Response(
           JSON.stringify({ error: "Failed to check place count" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          { status: 500, headers: { "Content-Type": "application/json" } },
         );
       }
 
@@ -116,7 +106,7 @@ serve(async (req) => {
             error: "Free accounts are limited to 50 places. Upgrade to premium for unlimited places.",
             code: "FREEMIUM_LIMIT_EXCEEDED",
           }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          { status: 403, headers: { "Content-Type": "application/json" } },
         );
       }
     }
@@ -147,14 +137,14 @@ serve(async (req) => {
       if (fetchError) {
         return new Response(
           JSON.stringify({ error: "Failed to fetch existing place" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          { status: 500, headers: { "Content-Type": "application/json" } },
         );
       }
       placeId = existing.id;
     } else if (insertError) {
       return new Response(
         JSON.stringify({ error: "Failed to save place data" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     } else {
       placeId = inserted.id;
@@ -176,12 +166,12 @@ serve(async (req) => {
       if (mapPlaceError.code === "23505") {
         return new Response(
           JSON.stringify({ error: "This place is already saved to this map" }),
-          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          { status: 409, headers: { "Content-Type": "application/json" } },
         );
       }
       return new Response(
         JSON.stringify({ error: "Failed to save place to map" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -199,7 +189,7 @@ serve(async (req) => {
       if (tagsError) {
         return new Response(
           JSON.stringify({ error: "Failed to save tags" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          { status: 500, headers: { "Content-Type": "application/json" } },
         );
       }
     }
@@ -216,18 +206,18 @@ serve(async (req) => {
     if (visitError) {
       return new Response(
         JSON.stringify({ error: "Failed to save visit status" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
     return new Response(
       JSON.stringify({ mapPlaceId: mapPlace.id }),
-      { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 201, headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 });
