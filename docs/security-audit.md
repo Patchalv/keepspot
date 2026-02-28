@@ -35,27 +35,23 @@ The `.env` file was committed to git history. Even though it's now in `.gitignor
 
 ---
 
-## Session 2: High Priority — Google Places API Proxy
+## Session 2: High Priority — Google Places API Key Restrictions — DONE (2026-02-28)
 
-### 2.1 Create `search-places` Edge Function
+**Decision:** Deferred the server-side proxy approach. The added latency (extra network hop + Edge Function cold starts) would noticeably impact autocomplete responsiveness. Instead, restricted the API keys at the Google Cloud Console level, which mitigates the financial abuse risk without the performance tradeoff. The proxy can be revisited if the app scales significantly.
 
-The Google Places API key currently ships in the client binary via `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY`. Anyone can extract it and abuse it.
+### 2.1 Restrict API keys in Google Cloud Console
 
-- [ ] Create `supabase/functions/search-places/index.ts`
-- [ ] Move Google Places API key to Edge Function environment secrets (`supabase secrets set GOOGLE_PLACES_API_KEY=...`)
-- [ ] Implement autocomplete endpoint (proxy `places.googleapis.com/v1/places:autocomplete`)
-- [ ] Implement place details endpoint (proxy `places.googleapis.com/v1/places/{id}`)
-- [ ] Authenticate requests via Bearer token (same pattern as other Edge Functions)
-- [ ] Add per-user rate limiting (e.g., 60 requests/minute per user)
-- [ ] Deploy with `supabase functions deploy search-places --no-verify-jwt`
+- [x] Created separate API keys for iOS and Android in Google Cloud Console
+- [x] iOS key: restricted by bundle ID (`com.patrickalvarez.MapVault`)
+- [x] Android key: restricted by package name + SHA-1 fingerprint
+- [x] Both keys restricted to "Places API (New)" only
+- [x] Set billing budget with alerts at 50%, 80%, 100%
 
-### 2.2 Update client to use Edge Function
+### 2.2 Use platform-specific keys in client
 
-- [ ] Update `lib/google-places.ts` to call the Edge Function instead of Google directly
-- [ ] Remove `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS` and `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID` from `.env` and app config
-- [ ] Test autocomplete search works end-to-end
-- [ ] Test place details fetch works end-to-end
-- [ ] Verify the API key is no longer in the client bundle
+- [x] Updated `lib/google-places.ts` to select key based on `Platform.OS` (`EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS` / `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID`)
+- [x] Removed old `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY` from `.env.example`
+- [x] Updated `docs/setup.md` and `docs/troubleshooting.md` to reference new key names
 
 ---
 
