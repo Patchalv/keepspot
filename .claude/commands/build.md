@@ -173,7 +173,7 @@ eas credentials --platform android --non-interactive 2>&1 || echo "Run interacti
 **Run expo doctor:**
 
 ```bash
-npx expo doctor
+npx expo-doctor
 ```
 
 **Check for:**
