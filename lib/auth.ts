@@ -102,25 +102,38 @@ export async function signInWithApple(): Promise<
     return { success: false, error: error.message };
   }
 
-  // Apple only provides full name on first sign-in — persist it now or lose it
+  // Apple only provides full name on first sign-in — persist it to auth metadata now or lose it
+  let credentialName: string | null = null;
   if (credential.fullName?.givenName) {
-    const fullName = [credential.fullName.givenName, credential.fullName.familyName]
+    credentialName = [credential.fullName.givenName, credential.fullName.familyName]
       .filter(Boolean)
       .join(' ');
     await supabase.auth.updateUser({
       data: {
-        full_name: fullName,
+        full_name: credentialName,
         given_name: credential.fullName.givenName,
         family_name: credential.fullName.familyName ?? undefined,
       },
     });
+  }
 
-    // Sync to profiles table (trigger already fired with NULL before updateUser ran)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from('profiles').update({ display_name: fullName }).eq('id', user.id);
+  // Sync profile data — always attempt, using credential name or auth metadata as fallback.
+  // The DB trigger creates the profile with NULL display_name because Apple's ID token
+  // does not contain the user's name. This ensures the profile is updated from all
+  // available sources: the native credential (first sign-in only) or auth metadata
+  // (persisted by updateUser above on a previous sign-in).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const meta = user.user_metadata;
+    const displayName = credentialName ?? meta?.full_name ?? meta?.name ?? null;
+
+    if (displayName) {
+      await supabase
+        .from('profiles')
+        .update({ display_name: displayName })
+        .eq('id', user.id);
     }
   }
 
