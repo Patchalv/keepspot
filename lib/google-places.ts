@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import * as Application from 'expo-application';
 
 import { PLACES_SEARCH } from '@/lib/constants';
 
@@ -6,6 +7,16 @@ const API_KEY =
   Platform.OS === 'ios'
     ? process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_IOS!
     : process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY_ANDROID!;
+
+function getPlatformHeaders(): Record<string, string> {
+  if (Platform.OS === 'ios' && Application.applicationId) {
+    return { 'X-Ios-Bundle-Identifier': Application.applicationId };
+  }
+  if (Platform.OS === 'android' && Application.applicationId) {
+    return { 'X-Android-Package': Application.applicationId };
+  }
+  return {};
+}
 
 export interface PlacePrediction {
   placeId: string;
@@ -66,6 +77,7 @@ export async function searchPlaces(
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': API_KEY,
+        ...getPlatformHeaders(),
       },
       body: JSON.stringify(body),
     }
@@ -102,6 +114,7 @@ export async function getPlaceDetails(
       headers: {
         'X-Goog-Api-Key': API_KEY,
         'X-Goog-FieldMask': 'location,types',
+        ...getPlatformHeaders(),
       },
     }
   );
