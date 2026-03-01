@@ -55,10 +55,10 @@
         "ascAppId": "6759535400",
         "ascApiKeyId": "6CYNGT76TF",
         "ascApiKeyIssuerId": "c1e13bc8-7e7b-46c0-a7b5-7731026c6cf1",
-        "ascApiKeyPath": "./keys/AuthKey_6CYNGT76TF.p8"
+        "ascApiKeyPath": "./.keys/AuthKey_6CYNGT76TF.p8"
       },
       "android": {
-        "serviceAccountKeyPath": "./keys/google-play-service-account.json",
+        "serviceAccountKeyPath": "./.keys/google-play-service-account.json",
         "track": "internal"
       }
     }
