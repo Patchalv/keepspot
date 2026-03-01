@@ -13,6 +13,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { router } from "expo-router";
 import {
   Alert,
+  Image,
   Linking,
   Pressable,
   ScrollView,
@@ -139,10 +140,11 @@ export default function ProfileScreen() {
         {/* Avatar */}
         {profile?.avatar_url ? (
           <View className="mb-3 h-[72px] w-[72px] overflow-hidden rounded-full">
-            {/* Using a simple colored circle with initials as avatar_url may need Image component */}
-            <View className="h-full w-full items-center justify-center bg-blue-500">
-              <Text className="text-2xl font-bold text-white">{initials}</Text>
-            </View>
+            <Image
+              source={{ uri: profile.avatar_url }}
+              className="h-full w-full"
+              accessibilityLabel={`${displayName}'s avatar`}
+            />
           </View>
         ) : (
           <View className="mb-3 h-[72px] w-[72px] items-center justify-center rounded-full bg-blue-500">

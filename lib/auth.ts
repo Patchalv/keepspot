@@ -53,6 +53,29 @@ export async function signInWithGoogle(): Promise<
     return { success: false, error: sessionError.message };
   }
 
+  // Sync Google profile data to profiles table.
+  // The DB trigger (handle_new_user) also does this, but there is a race
+  // condition where the client query fires before the trigger commits.
+  // This mirrors the Apple auth pattern for consistency.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const meta = user.user_metadata;
+    const displayName = meta?.full_name ?? meta?.name ?? null;
+    const avatarUrl = meta?.avatar_url ?? meta?.picture ?? null;
+
+    if (displayName || avatarUrl) {
+      await supabase
+        .from('profiles')
+        .update({
+          ...(displayName ? { display_name: displayName } : {}),
+          ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+        })
+        .eq('id', user.id);
+    }
+  }
+
   return { success: true };
 }
 
