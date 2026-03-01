@@ -143,6 +143,7 @@ export default function ProfileScreen() {
             <Image
               source={{ uri: profile.avatar_url }}
               className="h-full w-full"
+              resizeMode="cover"
               accessibilityLabel={`${displayName}'s avatar`}
             />
           </View>

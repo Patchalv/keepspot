@@ -66,13 +66,17 @@ export async function signInWithGoogle(): Promise<
     const avatarUrl = meta?.avatar_url ?? meta?.picture ?? null;
 
     if (displayName || avatarUrl) {
-      await supabase
+      const { error: syncError } = await supabase
         .from('profiles')
         .update({
           ...(displayName ? { display_name: displayName } : {}),
           ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
         })
         .eq('id', user.id);
+
+      if (syncError && __DEV__) {
+        console.warn('[Auth] Google profile sync failed:', syncError.message);
+      }
     }
   }
 
@@ -130,10 +134,14 @@ export async function signInWithApple(): Promise<
     const displayName = credentialName ?? meta?.full_name ?? meta?.name ?? null;
 
     if (displayName) {
-      await supabase
+      const { error: syncError } = await supabase
         .from('profiles')
         .update({ display_name: displayName })
         .eq('id', user.id);
+
+      if (syncError && __DEV__) {
+        console.warn('[Auth] Apple profile sync failed:', syncError.message);
+      }
     }
   }
 
