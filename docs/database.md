@@ -139,7 +139,7 @@ Junction table associating tags with saved places.
 | map_place_id | uuid | PK, FK → map_places (CASCADE) | |
 | tag_id | uuid | PK, FK → tags (CASCADE) | |
 
-**RLS:** All map members can SELECT. Owners and contributors can INSERT and DELETE (checked via `map_places` → `map_members` join).
+**RLS:** All map members can SELECT. Owners and contributors can INSERT and DELETE (checked via `map_places` → `map_members` join, with cross-map tag validation ensuring `tag_id` belongs to the same map).
 
 ### place_visits
 
@@ -216,3 +216,4 @@ SECURITY DEFINER function that checks if the current user is a member of a map. 
 | `20260222000003_add_user_cleanup_trigger.sql` | `handle_user_deleted()` trigger |
 | `20260223000001_cleanup_orphaned_places_on_delete.sql` | Add orphaned places cleanup to deletion trigger |
 | `20260304000001_freemium_roles_redesign.sql` | Rename `editor` → `contributor`, add `member` role, restrict RLS to owner/contributor writes, add CHECK constraints |
+| `20260305000001_fix_map_place_tags_cross_map.sql` | Fix cross-map tag validation in map_place_tags INSERT and DELETE RLS policies |
