@@ -86,7 +86,9 @@ export async function openDirections(
       if (buttonIndex < available.length) {
         Linking.openURL(
           available[buttonIndex].buildUrl(latitude, longitude, placeName)
-        );
+        ).catch(() => {
+          Linking.openURL(GOOGLE_MAPS_WEB_URL(latitude, longitude));
+        });
       }
     }
   );
