@@ -72,7 +72,7 @@ Junction table controlling map access. Membership = access.
 
 **Indexes:** `idx_map_members_user_id`, `idx_map_members_map_id`
 
-**RLS:** Members can SELECT membership for maps they belong to (via `is_map_member()` helper to avoid recursion). Users can INSERT their own row. Users can DELETE their own row (leave a map). Owners can UPDATE non-owner member roles (contributor ↔ member).
+**RLS:** Members can SELECT membership for maps they belong to (via `is_map_member()` helper to avoid recursion). Users can INSERT their own row. Users can DELETE their own row (leave a map). Premium owners can UPDATE non-owner member roles (contributor ↔ member).
 
 ### tags
 

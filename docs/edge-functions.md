@@ -191,7 +191,7 @@ Required fields: `mapId`. Optional: `role` (default: `'contributor'`), `expiresI
 
 | Status | Body | When |
 |--------|------|------|
-| 201 | `{ "invite": { ... }, "link": "https://www.mapvault.app/invite/{token}" }` | Success |
+| 201 | `{ "invite": { ... }, "link": "https://mapvault.app/invite/{token}" }` | Success |
 | 400 | `{ "error": "Invalid or missing JSON in request body" }` | Unparseable body |
 | 400 | `{ "error": "mapId must be a valid UUID" }` | Missing or invalid mapId |
 | 400 | `{ "error": "Role must be 'contributor' or 'member'" }` | Invalid role |

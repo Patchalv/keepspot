@@ -155,7 +155,7 @@ serve(async (req) => {
 
     // 7. Return invite and link
     const appDomain =
-      Deno.env.get("APP_DOMAIN") ?? "https://www.mapvault.app";
+      Deno.env.get("APP_DOMAIN") ?? "https://mapvault.app";
     return new Response(
       JSON.stringify({
         invite,
