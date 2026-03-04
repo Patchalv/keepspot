@@ -946,7 +946,7 @@ The "input" flow — saving a new recommendation.
 - [x] **Task 3.2** — Build Add screen: search input with Google Places Autocomplete
 - [x] **Task 3.3** — Build Save screen: place preview, tag picker (chips), note input, visited toggle, "Saving to [map]" label
 - [x] **Task 3.4** — Implement save mutation: upsert place → insert map_place → insert tags → insert visited status
-- [x] **Task 3.5** — Write `add-place` Edge Function: validate map membership, enforce 50-place free tier limit
+- [x] **Task 3.5** — Write `add-place` Edge Function: validate map membership, enforce 20-place free tier limit
 - [x] **Task 3.6** — Cache invalidation: after save, refetch active map places so new pin appears on Explore
 
 ### Milestone 4: Map Management ✅
@@ -1037,7 +1037,7 @@ Features referenced in the PRD or discovered as gaps during development.
 | **Apple Sign-In on Expo** — Requires specific native module setup and App Store provisioning                                             | Low    | Expo has first-class support via `expo-apple-authentication`. Follow Supabase's Expo auth guide                                                              |
 | **RLS policy performance** — Nested EXISTS queries on every database read could slow down with many users                                | Low    | The `map_members` table is small per user. Add proper indexes (already specified). Monitor query plans if performance degrades                               |
 | **RevenueCat webhook reliability** — If the webhook fails, user pays but doesn't get premium                                             | Medium | RevenueCat retries failed webhooks. Additionally, the app can check RevenueCat SDK on launch and sync entitlement locally as a fallback                      |
-| **Freemium enforcement race conditions** — Two simultaneous add-place requests could bypass the 50-place limit                           | Low    | Edge Function checks count before insert. For true atomicity, use a Postgres function with row locking. Acceptable risk for v1                               |
+| **Freemium enforcement race conditions** — Two simultaneous add-place requests could bypass the 20-place limit                           | Low    | Edge Function checks count before insert. For true atomicity, use a Postgres function with row locking. Acceptable risk for v1                               |
 
 ### Open Questions (Technical)
 

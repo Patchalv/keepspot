@@ -149,7 +149,7 @@ CREATE POLICY "Contributors can delete tags"
     )
   );
 
--- map_invites: only owners can create invites
+-- map_invites: only premium owners can create invites
 CREATE POLICY "Owners can create invites"
   ON map_invites FOR INSERT
   WITH CHECK (
@@ -158,6 +158,11 @@ CREATE POLICY "Owners can create invites"
       WHERE map_members.map_id = map_invites.map_id
       AND map_members.user_id = auth.uid()
       AND map_members.role = 'owner'
+    )
+    AND EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.entitlement = 'premium'
     )
   );
 
@@ -175,5 +180,16 @@ CREATE POLICY "Owners can update member roles"
       AND mm.user_id = auth.uid()
       AND mm.role = 'owner'
     )
+    AND EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.entitlement = 'premium'
+    )
   )
   WITH CHECK (role IN ('contributor', 'member'));
+
+-- ============================================================
+-- 8. Restrict map_members UPDATE to role column only
+-- ============================================================
+REVOKE UPDATE ON map_members FROM authenticated;
+GRANT UPDATE (role) ON map_members TO authenticated;

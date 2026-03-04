@@ -179,7 +179,7 @@ export default function MapSettingsScreen() {
     }) => {
       createInvite(input, {
         onSuccess: () => inviteCreatorRef.current?.dismiss(),
-        onError: (err) => handleMutationError(err),
+        onError: (err) => handleMutationError(err, 'invite_limit'),
       });
     },
     [createInvite, handleMutationError]

@@ -30,8 +30,17 @@ serve(async (req) => {
     }
 
     // 2. Parse and validate input
-    const body = await req.json();
-    const { mapId, role, expiresInDays, maxUses } = body;
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Invalid or missing JSON in request body" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    const { mapId, expiresInDays, maxUses } = body;
+    const role = (body.role as string) ?? "contributor";
 
     if (!mapId) {
       return new Response(
@@ -43,6 +52,23 @@ serve(async (req) => {
     if (role !== "contributor" && role !== "member") {
       return new Response(
         JSON.stringify({ error: "Role must be 'contributor' or 'member'" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (
+      expiresInDays != null &&
+      (!Number.isInteger(expiresInDays) || expiresInDays <= 0)
+    ) {
+      return new Response(
+        JSON.stringify({ error: "expiresInDays must be a positive integer" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (maxUses != null && (!Number.isInteger(maxUses) || maxUses <= 0)) {
+      return new Response(
+        JSON.stringify({ error: "maxUses must be a positive integer" }),
         { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }

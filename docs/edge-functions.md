@@ -192,12 +192,15 @@ Required fields: `mapId`. Optional: `role` (default: `'contributor'`), `expiresI
 | Status | Body | When |
 |--------|------|------|
 | 201 | `{ "invite": { ... }, "link": "https://www.mapvault.app/invite/{token}" }` | Success |
-| 400 | `{ "error": "Map ID is required" }` | Missing mapId |
-| 400 | `{ "error": "Invalid role..." }` | Role not `contributor` or `member` |
+| 400 | `{ "error": "Invalid or missing JSON in request body" }` | Unparseable body |
+| 400 | `{ "error": "Missing required field: mapId" }` | Missing mapId |
+| 400 | `{ "error": "Role must be 'contributor' or 'member'" }` | Invalid role |
+| 400 | `{ "error": "expiresInDays must be a positive integer" }` | Invalid expiry |
+| 400 | `{ "error": "maxUses must be a positive integer" }` | Invalid max uses |
 | 401 | `{ "error": "Missing authorization header" }` | No auth header |
 | 401 | `{ "error": "Invalid or expired token" }` | Bad token |
-| 403 | `{ "error": "You must be the map owner to create invites" }` | User is not the map owner |
-| 403 | `{ "error": "Sharing is a Premium feature...", "code": "FREEMIUM_LIMIT_EXCEEDED" }` | Free user |
+| 403 | `{ "error": "Only map owners can create invites" }` | User is not the map owner |
+| 403 | `{ "error": "Invite links are a Premium feature. Upgrade to share your maps.", "code": "FREEMIUM_LIMIT_EXCEEDED" }` | Free user |
 | 500 | `{ "error": "..." }` | Database failure |
 
 ### Business Rules
