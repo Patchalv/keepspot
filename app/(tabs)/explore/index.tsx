@@ -275,10 +275,17 @@ export default function ExploreScreen() {
 
   const handleToggleVisited = useCallback(
     (mapPlaceId: string, visited: boolean) => {
-      toggleVisited({ mapPlaceId, visited });
-      if (visited) {
-        setTimeout(() => maybeRequestReview('place_visited'), 1500);
-      }
+      toggleVisited(
+        { mapPlaceId, visited },
+        {
+          onSuccess: () => {
+            if (!visited) return;
+            setTimeout(() => {
+              void maybeRequestReview('place_visited');
+            }, 1500);
+          },
+        }
+      );
     },
     [toggleVisited, maybeRequestReview]
   );
