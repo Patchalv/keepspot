@@ -6,15 +6,15 @@
 DROP POLICY "Users can view own profile" ON profiles;
 
 -- New policy: own profile OR shares a map with the viewer
+-- Uses is_map_member() (SECURITY DEFINER) to skip map_members RLS evaluation
 CREATE POLICY "Users can view own and co-member profiles"
   ON profiles FOR SELECT
   USING (
     auth.uid() = id
     OR EXISTS (
       SELECT 1
-      FROM map_members viewer
-      JOIN map_members target ON target.map_id = viewer.map_id
-      WHERE viewer.user_id = auth.uid()
-        AND target.user_id = profiles.id
+      FROM map_members
+      WHERE map_members.user_id = profiles.id
+        AND public.is_map_member(map_members.map_id)
     )
   );
