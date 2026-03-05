@@ -23,15 +23,15 @@ MapVault uses a freemium model with a three-role permission system. This documen
 
 ### Feature Comparison
 
-| Feature | Free | Premium |
-|---|---|---|
-| Maps created | 1 | Unlimited |
-| Places saved | 20 | Unlimited |
-| Share & invite | -- | Yes |
-| Manage roles | -- | Yes |
+| Feature                   | Free            | Premium   |
+| ------------------------- | --------------- | --------- |
+| Maps created              | 1               | Unlimited |
+| Places saved              | 20              | Unlimited |
+| Share & invite            | --              | Yes       |
+| Manage roles              | --              | Yes       |
 | Contribute to shared maps | Up to 20 places | Unlimited |
-| View shared maps | Yes | Yes |
-| Mark visited | Yes | Yes |
+| View shared maps          | Yes             | Yes       |
+| Mark visited              | Yes             | Yes       |
 
 ## Role Definitions
 
@@ -47,23 +47,23 @@ Invited with write access. Can add, edit, and delete places and tags. Can add no
 
 ### Member
 
-Invited with read-only access. Can view all places, toggle visited status, and get directions. Cannot modify places, tags, or notes.
+Invited with read-only access. Can view all places, toggle visited status, and get directions. Cannot modify places, tags, or notes..
 
 ### Permission Matrix
 
-| Action | Owner | Contributor | Member |
-|---|---|---|---|
-| View places | Yes | Yes | Yes |
-| Add/edit/delete places | Yes | Yes | -- |
-| Add/edit/delete tags | Yes | Yes | -- |
-| Add/edit notes | Yes | Yes | -- |
-| Toggle visited | Yes | Yes | Yes |
-| Get directions | Yes | Yes | Yes |
-| Rename map | Yes | -- | -- |
-| Delete map | Yes | -- | -- |
-| Create invite links | Premium only | -- | -- |
-| Change member roles | Premium only | -- | -- |
-| Remove members | Premium only | -- | -- |
+| Action                 | Owner        | Contributor | Member |
+| ---------------------- | ------------ | ----------- | ------ |
+| View places            | Yes          | Yes         | Yes    |
+| Add/edit/delete places | Yes          | Yes         | --     |
+| Add/edit/delete tags   | Yes          | Yes         | --     |
+| Add/edit notes         | Yes          | Yes         | --     |
+| Toggle visited         | Yes          | Yes         | Yes    |
+| Get directions         | Yes          | Yes         | Yes    |
+| Rename map             | Yes          | --          | --     |
+| Delete map             | Yes          | --          | --     |
+| Create invite links    | Premium only | --          | --     |
+| Change member roles    | Premium only | --          | --     |
+| Remove members         | Premium only | --          | --     |
 
 ## How Roles Interact with Subscriptions
 
@@ -75,6 +75,7 @@ Invited with read-only access. Can view all places, toggle visited status, and g
 ### Downgrade Handling (Premium -> Free)
 
 When a premium user's subscription expires:
+
 - All data remains intact -- no deletions
 - All maps and memberships stay
 - Existing shared members keep their access and roles
@@ -85,48 +86,48 @@ When a premium user's subscription expires:
 
 Each restriction is enforced at one or more layers:
 
-| Action | RLS (Database) | Edge Function | UI |
-|---|---|---|---|
-| Member cannot add places | `map_places` INSERT policy requires owner/contributor | `add-place` checks role | Add button hidden for members |
-| Member cannot edit tags | `tags` INSERT/UPDATE/DELETE policies require owner/contributor | -- | Tag editing hidden for members |
-| Member cannot edit notes | `map_places` UPDATE policy requires owner/contributor | -- | Note editing hidden for members |
-| Free user place limit (20) | -- | `add-place` checks entitlement + count | Freemium gate alert on 403 |
-| Free user map limit (1) | -- | `create-map` checks entitlement + count | Freemium gate alert on 403 |
-| Free user cannot invite | `map_invites` INSERT restricted to owners | `create-invite` checks entitlement | Upgrade alert shown |
-| Free user cannot change roles | `map_members` UPDATE restricted to owners | -- | Role change UI hidden |
-| Only owners can invite | `map_invites` INSERT restricted to owners | `create-invite` checks ownership | Invite UI only shown to owners |
+| Action                        | RLS (Database)                                                 | Edge Function                           | UI                              |
+| ----------------------------- | -------------------------------------------------------------- | --------------------------------------- | ------------------------------- |
+| Member cannot add places      | `map_places` INSERT policy requires owner/contributor          | `add-place` checks role                 | Add button hidden for members   |
+| Member cannot edit tags       | `tags` INSERT/UPDATE/DELETE policies require owner/contributor | --                                      | Tag editing hidden for members  |
+| Member cannot edit notes      | `map_places` UPDATE policy requires owner/contributor          | --                                      | Note editing hidden for members |
+| Free user place limit (20)    | --                                                             | `add-place` checks entitlement + count  | Freemium gate alert on 403      |
+| Free user map limit (1)       | --                                                             | `create-map` checks entitlement + count | Freemium gate alert on 403      |
+| Free user cannot invite       | `map_invites` INSERT restricted to owners                      | `create-invite` checks entitlement      | Upgrade alert shown             |
+| Free user cannot change roles | `map_members` UPDATE restricted to owners                      | --                                      | Role change UI hidden           |
+| Only owners can invite        | `map_invites` INSERT restricted to owners                      | `create-invite` checks ownership        | Invite UI only shown to owners  |
 
 ## Key Files
 
 ### Hooks
 
-| File | Purpose |
-|---|---|
-| `hooks/use-map-role.ts` | Returns current user's role on a map (`role`, `isOwner`, `isContributor`, `isMember`, `canEdit`) |
-| `hooks/use-create-invite.ts` | Mutation: creates invite via `create-invite` Edge Function |
-| `hooks/use-update-member-role.ts` | Mutation: changes contributor <-> member via direct Supabase update |
-| `hooks/use-freemium-gate.ts` | Catches `FREEMIUM_LIMIT_EXCEEDED` errors, shows upgrade alert |
+| File                              | Purpose                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `hooks/use-map-role.ts`           | Returns current user's role on a map (`role`, `isOwner`, `isContributor`, `isMember`, `canEdit`) |
+| `hooks/use-create-invite.ts`      | Mutation: creates invite via `create-invite` Edge Function                                       |
+| `hooks/use-update-member-role.ts` | Mutation: changes contributor <-> member via direct Supabase update                              |
+| `hooks/use-freemium-gate.ts`      | Catches `FREEMIUM_LIMIT_EXCEEDED` errors, shows upgrade alert                                    |
 
 ### Edge Functions
 
-| File | Purpose |
-|---|---|
-| `supabase/functions/add-place/index.ts` | Enforces 20-place limit and owner/contributor role check |
+| File                                        | Purpose                                                  |
+| ------------------------------------------- | -------------------------------------------------------- |
+| `supabase/functions/add-place/index.ts`     | Enforces 20-place limit and owner/contributor role check |
 | `supabase/functions/create-invite/index.ts` | Enforces premium + owner requirement for invite creation |
-| `supabase/functions/create-map/index.ts` | Enforces 1-map limit for free users |
-| `supabase/functions/accept-invite/index.ts` | Assigns role from invite token on join |
+| `supabase/functions/create-map/index.ts`    | Enforces 1-map limit for free users                      |
+| `supabase/functions/accept-invite/index.ts` | Assigns role from invite token on join                   |
 
 ### Constants & Types
 
-| File | Purpose |
-|---|---|
+| File               | Purpose                                                                       |
+| ------------------ | ----------------------------------------------------------------------------- |
 | `lib/constants.ts` | `FREE_TIER` (maxMaps: 1, maxPlaces: 20), `ROLES`, `ENTITLEMENTS`, error codes |
-| `types/index.ts` | `MapRole` type: `'owner' \| 'contributor' \| 'member'` |
+| `types/index.ts`   | `MapRole` type: `'owner' \| 'contributor' \| 'member'`                        |
 
 ### Database
 
-| File | Purpose |
-|---|---|
+| File                                                             | Purpose                                                                                       |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `supabase/migrations/20260304000001_freemium_roles_redesign.sql` | Migration: rename editor -> contributor, add member role, restrict RLS, add CHECK constraints |
 
 ## Invite Flow
