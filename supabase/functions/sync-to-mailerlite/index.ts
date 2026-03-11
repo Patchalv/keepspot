@@ -50,7 +50,15 @@ serve(async (req) => {
 
     const email = user.email ?? "";
 
-    // 4. Skip Apple private relay addresses
+    // 4. Skip users with no email or Apple private relay addresses
+    if (!email) {
+      console.log(`User ${userId} has no email — skipping`);
+      return new Response(
+        JSON.stringify({ message: "No email — skipped" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     if (email.endsWith("@privaterelay.appleid.com")) {
       return new Response(
         JSON.stringify({ message: "Private relay email — skipped" }),
@@ -97,11 +105,13 @@ serve(async (req) => {
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {
+    // Supabase DB webhooks don't retry on failure, so 500 provides no benefit.
+    // Capture to Sentry and return 200 to avoid misleading log noise.
     console.error("sync-to-mailerlite unexpected error:", err);
     Sentry.captureException(err, { tags: { function: "sync-to-mailerlite" } });
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
+      JSON.stringify({ message: "Unexpected error — logged to Sentry" }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   }
 });

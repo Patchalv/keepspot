@@ -100,60 +100,74 @@ serve(async (req) => {
       const premiumGroupId = Deno.env.get("MAILERLITE_PREMIUM_GROUP_ID");
 
       if (mlApiKey && freeGroupId && premiumGroupId) {
-        const { data: { user: mlUser } } =
+        const { data: authData, error: mlUserError } =
           await supabase.auth.admin.getUserById(app_user_id);
 
-        const email = mlUser?.email ?? "";
-
-        if (email && !email.endsWith("@privaterelay.appleid.com")) {
-          const mlHeaders = {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${mlApiKey}`,
-          };
-
-          // Look up subscriber ID by email
-          const lookupRes = await fetch(
-            `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
-            { headers: mlHeaders },
+        if (mlUserError || !authData?.user) {
+          console.error(
+            `MailerLite: could not fetch user ${app_user_id} — skipping group sync`,
           );
-          const subscriberId: string | null = lookupRes.ok
-            ? (await lookupRes.json()).data?.id ?? null
-            : null;
+        } else {
+          const email = authData.user.email ?? "";
 
-          if (entitlement === "premium") {
-            // Remove from free group, add to premium group
+          if (email && !email.endsWith("@privaterelay.appleid.com")) {
+            const mlHeaders = {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${mlApiKey}`,
+            };
+
+            // Look up subscriber ID by email
+            const lookupRes = await fetch(
+              `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
+              { headers: mlHeaders },
+            );
+            let subscriberId: string | null = null;
+            if (lookupRes.ok) {
+              subscriberId = (await lookupRes.json()).data?.id ?? null;
+            } else {
+              await lookupRes.text(); // consume body to avoid connection leak
+            }
+
+            const removeGroupId =
+              entitlement === "premium" ? freeGroupId : premiumGroupId;
+            const addGroupId =
+              entitlement === "premium" ? premiumGroupId : freeGroupId;
+
+            // Step 1: Remove from old group
             if (subscriberId) {
-              await fetch(
-                `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${freeGroupId}`,
+              const removeRes = await fetch(
+                `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${removeGroupId}`,
                 { method: "DELETE", headers: mlHeaders },
               );
+              if (!removeRes.ok && removeRes.status !== 404) {
+                console.error(
+                  `MailerLite: group removal failed for ${email} (group ${removeGroupId}): ${removeRes.status} ${await removeRes.text()}`,
+                );
+              } else {
+                await removeRes.text(); // consume body
+              }
             }
-            await fetch("https://connect.mailerlite.com/api/subscribers", {
-              method: "POST",
-              headers: mlHeaders,
-              body: JSON.stringify({
-                email,
-                fields: { entitlement: "premium" },
-                groups: [premiumGroupId],
-              }),
-            });
-          } else {
-            // Remove from premium group, add to free group
-            if (subscriberId) {
-              await fetch(
-                `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${premiumGroupId}`,
-                { method: "DELETE", headers: mlHeaders },
+
+            // Step 2: Add to new group and update entitlement field
+            const upsertRes = await fetch(
+              "https://connect.mailerlite.com/api/subscribers",
+              {
+                method: "POST",
+                headers: mlHeaders,
+                body: JSON.stringify({
+                  email,
+                  fields: { entitlement },
+                  groups: [addGroupId],
+                }),
+              },
+            );
+            if (!upsertRes.ok) {
+              console.error(
+                `MailerLite: upsert to group ${addGroupId} failed for ${email}: ${upsertRes.status} ${await upsertRes.text()}`,
               );
+            } else {
+              await upsertRes.text(); // consume body
             }
-            await fetch("https://connect.mailerlite.com/api/subscribers", {
-              method: "POST",
-              headers: mlHeaders,
-              body: JSON.stringify({
-                email,
-                fields: { entitlement: "free" },
-                groups: [freeGroupId],
-              }),
-            });
           }
         }
       }

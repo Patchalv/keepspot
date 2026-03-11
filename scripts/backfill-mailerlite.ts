@@ -59,7 +59,12 @@ async function getEntitlements(
   );
 }
 
-// Bulk import up to 1,000 subscribers per call
+// Bulk import up to 1,000 subscribers per call.
+// IMPORTANT: Verify before running in production that MailerLite's
+// POST /api/subscribers/import endpoint honours per-subscriber `groups`.
+// If it doesn't, imported subscribers will have no group membership.
+// Test with 1-2 entries first and confirm group assignment in the dashboard.
+// If groups are ignored, remove the bulkImport path and use single upserts only.
 async function bulkImport(
   subscribers: Array<{
     email: string;
