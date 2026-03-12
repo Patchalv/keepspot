@@ -62,8 +62,8 @@ Note on CANCELLATION: a cancelled subscription retains premium access until the 
 
 | Field | Values | Set by |
 |---|---|---|
-| `source` | Always `"app"` | All three sync paths + backfill script |
-| `entitlement` | `"free"` or `"premium"` | All three sync paths + backfill script |
+| `source` | Always `"app"` | Sign-up + entitlement-change + backfill script |
+| `entitlement` | `"free"` or `"premium"` | Sign-up + entitlement-change + backfill script |
 
 Both fields are custom Text fields created in MailerLite (Subscribers → Fields). Create them before deploying the functions.
 
@@ -120,7 +120,7 @@ deno run --allow-net --allow-env scripts/backfill-mailerlite.ts
 5. For single upserts, removes the subscriber from the opposite group first (to keep groups mutually exclusive), then upserts to the correct group. A 500 ms delay between single-upsert calls respects the MailerLite free-tier rate limit (120 req/min).
 6. Logs progress: subscribers processed, skipped (private relay), and errors.
 
-**Idempotency:** Safe to re-run. MailerLite subscriber upsert is naturally idempotent — re-running will update fields and group membership without creating duplicates.
+**Idempotency:** Safe to re-run. `POST /api/subscribers` is an upsert by email — re-running never creates duplicate subscribers. However, `POST /api/subscribers` only *adds* group memberships and never removes existing ones, so group exclusivity is not guaranteed by the upsert alone. The single-upsert path (`upsertOne`) handles this explicitly: it removes the subscriber from the opposite group before adding the correct one. The bulk-import path (`POST /api/subscribers/import`) does not include this removal step — test with a small sample before a full run to confirm group assignments are correct in your MailerLite account.
 
 > **Important:** Before running in production for the first time, test the bulk import path with 1–2 entries and confirm group assignment appears in the MailerLite dashboard. The `POST /api/subscribers/import` endpoint is supposed to honour per-subscriber `groups`, but verify this holds before a full run.
 
