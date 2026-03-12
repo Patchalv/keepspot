@@ -93,6 +93,8 @@ serve(async (req) => {
           console.error(
             `MailerLite lookup failed for ${user.id}: ${lookupRes.status} ${await lookupRes.text()}`,
           );
+        } else {
+          await lookupRes.text(); // consume body on 404
         }
       } catch (mlErr) {
         console.error(`MailerLite deletion error for ${user.id}:`, mlErr);

@@ -82,6 +82,7 @@ async function bulkImport(
     const text = await res.text();
     throw new Error(`Bulk import failed: ${res.status} ${text}`);
   }
+  await res.text(); // consume body
 }
 
 // Single upsert with explicit group reconciliation.
@@ -104,10 +105,17 @@ async function upsertOne(
     const subscriberId = (await lookupRes.json()).data?.id;
     if (subscriberId) {
       // Remove from opposite group (idempotent — 404 = not in group = fine)
-      await fetch(
+      const removeRes = await fetch(
         `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${oppositeGroupId}`,
         { method: "DELETE", headers: ML_HEADERS, signal: AbortSignal.timeout(10_000) },
       );
+      if (!removeRes.ok && removeRes.status !== 404) {
+        console.error(
+          `Group removal failed for ${email} (group ${oppositeGroupId}): ${removeRes.status} ${await removeRes.text()}`,
+        );
+      } else {
+        await removeRes.text(); // consume body
+      }
     }
   } else if (lookupRes.status !== 404) {
     const body = await lookupRes.text();
