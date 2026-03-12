@@ -62,7 +62,46 @@ serve(async (req) => {
       }
     }
 
-    // 3. Delete user from Supabase Auth
+    // 3. Delete from MailerLite (best-effort)
+    const mlApiKey = Deno.env.get("MAILERLITE_API_KEY");
+    if (mlApiKey && user.email && !user.email.endsWith("@privaterelay.appleid.com")) {
+      try {
+        const mlHeaders = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mlApiKey}`,
+        };
+        const lookupRes = await fetch(
+          `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(user.email)}`,
+          { headers: mlHeaders, signal: AbortSignal.timeout(10_000) },
+        );
+        if (lookupRes.ok) {
+          const subscriberId = (await lookupRes.json()).data?.id;
+          if (subscriberId) {
+            const deleteRes = await fetch(
+              `https://connect.mailerlite.com/api/subscribers/${subscriberId}`,
+              { method: "DELETE", headers: mlHeaders, signal: AbortSignal.timeout(10_000) },
+            );
+            if (!deleteRes.ok && deleteRes.status !== 404) {
+              console.error(
+                `MailerLite deletion failed for ${user.id}: ${deleteRes.status} ${await deleteRes.text()}`,
+              );
+            } else {
+              await deleteRes.text(); // consume body
+            }
+          }
+        } else if (lookupRes.status !== 404) {
+          console.error(
+            `MailerLite lookup failed for ${user.id}: ${lookupRes.status} ${await lookupRes.text()}`,
+          );
+        } else {
+          await lookupRes.text(); // consume body on 404
+        }
+      } catch (mlErr) {
+        console.error(`MailerLite deletion error for ${user.id}:`, mlErr);
+      }
+    }
+
+    // 4. Delete user from Supabase Auth
     //    This fires the BEFORE DELETE trigger (handle_user_deleted)
     //    which cleans up all related data in public schema.
     const { error: deleteError } =
