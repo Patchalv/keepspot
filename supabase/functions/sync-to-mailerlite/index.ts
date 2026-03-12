@@ -21,7 +21,8 @@ serve(async (req) => {
     }
 
     // 2. Parse Supabase Database Webhook v2 payload
-    const body = await req.json();
+    type DatabaseWebhookPayload = { record?: { id?: string } };
+    const body = (await req.json()) as DatabaseWebhookPayload;
     const userId = body.record?.id;
 
     if (!userId) {
@@ -37,16 +38,27 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const { data: { user }, error: userError } =
+    const { data: authData, error: userError } =
       await supabase.auth.admin.getUserById(userId);
 
-    if (userError || !user) {
+    if (userError) {
+      console.error(`Auth lookup failed for ${userId}:`, userError.message);
+      Sentry.captureException(userError, { tags: { function: "sync-to-mailerlite" } });
+      return new Response(
+        JSON.stringify({ message: "Auth lookup failed — logged to Sentry" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (!authData?.user) {
       console.log(`User ${userId} not found — skipping`);
       return new Response(
         JSON.stringify({ message: "User not found — skipped" }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
     }
+
+    const user = authData.user;
 
     const email = user.email ?? "";
 
@@ -74,6 +86,7 @@ serve(async (req) => {
       "https://connect.mailerlite.com/api/subscribers",
       {
         method: "POST",
+        signal: AbortSignal.timeout(10_000),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,

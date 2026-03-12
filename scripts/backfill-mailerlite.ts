@@ -47,8 +47,7 @@ async function getEntitlements(
     .in("id", userIds);
 
   if (error) {
-    console.error("Failed to fetch profiles:", error.message);
-    return new Map();
+    throw new Error(`Failed to fetch profiles: ${error.message}`);
   }
 
   return new Map(
@@ -84,12 +83,35 @@ async function bulkImport(
   }
 }
 
-// Single upsert fallback
+// Single upsert with explicit group reconciliation.
+// MailerLite POST /api/subscribers only ADDS groups (never removes unlisted ones),
+// so we must explicitly remove the opposite group to keep groups mutually exclusive.
 async function upsertOne(
   email: string,
   entitlement: string,
 ): Promise<void> {
   const groupId = entitlement === "premium" ? PREMIUM_GROUP_ID : FREE_GROUP_ID;
+  const oppositeGroupId =
+    entitlement === "premium" ? FREE_GROUP_ID : PREMIUM_GROUP_ID;
+
+  // Look up existing subscriber to get their ID for group removal
+  const lookupRes = await fetch(
+    `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
+    { headers: ML_HEADERS },
+  );
+  if (lookupRes.ok) {
+    const subscriberId = (await lookupRes.json()).data?.id;
+    if (subscriberId) {
+      // Remove from opposite group (idempotent — 404 = not in group = fine)
+      await fetch(
+        `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${oppositeGroupId}`,
+        { method: "DELETE", headers: ML_HEADERS },
+      );
+    }
+  } else if (lookupRes.status !== 404) {
+    await lookupRes.text(); // consume body
+  }
+
   const res = await fetch("https://connect.mailerlite.com/api/subscribers", {
     method: "POST",
     headers: ML_HEADERS,
@@ -103,6 +125,7 @@ async function upsertOne(
     const text = await res.text();
     throw new Error(`Upsert failed for ${email}: ${res.status} ${text}`);
   }
+  await res.text(); // consume body
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -139,7 +162,15 @@ async function main() {
     totalSkipped += users.length - eligible.length;
 
     if (eligible.length > 0) {
-      const entitlementMap = await getEntitlements(eligible.map((u) => u.id));
+      let entitlementMap: Map<string, string>;
+      try {
+        entitlementMap = await getEntitlements(eligible.map((u) => u.id));
+      } catch (err) {
+        console.error(`Page ${page}: skipping — ${err}`);
+        totalErrors += eligible.length;
+        page++;
+        continue;
+      }
 
       // Build subscriber objects for bulk import
       const freeSubscribers = eligible

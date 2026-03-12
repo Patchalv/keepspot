@@ -77,11 +77,22 @@ serve(async (req) => {
         if (lookupRes.ok) {
           const subscriberId = (await lookupRes.json()).data?.id;
           if (subscriberId) {
-            await fetch(
+            const deleteRes = await fetch(
               `https://connect.mailerlite.com/api/subscribers/${subscriberId}`,
               { method: "DELETE", headers: mlHeaders },
             );
+            if (!deleteRes.ok && deleteRes.status !== 404) {
+              console.error(
+                `MailerLite deletion failed for ${user.id}: ${deleteRes.status} ${await deleteRes.text()}`,
+              );
+            } else {
+              await deleteRes.text(); // consume body
+            }
           }
+        } else if (lookupRes.status !== 404) {
+          console.error(
+            `MailerLite lookup failed for ${user.id}: ${lookupRes.status} ${await lookupRes.text()}`,
+          );
         }
       } catch (mlErr) {
         console.error(`MailerLite deletion error for ${user.id}:`, mlErr);

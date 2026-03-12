@@ -116,7 +116,11 @@ serve(async (req) => {
               Authorization: `Bearer ${mlApiKey}`,
             };
 
-            // Look up subscriber ID by email
+            // Look up subscriber ID by email.
+            // MailerLite POST /api/subscribers only ADDS groups (never removes),
+            // so we must have the subscriber ID to remove the old group first.
+            // On non-404 failure, skip the swap entirely to avoid leaving the
+            // subscriber in both groups.
             const lookupRes = await fetch(
               `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
               { headers: mlHeaders },
@@ -124,8 +128,17 @@ serve(async (req) => {
             let subscriberId: string | null = null;
             if (lookupRes.ok) {
               subscriberId = (await lookupRes.json()).data?.id ?? null;
+            } else if (lookupRes.status === 404) {
+              await lookupRes.text(); // not subscribed yet — skip group swap
             } else {
-              await lookupRes.text(); // consume body to avoid connection leak
+              const body = await lookupRes.text();
+              // Non-404 failure: throw so the inner catch logs and skips the swap.
+              // POST /api/subscribers only adds groups — without the subscriber ID
+              // we cannot remove the old group first, so proceeding would leave
+              // the user in both groups.
+              throw new Error(
+                `MailerLite: subscriber lookup failed for ${email}: ${lookupRes.status} ${body}`,
+              );
             }
 
             const removeGroupId =
