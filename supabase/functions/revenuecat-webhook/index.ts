@@ -123,7 +123,7 @@ serve(async (req) => {
             // subscriber in both groups.
             const lookupRes = await fetch(
               `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
-              { headers: mlHeaders },
+              { headers: mlHeaders, signal: AbortSignal.timeout(10_000) },
             );
             let subscriberId: string | null = null;
             if (lookupRes.ok) {
@@ -150,7 +150,7 @@ serve(async (req) => {
             if (subscriberId) {
               const removeRes = await fetch(
                 `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${removeGroupId}`,
-                { method: "DELETE", headers: mlHeaders },
+                { method: "DELETE", headers: mlHeaders, signal: AbortSignal.timeout(10_000) },
               );
               if (!removeRes.ok && removeRes.status !== 404) {
                 console.error(
@@ -169,9 +169,10 @@ serve(async (req) => {
                 headers: mlHeaders,
                 body: JSON.stringify({
                   email,
-                  fields: { entitlement },
+                  fields: { source: "app", entitlement },
                   groups: [addGroupId],
                 }),
+                signal: AbortSignal.timeout(10_000),
               },
             );
             if (!upsertRes.ok) {

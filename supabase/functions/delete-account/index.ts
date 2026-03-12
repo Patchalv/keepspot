@@ -72,14 +72,14 @@ serve(async (req) => {
         };
         const lookupRes = await fetch(
           `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(user.email)}`,
-          { headers: mlHeaders },
+          { headers: mlHeaders, signal: AbortSignal.timeout(10_000) },
         );
         if (lookupRes.ok) {
           const subscriberId = (await lookupRes.json()).data?.id;
           if (subscriberId) {
             const deleteRes = await fetch(
               `https://connect.mailerlite.com/api/subscribers/${subscriberId}`,
-              { method: "DELETE", headers: mlHeaders },
+              { method: "DELETE", headers: mlHeaders, signal: AbortSignal.timeout(10_000) },
             );
             if (!deleteRes.ok && deleteRes.status !== 404) {
               console.error(

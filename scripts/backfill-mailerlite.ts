@@ -75,6 +75,7 @@ async function bulkImport(
     method: "POST",
     headers: ML_HEADERS,
     body: JSON.stringify({ subscribers }),
+    signal: AbortSignal.timeout(30_000),
   });
 
   if (!res.ok) {
@@ -97,7 +98,7 @@ async function upsertOne(
   // Look up existing subscriber to get their ID for group removal
   const lookupRes = await fetch(
     `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
-    { headers: ML_HEADERS },
+    { headers: ML_HEADERS, signal: AbortSignal.timeout(10_000) },
   );
   if (lookupRes.ok) {
     const subscriberId = (await lookupRes.json()).data?.id;
@@ -105,7 +106,7 @@ async function upsertOne(
       // Remove from opposite group (idempotent — 404 = not in group = fine)
       await fetch(
         `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${oppositeGroupId}`,
-        { method: "DELETE", headers: ML_HEADERS },
+        { method: "DELETE", headers: ML_HEADERS, signal: AbortSignal.timeout(10_000) },
       );
     }
   } else if (lookupRes.status !== 404) {
@@ -123,6 +124,7 @@ async function upsertOne(
       fields: { source: "app", entitlement },
       groups: [groupId],
     }),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) {
     const text = await res.text();
