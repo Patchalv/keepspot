@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, ActivityIndicator, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,15 +24,15 @@ export default function InviteScreen() {
   const { user } = useAuth();
   const { mutateAsync: acceptInvite } = useAcceptInvite();
 
-  const ROLE_LABELS: Record<string, string> = {
-    contributor: t('inviteCreator.contributorLabel'),
-    member: t('inviteCreator.memberLabel'),
-  };
+  const ROLE_LABELS = useMemo<Record<string, string>>(() => ({
+    contributor: t('common.roles.contributor'),
+    member: t('common.roles.member'),
+  }), [t]);
 
-  const ROLE_DESCRIPTIONS: Record<string, string> = {
+  const ROLE_DESCRIPTIONS = useMemo<Record<string, string>>(() => ({
     contributor: t('invite.contributorDescription'),
     member: t('invite.memberDescription'),
-  };
+  }), [t]);
 
   const ERROR_MESSAGES: Record<string, string> = {
     INVITE_NOT_FOUND: t('invite.errorNotFound'),
@@ -109,7 +109,7 @@ export default function InviteScreen() {
           <Text className="mb-2 text-center text-lg font-semibold text-gray-900">
             {t('invite.joinedMap', { mapName: successData.mapName })}
           </Text>
-          <Text className="mb-2 text-center text-base capitalize text-gray-700">
+          <Text className="mb-2 text-center text-base text-gray-700">
             {t('invite.asRole', { role: ROLE_LABELS[successData.role] ?? successData.role })}
           </Text>
           <Text className="mb-8 text-center text-sm text-gray-500">

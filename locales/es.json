@@ -9,7 +9,12 @@
     "ok": "OK",
     "saving": "Guardando...",
     "deleting": "Eliminando...",
-    "leaving": "Saliendo..."
+    "leaving": "Saliendo...",
+    "roles": {
+      "owner": "Propietario",
+      "contributor": "Colaborador",
+      "member": "Miembro"
+    }
   },
   "signIn": {
     "tagline": "Guarda los lugares que amas.",
@@ -187,10 +192,7 @@
   "inviteCreator": {
     "title": "Crear invitación",
     "roleLabel": "Rol",
-    "ownerLabel": "Propietario",
-    "contributorLabel": "Colaborador",
     "contributorDescription": "Puede añadir, editar y eliminar lugares",
-    "memberLabel": "Miembro",
     "memberDescription": "Solo puede ver lugares",
     "expiresLabel": "Caduca",
     "noExpiry": "Sin caducidad",

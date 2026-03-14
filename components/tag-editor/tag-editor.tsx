@@ -89,7 +89,7 @@ export const TagEditor = forwardRef<BottomSheetModal, TagEditorProps>(
           },
         ]
       );
-    }, [editingTag, mapId, onDeleteTag]);
+    }, [editingTag, mapId, onDeleteTag, t]);
 
     return (
       <>

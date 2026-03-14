@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, TextInput, Pressable, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -56,6 +56,12 @@ export default function MapSettingsScreen() {
   const canEdit = membership?.role === 'owner' || membership?.role === 'contributor';
   const isPremium = profile?.entitlement === 'premium';
   const ownedMapCount = mapMembers?.filter((m) => m.role === 'owner').length ?? 0;
+
+  const ROLE_LABELS = useMemo<Record<string, string>>(() => ({
+    owner: t('common.roles.owner'),
+    contributor: t('common.roles.contributor'),
+    member: t('common.roles.member'),
+  }), [t]);
 
   const [mapName, setMapName] = useState(map?.name ?? '');
   const hasNameChanged = mapName.trim() !== (map?.name ?? '');
@@ -191,7 +197,7 @@ export default function MapSettingsScreen() {
     (memberId: string, memberName: string, currentRole: string) => {
       if (!id || !isPremium) return;
       const newRole = currentRole === 'contributor' ? 'member' : 'contributor';
-      const newRoleLabel = newRole === 'contributor' ? t('inviteCreator.contributorLabel') : t('inviteCreator.memberLabel');
+      const newRoleLabel = newRole === 'contributor' ? t('common.roles.contributor') : t('common.roles.member');
       Alert.alert(
         t('mapSettings.changeRoleTitle'),
         t('mapSettings.changeRoleMessage', { name: memberName, role: newRoleLabel }),
@@ -378,11 +384,6 @@ export default function MapSettingsScreen() {
               const canChangeRole =
                 isOwner && isPremium && !isCurrentUser && member.role !== 'owner';
 
-              const ROLE_LABELS: Record<string, string> = {
-                owner: t('inviteCreator.ownerLabel'),
-                contributor: t('inviteCreator.contributorLabel'),
-                member: t('inviteCreator.memberLabel'),
-              };
               const roleBadgeColor =
                 member.role === 'owner'
                   ? 'bg-blue-100'

@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useState } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
@@ -23,35 +23,31 @@ export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
     const [expiresInDays, setExpiresInDays] = useState<number | null>(null);
     const [maxUses, setMaxUses] = useState<number | null>(null);
 
-    const ROLE_OPTIONS: Array<{
-      value: InviteRole;
-      label: string;
-      description: string;
-    }> = [
+    const ROLE_OPTIONS = useMemo<{ value: InviteRole; label: string; description: string }[]>(() => [
       {
         value: 'contributor',
-        label: t('inviteCreator.contributorLabel'),
+        label: t('common.roles.contributor'),
         description: t('inviteCreator.contributorDescription'),
       },
       {
         value: 'member',
-        label: t('inviteCreator.memberLabel'),
+        label: t('common.roles.member'),
         description: t('inviteCreator.memberDescription'),
       },
-    ];
+    ], [t]);
 
-    const EXPIRY_OPTIONS: Array<{ label: string; value: number | null }> = [
+    const EXPIRY_OPTIONS = useMemo<{ label: string; value: number | null }[]>(() => [
       { label: t('inviteCreator.noExpiry'), value: null },
       { label: t('inviteCreator.sevenDays'), value: 7 },
       { label: t('inviteCreator.thirtyDays'), value: 30 },
-    ];
+    ], [t]);
 
-    const MAX_USES_OPTIONS: Array<{ label: string; value: number | null }> = [
+    const MAX_USES_OPTIONS = useMemo<{ label: string; value: number | null }[]>(() => [
       { label: t('inviteCreator.unlimited'), value: null },
       { label: t('inviteCreator.oneUse'), value: 1 },
       { label: t('inviteCreator.fiveUses'), value: 5 },
       { label: t('inviteCreator.tenUses'), value: 10 },
-    ];
+    ], [t]);
 
     const handleCreate = useCallback(() => {
       onCreateInvite({

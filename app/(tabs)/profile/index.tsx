@@ -246,7 +246,7 @@ export default function ProfileScreen() {
                 }`}
               >
                 <Text
-                  className={`text-xs font-medium capitalize ${
+                  className={`text-xs font-medium ${
                     membership.role === "owner"
                       ? "text-blue-700"
                       : membership.role === "contributor"
@@ -255,10 +255,10 @@ export default function ProfileScreen() {
                   }`}
                 >
                   {membership.role === 'owner'
-                    ? t('inviteCreator.ownerLabel')
+                    ? t('common.roles.owner')
                     : membership.role === 'contributor'
-                      ? t('inviteCreator.contributorLabel')
-                      : t('inviteCreator.memberLabel')}
+                      ? t('common.roles.contributor')
+                      : t('common.roles.member')}
                 </Text>
               </View>
 

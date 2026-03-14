@@ -19,6 +19,9 @@ i18n.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
+  react: {
+    useSuspense: false, // Required for React Native — prevents emoji rendering race condition
+  },
 });
 
 export default i18n;

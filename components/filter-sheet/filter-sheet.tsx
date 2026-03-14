@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from 'react';
+import { forwardRef, useCallback, useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { BottomSheetModal, BottomSheetTextInput, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
@@ -33,11 +33,11 @@ export const FilterSheet = forwardRef<BottomSheetModal, FilterSheetProps>(
   ) {
     const { t } = useTranslation();
 
-    const VISITED_OPTIONS: Array<{ value: VisitedFilter; label: string }> = [
+    const VISITED_OPTIONS = useMemo<{ value: VisitedFilter; label: string }[]>(() => [
       { value: 'all', label: t('filterSheet.all') },
       { value: 'visited', label: t('filterSheet.visited') },
       { value: 'not_visited', label: t('filterSheet.notVisited') },
-    ];
+    ], [t]);
 
     const handleDismiss = useCallback(() => {
       // No-op — filters apply in real time

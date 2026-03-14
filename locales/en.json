@@ -9,7 +9,12 @@
     "ok": "OK",
     "saving": "Saving...",
     "deleting": "Deleting...",
-    "leaving": "Leaving..."
+    "leaving": "Leaving...",
+    "roles": {
+      "owner": "Owner",
+      "contributor": "Contributor",
+      "member": "Member"
+    }
   },
   "signIn": {
     "tagline": "Save places you love.",
@@ -187,10 +192,7 @@
   "inviteCreator": {
     "title": "Create Invite",
     "roleLabel": "Role",
-    "ownerLabel": "Owner",
-    "contributorLabel": "Contributor",
     "contributorDescription": "Can add, edit, and remove places",
-    "memberLabel": "Member",
     "memberDescription": "Can view places only",
     "expiresLabel": "Expires",
     "noExpiry": "No expiry",

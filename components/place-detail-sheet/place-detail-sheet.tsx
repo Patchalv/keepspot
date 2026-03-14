@@ -92,7 +92,7 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
           },
         ]
       );
-    }, [place, onDelete]);
+    }, [place, onDelete, t]);
 
     return (
       <BottomSheet
