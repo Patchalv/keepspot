@@ -24,6 +24,11 @@ export default function InviteScreen() {
   const { user } = useAuth();
   const { mutateAsync: acceptInvite } = useAcceptInvite();
 
+  const ROLE_LABELS: Record<string, string> = {
+    contributor: t('inviteCreator.contributorLabel'),
+    member: t('inviteCreator.memberLabel'),
+  };
+
   const ROLE_DESCRIPTIONS: Record<string, string> = {
     contributor: t('invite.contributorDescription'),
     member: t('invite.memberDescription'),
@@ -105,7 +110,7 @@ export default function InviteScreen() {
             {t('invite.joinedMap', { mapName: successData.mapName })}
           </Text>
           <Text className="mb-2 text-center text-base capitalize text-gray-700">
-            {t('invite.asRole', { role: successData.role })}
+            {t('invite.asRole', { role: ROLE_LABELS[successData.role] ?? successData.role })}
           </Text>
           <Text className="mb-8 text-center text-sm text-gray-500">
             {ROLE_DESCRIPTIONS[successData.role] ?? ''}
