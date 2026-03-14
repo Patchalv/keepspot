@@ -26,13 +26,13 @@ let hasError = false;
 
 if (missingInEs.length > 0) {
   console.error('❌ Keys in en.json missing from es.json:');
-  missingInEs.forEach((k) => console.error(`  - ${k}`));
+  missingInEs.forEach((k) => { console.error(`  - ${k}`); });
   hasError = true;
 }
 
 if (extraInEs.length > 0) {
   console.error('❌ Extra keys in es.json not in en.json:');
-  extraInEs.forEach((k) => console.error(`  - ${k}`));
+  extraInEs.forEach((k) => { console.error(`  - ${k}`); });
   hasError = true;
 }
 

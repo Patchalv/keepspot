@@ -781,7 +781,7 @@ After all steps are complete, run the following checklist:
 ### Code checks
 - [ ] No hardcoded user-facing strings remain in `app/` or `components/`
 - [ ] `types/i18next.d.ts` exists
-- [ ] `lib/i18n.ts` exists and is imported first in `app/_layout.tsx`
+- [ ] `lib/i18n.ts` exists and is imported second in `app/_layout.tsx` (after `@/global.css`)
 - [ ] `locales/en.json` and `locales/es.json` exist and have matching keys
 - [ ] `scripts/check-translations.ts` exists and runs correctly
 - [ ] `.husky/pre-commit` exists and runs `npm run check:i18n`

@@ -49,12 +49,10 @@ export default function DeleteAccountScreen() {
                   await supabase.auth.signOut({ scope: 'local' });
                 }
               },
-              onError: (err) => {
+              onError: () => {
                 Alert.alert(
                   t('deleteAccount.deletionFailedTitle'),
-                  err instanceof Error
-                    ? err.message
-                    : t('deleteAccount.deletionFailedFallback'),
+                  t('deleteAccount.deletionFailedFallback'),
                 );
               },
             });
