@@ -187,6 +187,7 @@
   "inviteCreator": {
     "title": "Crear invitación",
     "roleLabel": "Rol",
+    "ownerLabel": "Propietario",
     "contributorLabel": "Colaborador",
     "contributorDescription": "Puede añadir, editar y eliminar lugares",
     "memberLabel": "Miembro",

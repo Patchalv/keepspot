@@ -124,8 +124,8 @@ export function InviteSection({ invites, isLoading, isOwner, isPremium, onCreate
                     {/* Role + Status */}
                     <View className="flex-row items-center gap-2">
                       <View className="rounded-full bg-blue-100 px-2 py-0.5">
-                        <Text className="text-xs font-medium capitalize text-blue-700">
-                          {invite.role}
+                        <Text className="text-xs font-medium text-blue-700">
+                          {invite.role === 'contributor' ? t('inviteCreator.contributorLabel') : t('inviteCreator.memberLabel')}
                         </Text>
                       </View>
                       {inactive && (

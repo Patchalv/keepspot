@@ -378,6 +378,11 @@ export default function MapSettingsScreen() {
               const canChangeRole =
                 isOwner && isPremium && !isCurrentUser && member.role !== 'owner';
 
+              const ROLE_LABELS: Record<string, string> = {
+                owner: t('inviteCreator.ownerLabel'),
+                contributor: t('inviteCreator.contributorLabel'),
+                member: t('inviteCreator.memberLabel'),
+              };
               const roleBadgeColor =
                 member.role === 'owner'
                   ? 'bg-blue-100'
@@ -416,9 +421,9 @@ export default function MapSettingsScreen() {
                     className={`rounded-full px-2 py-0.5 ${roleBadgeColor}`}
                   >
                     <Text
-                      className={`text-xs font-medium capitalize ${roleTextColor}`}
+                      className={`text-xs font-medium ${roleTextColor}`}
                     >
-                      {member.role}
+                      {ROLE_LABELS[member.role] ?? member.role}
                     </Text>
                   </View>
                   {canChangeRole && (

@@ -438,7 +438,7 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
                       color: isVisited ? '#FFFFFF' : '#374151',
                     }}
                   >
-                    {isVisited ? 'Visited' : 'Not visited'}
+                    {isVisited ? t('placeDetailSheet.visited') : t('placeDetailSheet.notVisited')}
                   </Text>
                 </Pressable>
 
@@ -464,7 +464,7 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
                   <Text
                     style={{ fontSize: 15, fontWeight: '600', color: '#FFFFFF' }}
                   >
-                    Directions
+                    {t('placeDetailSheet.directions')}
                   </Text>
                 </Pressable>
               </View>
@@ -492,7 +492,7 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
                       color: '#EF4444',
                     }}
                   >
-                    Delete Place
+                    {t('placeDetailSheet.deletePlace')}
                   </Text>
                 </Pressable>
               )}
