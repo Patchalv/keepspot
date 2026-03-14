@@ -1,6 +1,7 @@
-import { forwardRef, useCallback, useState } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 
 type InviteRole = 'contributor' | 'member';
 
@@ -15,41 +16,38 @@ interface InviteCreatorProps {
   isPending: boolean;
 }
 
-const ROLE_OPTIONS: Array<{
-  value: InviteRole;
-  label: string;
-  description: string;
-}> = [
-  {
-    value: 'contributor',
-    label: 'Contributor',
-    description: 'Can add, edit, and remove places',
-  },
-  {
-    value: 'member',
-    label: 'Member',
-    description: 'Can view places only',
-  },
-];
-
-const EXPIRY_OPTIONS: Array<{ label: string; value: number | null }> = [
-  { label: 'No expiry', value: null },
-  { label: '7 days', value: 7 },
-  { label: '30 days', value: 30 },
-];
-
-const MAX_USES_OPTIONS: Array<{ label: string; value: number | null }> = [
-  { label: 'Unlimited', value: null },
-  { label: '1 use', value: 1 },
-  { label: '5 uses', value: 5 },
-  { label: '10 uses', value: 10 },
-];
-
 export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
   function InviteCreator({ mapId, onCreateInvite, isPending }, ref) {
+    const { t } = useTranslation();
     const [role, setRole] = useState<InviteRole>('contributor');
     const [expiresInDays, setExpiresInDays] = useState<number | null>(null);
     const [maxUses, setMaxUses] = useState<number | null>(null);
+
+    const ROLE_OPTIONS = useMemo<{ value: InviteRole; label: string; description: string }[]>(() => [
+      {
+        value: 'contributor',
+        label: t('common.roles.contributor'),
+        description: t('inviteCreator.contributorDescription'),
+      },
+      {
+        value: 'member',
+        label: t('common.roles.member'),
+        description: t('inviteCreator.memberDescription'),
+      },
+    ], [t]);
+
+    const EXPIRY_OPTIONS = useMemo<{ label: string; value: number | null }[]>(() => [
+      { label: t('inviteCreator.noExpiry'), value: null },
+      { label: t('inviteCreator.sevenDays'), value: 7 },
+      { label: t('inviteCreator.thirtyDays'), value: 30 },
+    ], [t]);
+
+    const MAX_USES_OPTIONS = useMemo<{ label: string; value: number | null }[]>(() => [
+      { label: t('inviteCreator.unlimited'), value: null },
+      { label: t('inviteCreator.oneUse'), value: 1 },
+      { label: t('inviteCreator.fiveUses'), value: 5 },
+      { label: t('inviteCreator.tenUses'), value: 10 },
+    ], [t]);
 
     const handleCreate = useCallback(() => {
       onCreateInvite({
@@ -79,7 +77,7 @@ export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
               marginBottom: 20,
             }}
           >
-            Create Invite
+            {t('inviteCreator.title')}
           </Text>
 
           {/* Role */}
@@ -93,7 +91,7 @@ export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
               letterSpacing: 0.5,
             }}
           >
-            Role
+            {t('inviteCreator.roleLabel')}
           </Text>
           <View
             style={{
@@ -150,7 +148,7 @@ export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
               letterSpacing: 0.5,
             }}
           >
-            Expires
+            {t('inviteCreator.expiresLabel')}
           </Text>
           <View
             style={{
@@ -198,7 +196,7 @@ export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
               letterSpacing: 0.5,
             }}
           >
-            Max Uses
+            {t('inviteCreator.maxUsesLabel')}
           </Text>
           <View
             style={{
@@ -249,7 +247,7 @@ export const InviteCreator = forwardRef<BottomSheetModal, InviteCreatorProps>(
             <Text
               style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}
             >
-              {isPending ? 'Creating...' : 'Create & Share'}
+              {isPending ? t('inviteCreator.creating') : t('inviteCreator.createAndShare')}
             </Text>
           </Pressable>
         </BottomSheetScrollView>
