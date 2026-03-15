@@ -201,14 +201,16 @@ ls android/build.gradle 2>/dev/null && echo "Android configured" || echo "No And
 Read({ file_path: "app.config.ts" }); // or app.config.js
 ```
 
-**For production builds, actively check for version collision:**
+**For production builds only, actively check for version collision (skip for `development` and `preview`):**
 
 ```bash
-# Get last finished production build for the selected platform
-eas build:list --platform {ios|android} --profile production --status finished --limit 5 2>&1 | head -60
+# Get last finished builds for the selected platform and profile
+eas build:list --platform {platform} --profile {profile} --status finished --limit 5 2>&1 | head -60
 ```
 
-Parse the `Version` field from the output. Compare against local `expo.version`.
+Parse the `Version` field from the output. Compare against the `version` field in the app config export (top-level, not nested under `expo`).
+
+If the command fails or the `Version` field cannot be parsed, warn the user and continue without blocking — do not silently skip.
 
 **Decision logic:**
 - If local version == last build version → 🚫 BLOCKING: version collision, prompt to bump
@@ -220,12 +222,12 @@ Parse the `Version` field from the output. Compare against local `expo.version`.
 - Bump minor (e.g. 1.0.0 → 1.1.0) — for new features
 - I'll handle it manually — stop and let user edit
 
-If user selects patch or minor, edit `app.config.ts` to update the version field, then continue.
+If user selects patch or minor, edit the app config file (`app.config.ts` or `app.config.js`, whichever exists) to update the `version` field, then re-run the `eas build:list` comparison to confirm the new version is clear before continuing.
 
 **Checklist:**
 
 - [ ] `version` is set in app config
-- [ ] For production: version not already used in a finished build
+- [ ] For production: version not already used in a finished build (blocking if fails)
 - [ ] If using `autoIncrement`: enabled in production profile (handles build number only, not version string)
 
 ### 6. Submission Readiness (if auto-submit)
@@ -236,9 +238,9 @@ If user selects patch or minor, edit `app.config.ts` to update the version field
 - [ ] `ascAppId` configured (App Store Connect app ID)
 - [ ] App exists in App Store Connect
 
-**iOS ASC Key File Check:**
+**iOS ASC Key File Check (iOS only — skip if platform is Android):**
 
-Read `eas.json` to extract `ascApiKeyPath` from the submit profile, then verify the file exists:
+Read `eas.json` to extract `ascApiKeyPath` from the iOS submit profile, then verify the file exists:
 
 ```bash
 ls {ascApiKeyPath} 2>&1
@@ -254,7 +256,7 @@ ls {ascApiKeyPath} 2>&1
   ```
 - If present → `✅ ASC API Key file: found`
 
-- [ ] `ascApiKeyPath` file exists on disk at the configured path
+- [ ] `ascApiKeyPath` file exists on disk at the configured path (blocking if fails)
 
 **Android Submission Check:**
 
@@ -292,7 +294,7 @@ Date: {date}
 ✅ app.config.js valid
 ✅ Bundle ID: {bundleIdentifier}
 ✅ Package: {package}
-✅ Version: {version}
+✅ Version: {version} — not previously built
 
 🔐 CREDENTIALS
 ------------------------------------------
@@ -323,6 +325,7 @@ Android:
 iOS:
   ✅ Apple ID configured
   ✅ ASC App ID: {ascAppId}
+  ✅ ASC API Key file: found
 
 Android:
   ✅ Service account configured
