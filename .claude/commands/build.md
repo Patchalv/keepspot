@@ -195,29 +195,42 @@ ls android/build.gradle 2>/dev/null && echo "Android configured" || echo "No And
 
 ### 5. Version Check
 
-**Check version numbers:**
+**Read current version from app config:**
 
 ```typescript
-// Read app config and eas.json
-Read({ file_path: "app.config.js" });
+Read({ file_path: "app.config.ts" }); // or app.config.js
 ```
 
-**Validate:**
+**For production builds only, actively check for version collision (skip for `development` and `preview`):**
+
+```bash
+# Get last finished builds for the selected platform and profile
+eas build:list --platform {platform} --profile {profile} --status finished --limit 5 2>&1 | head -60
+```
+
+Parse the `Version` field from the output. Compare against the `version` field in the app config export (top-level, not nested under `expo`).
+
+If the command fails or the `Version` field cannot be parsed, warn the user and continue without blocking — do not silently skip.
+
+**Decision logic:**
+
+- If local version == last build version → 🚫 BLOCKING: version collision, prompt to bump
+- If local version != last build version → ✅ version is new
+- If no previous production builds → ✅ first production build, any version is fine
+
+**If collision detected, ask:**
+
+- Bump patch (e.g. 1.0.0 → 1.0.1) — for bug fixes
+- Bump minor (e.g. 1.0.0 → 1.1.0) — for new features
+- I'll handle it manually — stop and let user edit
+
+If user selects patch or minor, edit the app config file (`app.config.ts` or `app.config.js`, whichever exists) to update the `version` field, then re-run the `eas build:list` comparison to confirm the new version is clear before continuing.
+
+**Checklist:**
 
 - [ ] `version` is set in app config
-- [ ] If production: Version incremented from last release
-- [ ] If using `autoIncrement`: Enabled in production profile
-
-**For production builds, warn about version:**
-
-```
-⚠️  VERSION CHECK
-Current version: 1.0.0
-Last released: 1.0.0 (if known)
-
-If this is an update, ensure version is incremented.
-Using autoIncrement in eas.json handles build numbers automatically.
-```
+- [ ] For production: version not already used in a finished build (blocking if fails)
+- [ ] If using `autoIncrement`: enabled in production profile (handles build number only, not version string)
 
 ### 6. Submission Readiness (if auto-submit)
 
@@ -226,6 +239,26 @@ Using autoIncrement in eas.json handles build numbers automatically.
 - [ ] `appleId` configured in submit profile (or will prompt)
 - [ ] `ascAppId` configured (App Store Connect app ID)
 - [ ] App exists in App Store Connect
+
+**iOS ASC Key File Check (iOS only — skip if platform is Android):**
+
+Read `eas.json` to extract `ascApiKeyPath` from the iOS submit profile, then verify the file exists:
+
+```bash
+ls {ascApiKeyPath} 2>&1
+```
+
+- If missing → 🚫 BLOCKING:
+  ```text
+  🚫 ASC API KEY FILE MISSING
+  Expected: {ascApiKeyPath}
+  Download AuthKey_{ascApiKeyId}.p8 from App Store Connect →
+  Users and Access → Integrations → App Store Connect API,
+  then place it at {ascApiKeyPath}.
+  ```
+- If present → `✅ ASC API Key file: found`
+
+- [ ] `ascApiKeyPath` file exists on disk at the configured path (blocking if fails)
 
 **Android Submission Check:**
 
@@ -263,7 +296,7 @@ Date: {date}
 ✅ app.config.js valid
 ✅ Bundle ID: {bundleIdentifier}
 ✅ Package: {package}
-✅ Version: {version}
+✅ Version: {version} — not previously built
 
 🔐 CREDENTIALS
 ------------------------------------------
@@ -294,6 +327,7 @@ Android:
 iOS:
   ✅ Apple ID configured
   ✅ ASC App ID: {ascAppId}
+  ✅ ASC API Key file: found
 
 Android:
   ✅ Service account configured
