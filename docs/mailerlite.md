@@ -65,6 +65,8 @@ Targeting is done via MailerLite **Segments** that filter on the `entitlement` f
 
 Create these segments in MailerLite: Subscribers → Segments → Create segment.
 
+**Migrating from groups (existing deployments):** Before deploying code that removes group logic, audit all automations and campaigns in MailerLite for references to the old "Free Users" and "Premium Users" groups. Repoint each one to the corresponding segment above. Keep the old groups in place until you've verified the segments show expected subscriber counts and automations trigger correctly — then delete the groups. If issues arise, revert automations back to the old groups while you investigate.
+
 ## Sync Triggers
 
 | Event | Triggered by | Result |

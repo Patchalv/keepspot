@@ -139,6 +139,14 @@ async function main() {
         continue;
       }
 
+      // Log users with no profile row — every auth user should have one via the
+      // handle_new_user trigger; missing entries indicate a data integrity issue.
+      for (const u of eligible) {
+        if (!entitlementMap.has(u.id)) {
+          console.warn(`  No profile found for user ${u.id} (${u.email}) — syncing as "free"`);
+        }
+      }
+
       const subscribers = eligible.map((u) => ({
         email: u.email!,
         fields: { source: "app", entitlement: entitlementMap.get(u.id) ?? "free" },
