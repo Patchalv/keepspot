@@ -54,24 +54,6 @@ async function getEntitlements(
   );
 }
 
-// Bulk import up to 1,000 subscribers per call.
-async function bulkImport(
-  subscribers: Array<{ email: string; fields: Record<string, string> }>,
-): Promise<void> {
-  const res = await fetch("https://connect.mailerlite.com/api/subscribers/import", {
-    method: "POST",
-    headers: ML_HEADERS,
-    body: JSON.stringify({ subscribers }),
-    signal: AbortSignal.timeout(30_000),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Bulk import failed: ${res.status} ${text}`);
-  }
-  await res.text(); // consume body
-}
-
 // Single upsert — simple POST /api/subscribers with entitlement field.
 async function upsertOne(
   email: string,
@@ -152,42 +134,15 @@ async function main() {
         fields: { source: "app", entitlement: entitlementMap.get(u.id) ?? "free" },
       }));
 
-      // Attempt bulk import; fall back to single upserts if bulk fails
-      if (subscribers.length > 10) {
+      for (const sub of subscribers) {
         try {
-          await bulkImport(subscribers);
-          totalProcessed += subscribers.length;
-          console.log(
-            `  Page ${page}: bulk-imported ${subscribers.length} subscribers`,
-          );
-        } catch (bulkErr) {
-          console.warn(
-            `  Bulk import failed, falling back to single upserts:`,
-            bulkErr,
-          );
-          for (const sub of subscribers) {
-            try {
-              await upsertOne(sub.email, sub.fields.entitlement);
-              totalProcessed++;
-            } catch (singleErr) {
-              console.error(`  Error upserting ${sub.email}:`, singleErr);
-              totalErrors++;
-            }
-            await sleep(500);
-          }
+          await upsertOne(sub.email, sub.fields.entitlement);
+          totalProcessed++;
+        } catch (singleErr) {
+          console.error(`  Error upserting ${sub.email}:`, singleErr);
+          totalErrors++;
         }
-      } else {
-        // Small batches: single upserts
-        for (const sub of subscribers) {
-          try {
-            await upsertOne(sub.email, sub.fields.entitlement);
-            totalProcessed++;
-          } catch (singleErr) {
-            console.error(`  Error upserting ${sub.email}:`, singleErr);
-            totalErrors++;
-          }
-          await sleep(500);
-        }
+        await sleep(500);
       }
     }
 
