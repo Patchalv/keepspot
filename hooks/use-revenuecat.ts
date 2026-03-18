@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Purchases, { type PurchasesPackage } from 'react-native-purchases';
+import * as Sentry from '@sentry/react-native';
 import { useAuth } from '@/hooks/use-auth';
 import { updateUserProperties } from '@/lib/analytics';
 import {
@@ -17,29 +18,55 @@ import type { Profile } from '@/types';
 export function useRevenueCat() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const lastIdentifiedIdRef = useRef<string | null>(null);
+  const isIdentifyingRef = useRef(false);
 
   // Configure SDK and identify user when authenticated
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      lastIdentifiedIdRef.current = null; // reset on sign-out so re-login works
+      isIdentifyingRef.current = false;
+      return;
+    }
 
     configureRevenueCat();
 
     if (!isRevenueCatReady()) return;
+    if (lastIdentifiedIdRef.current === user.id) return; // already identified
+    if (isIdentifyingRef.current) return; // logIn in flight
 
-    identifyUser(user.id).then(async () => {
-      // Sync entitlement to profile cache as client-side fallback
-      try {
-        const customerInfo = await Purchases.getCustomerInfo();
-        const premium = isPremium(customerInfo);
-        updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
-        queryClient.setQueryData<Profile>(['profile'], (old) => {
-          if (!old) return old;
-          return { ...old, entitlement: premium ? 'premium' : 'free' };
-        });
-      } catch {
-        // Non-critical — webhook will handle server-side sync
-      }
-    });
+    let mounted = true;
+    isIdentifyingRef.current = true;
+
+    identifyUser(user.id)
+      .then(async () => {
+        if (!mounted) return;
+        lastIdentifiedIdRef.current = user.id;
+        // Sync entitlement to profile cache as client-side fallback
+        try {
+          const customerInfo = await Purchases.getCustomerInfo();
+          const premium = isPremium(customerInfo);
+          updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
+          queryClient.setQueryData<Profile>(['profile'], (old) => {
+            if (!old) return old;
+            return { ...old, entitlement: premium ? 'premium' : 'free' };
+          });
+        } catch {
+          // Non-critical — webhook will handle server-side sync
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.toLowerCase().includes('already in progress')) return; // known Android race
+        Sentry.captureException(error, { tags: { context: 'revenuecat_login' } });
+      })
+      .finally(() => {
+        isIdentifyingRef.current = false;
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, [user, queryClient]);
 
   // Listen for real-time purchase events
