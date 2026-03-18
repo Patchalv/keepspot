@@ -46,6 +46,7 @@ export function useRevenueCat() {
         // Sync entitlement to profile cache as client-side fallback
         try {
           const customerInfo = await Purchases.getCustomerInfo();
+          if (!mounted) return;
           const premium = isPremium(customerInfo);
           updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
           queryClient.setQueryData<Profile>(['profile'], (old) => {
@@ -95,7 +96,7 @@ export function useRevenueCat() {
     queryKey: ['rc-offerings'],
     queryFn: getOfferings,
     staleTime: 30 * 60 * 1000, // 30 minutes
-    enabled: !!user && isRevenueCatReady(),
+    enabled: !!userId && isRevenueCatReady(),
   });
 
   const purchase = useMutation({
