@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Purchases, { type PurchasesPackage } from 'react-native-purchases';
 import * as Sentry from '@sentry/react-native';
@@ -21,6 +21,7 @@ export function useRevenueCat() {
   const queryClient = useQueryClient();
   const lastIdentifiedIdRef = useRef<string | null>(null);
   const isIdentifyingRef = useRef(false);
+  const [revenueCatReady, setRevenueCatReady] = useState(isRevenueCatReady());
 
   // Configure SDK and identify user when authenticated
   useEffect(() => {
@@ -32,7 +33,9 @@ export function useRevenueCat() {
 
     configureRevenueCat();
 
-    if (!isRevenueCatReady()) return;
+    const ready = isRevenueCatReady();
+    setRevenueCatReady(ready);
+    if (!ready) return;
     if (lastIdentifiedIdRef.current === userId) return; // already identified
     if (isIdentifyingRef.current) return; // logIn in flight
 
@@ -73,7 +76,7 @@ export function useRevenueCat() {
 
   // Listen for real-time purchase events
   useEffect(() => {
-    if (!isRevenueCatReady()) return;
+    if (!revenueCatReady) return;
 
     const listener = (customerInfo: import('react-native-purchases').CustomerInfo) => {
       const premium = isPremium(customerInfo);
@@ -90,13 +93,13 @@ export function useRevenueCat() {
     return () => {
       Purchases.removeCustomerInfoUpdateListener(listener);
     };
-  }, [queryClient]);
+  }, [queryClient, revenueCatReady]);
 
   const offerings = useQuery({
     queryKey: ['rc-offerings'],
     queryFn: getOfferings,
     staleTime: 30 * 60 * 1000, // 30 minutes
-    enabled: !!userId && isRevenueCatReady(),
+    enabled: !!userId && revenueCatReady,
   });
 
   const purchase = useMutation({
