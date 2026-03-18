@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Purchases, { type PurchasesPackage } from 'react-native-purchases';
+import * as Sentry from '@sentry/react-native';
 import { useAuth } from '@/hooks/use-auth';
 import { updateUserProperties } from '@/lib/analytics';
 import {
@@ -16,35 +17,66 @@ import type { Profile } from '@/types';
 
 export function useRevenueCat() {
   const { user } = useAuth();
+  const userId = user?.id ?? null;
   const queryClient = useQueryClient();
+  const lastIdentifiedIdRef = useRef<string | null>(null);
+  const isIdentifyingRef = useRef(false);
+  const [revenueCatReady, setRevenueCatReady] = useState(isRevenueCatReady());
 
   // Configure SDK and identify user when authenticated
   useEffect(() => {
-    if (!user) return;
+    if (!userId) {
+      lastIdentifiedIdRef.current = null; // reset on sign-out so re-login works
+      isIdentifyingRef.current = false;
+      return;
+    }
 
     configureRevenueCat();
 
-    if (!isRevenueCatReady()) return;
+    const ready = isRevenueCatReady();
+    setRevenueCatReady(ready);
+    if (!ready) return;
+    if (lastIdentifiedIdRef.current === userId) return; // already identified
+    if (isIdentifyingRef.current) return; // logIn in flight
 
-    identifyUser(user.id).then(async () => {
-      // Sync entitlement to profile cache as client-side fallback
-      try {
-        const customerInfo = await Purchases.getCustomerInfo();
-        const premium = isPremium(customerInfo);
-        updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
-        queryClient.setQueryData<Profile>(['profile'], (old) => {
-          if (!old) return old;
-          return { ...old, entitlement: premium ? 'premium' : 'free' };
-        });
-      } catch {
-        // Non-critical — webhook will handle server-side sync
-      }
-    });
-  }, [user, queryClient]);
+    let mounted = true;
+    isIdentifyingRef.current = true;
+
+    identifyUser(userId)
+      .then(async () => {
+        if (!mounted) return;
+        lastIdentifiedIdRef.current = userId;
+        // Sync entitlement to profile cache as client-side fallback
+        try {
+          const customerInfo = await Purchases.getCustomerInfo();
+          if (!mounted) return;
+          const premium = isPremium(customerInfo);
+          updateUserProperties({ entitlement: premium ? 'premium' : 'free' });
+          queryClient.setQueryData<Profile>(['profile'], (old) => {
+            if (!old) return old;
+            return { ...old, entitlement: premium ? 'premium' : 'free' };
+          });
+        } catch {
+          // Non-critical — webhook will handle server-side sync
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.toLowerCase().includes('already in progress')) return; // known Android race
+        Sentry.captureException(error, { tags: { context: 'revenuecat_login' } });
+      })
+      .finally(() => {
+        isIdentifyingRef.current = false;
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, queryClient]);
 
   // Listen for real-time purchase events
   useEffect(() => {
-    if (!isRevenueCatReady()) return;
+    if (!revenueCatReady) return;
 
     const listener = (customerInfo: import('react-native-purchases').CustomerInfo) => {
       const premium = isPremium(customerInfo);
@@ -61,13 +93,13 @@ export function useRevenueCat() {
     return () => {
       Purchases.removeCustomerInfoUpdateListener(listener);
     };
-  }, [queryClient]);
+  }, [queryClient, revenueCatReady]);
 
   const offerings = useQuery({
     queryKey: ['rc-offerings'],
     queryFn: getOfferings,
     staleTime: 30 * 60 * 1000, // 30 minutes
-    enabled: !!user && isRevenueCatReady(),
+    enabled: !!userId && revenueCatReady,
   });
 
   const purchase = useMutation({
