@@ -7,7 +7,6 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
-  TouchableOpacity,
   Share,
 } from 'react-native';
 import { useLocalSearchParams, useFocusEffect, router } from 'expo-router';
@@ -107,7 +106,7 @@ export default function MapInvitesScreen() {
     }) => {
       createInvite(input, {
         onSuccess: () => inviteCreatorRef.current?.dismiss(),
-        onError: (err) => Alert.alert(t('common.error'), err.message),
+        onError: () => Alert.alert(t('common.error'), t('mapInvites.createError')),
       });
     },
     [createInvite]
@@ -194,7 +193,7 @@ export default function MapInvitesScreen() {
 
   return (
     <BottomSheetModalProvider>
-      <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <View className="flex-1 bg-white">
         {header}
 
         {isLoading ? (
@@ -299,12 +298,12 @@ export default function MapInvitesScreen() {
                             </>
                           )}
                           {isOwner && (
-                            <TouchableOpacity
+                            <Pressable
                               onPress={() => handleRevokeConfirm(invite.id)}
                               className="items-center justify-center px-1 py-2"
                             >
                               <Ionicons name="trash-outline" size={20} color="#E8453C" />
-                            </TouchableOpacity>
+                            </Pressable>
                           )}
                         </View>
                       </View>

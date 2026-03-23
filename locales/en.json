@@ -227,6 +227,7 @@
     "title": "Invites",
     "description": "Share an invite link so others can join this map.",
     "couldntLoad": "Couldn't load invites.",
+    "createError": "Could not create invite. Please try again.",
     "emptyTitle": "No active invite links.",
     "emptySubtitle": "Tap \"+ Create Invite\" to share this map.",
     "revokeTitle": "Revoke Invite?",
