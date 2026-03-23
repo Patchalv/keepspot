@@ -160,7 +160,7 @@ export default function MapSettingsScreen() {
         onError: (err) => Alert.alert(t('common.error'), err.message),
       });
     },
-    [createTag]
+    [createTag, t]
   );
 
   const handleUpdateTag = useCallback(
@@ -176,7 +176,7 @@ export default function MapSettingsScreen() {
         onError: (err) => Alert.alert(t('common.error'), err.message),
       });
     },
-    [updateTag]
+    [updateTag, t]
   );
 
   const handleDeleteTag = useCallback(
@@ -186,7 +186,7 @@ export default function MapSettingsScreen() {
         onError: (err) => Alert.alert(t('common.error'), err.message),
       });
     },
-    [deleteTag]
+    [deleteTag, t]
   );
 
   const handleOpenInviteCreator = useCallback(() => {
@@ -231,7 +231,7 @@ export default function MapSettingsScreen() {
         ]
       );
     },
-    [id, isPremium, updateMemberRole]
+    [id, isPremium, updateMemberRole, t]
   );
 
   if (isLoadingMaps) {

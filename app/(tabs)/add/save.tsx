@@ -87,7 +87,7 @@ export default function SaveScreen() {
     return () => {
       cancelled = true;
     };
-  }, [placeId]);
+  }, [placeId, t]);
 
   // Reset selected tags when the effective map changes (tags are per-map)
   useEffect(() => {
