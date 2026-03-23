@@ -39,6 +39,7 @@ export default function InviteScreen() {
     INVITE_EXPIRED: t('invite.errorExpired'),
     INVITE_MAX_USES: t('invite.errorMaxUses'),
     ALREADY_MEMBER: t('invite.errorAlreadyMember'),
+    FALLBACK: t('invite.errorFallback'),
   }), [t]);
 
   const [status, setStatus] = useState<Status>('loading');
@@ -73,7 +74,7 @@ export default function InviteScreen() {
 
         const inviteErr = err as InviteError;
         const code = inviteErr.code;
-        setErrorMessage((code && ERROR_MESSAGES[code]) ?? t('invite.errorFallback'));
+        setErrorMessage(ERROR_MESSAGES[code ?? ''] ?? ERROR_MESSAGES.FALLBACK);
         setStatus('error');
       }
     }
@@ -83,7 +84,7 @@ export default function InviteScreen() {
     return () => {
       cancelled = true;
     };
-  }, [token, user, acceptInvite, ERROR_MESSAGES, t]);
+  }, [token, user, acceptInvite, ERROR_MESSAGES]);
 
   return (
     <View
