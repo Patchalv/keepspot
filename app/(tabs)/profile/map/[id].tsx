@@ -261,7 +261,7 @@ export default function MapSettingsScreen() {
         onPress={Keyboard.dismiss}
         accessible={false} // prevents VoiceOver treating the whole screen as one element
       >
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View className="flex-1 bg-white">
           {/* Header */}
           <View
             style={{ paddingTop: insets.top + 8 }}
@@ -279,6 +279,7 @@ export default function MapSettingsScreen() {
           </View>
 
           <ScrollView
+            keyboardDismissMode="interactive"
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{
               padding: 20,
