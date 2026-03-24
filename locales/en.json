@@ -248,7 +248,9 @@
     "removeFromMap": "Remove from Map",
     "removeConfirmTitle": "Remove {{name}}?",
     "removeConfirmMessage": "They will lose access to this map. Their saved places will remain.",
-    "removeConfirm": "Remove"
+    "removeConfirm": "Remove",
+    "inviteLinkTitle": "Invite someone new",
+    "inviteLinkSubtitle": "Send an invite link to add more people"
   },
   "mapPickerSheet": {
     "title": "Save to Map",
