@@ -18,7 +18,9 @@ import { useUpdateMemberRole } from '@/hooks/use-update-member-role';
 import { useRemoveMember } from '@/hooks/use-remove-member';
 import { Spinner } from '@/components/spinner/spinner';
 import { ErrorState } from '@/components/error-state/error-state';
+import { LinkCard, LINK_CARD_ICON_SIZE, LINK_CARD_ICON_COLOR } from '@/components/link-card/link-card';
 import { track } from '@/lib/analytics';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface MapMember {
   id: string;
@@ -220,6 +222,17 @@ export default function MapMembersScreen() {
                 </Pressable>
               );
             })
+          )}
+
+          {isOwner && (
+            <View className="mt-4">
+              <LinkCard
+                icon={<Ionicons name="mail-outline" size={LINK_CARD_ICON_SIZE} color={LINK_CARD_ICON_COLOR} />}
+                title={t('mapMembers.inviteLinkTitle')}
+                subtitle={t('mapMembers.inviteLinkSubtitle')}
+                onPress={() => router.push(`/(tabs)/profile/map/${id}/invites`)}
+              />
+            </View>
           )}
         </ScrollView>
       )}

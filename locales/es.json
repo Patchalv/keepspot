@@ -249,7 +249,9 @@
     "removeFromMap": "Eliminar del mapa",
     "removeConfirmTitle": "¿Eliminar a {{name}}?",
     "removeConfirmMessage": "Perderán acceso a este mapa. Sus lugares guardados permanecerán.",
-    "removeConfirm": "Eliminar"
+    "removeConfirm": "Eliminar",
+    "inviteLinkTitle": "Invitar a alguien nuevo",
+    "inviteLinkSubtitle": "Envía un enlace de invitación para añadir más personas"
   },
   "mapPickerSheet": {
     "title": "Guardar en mapa",
