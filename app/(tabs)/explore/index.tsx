@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Modal } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import BottomSheet, { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -214,6 +214,27 @@ export default function ExploreScreen() {
     width: number;
     height: number;
   } | null>(null);
+  const [isSpotlightClosing, setIsSpotlightClosing] = useState(false);
+  const spotlightCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isDismissingSpotlightRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (spotlightCloseTimerRef.current) clearTimeout(spotlightCloseTimerRef.current);
+      isDismissingSpotlightRef.current = false;
+    };
+  }, []);
+
+  const handleDismissSpotlight = useCallback(() => {
+    if (isDismissingSpotlightRef.current) return;
+    isDismissingSpotlightRef.current = true;
+    setIsSpotlightClosing(true);
+    spotlightCloseTimerRef.current = setTimeout(() => {
+      dismissSpotlight();
+      setIsSpotlightClosing(false);
+      isDismissingSpotlightRef.current = false;
+    }, 200); // matches SpotlightTooltip FadeOut.duration(200)
+  }, [dismissSpotlight]);
 
   useEffect(() => {
     if (showFilterSpotlight) {
@@ -478,14 +499,22 @@ export default function ExploreScreen() {
       />
 
       {/* Filter spotlight tooltip (onboarding step 2) */}
-      {showFilterSpotlight && filterButtonRect && (
-        <SpotlightTooltip
-          targetRect={filterButtonRect}
-          title={t('explore.filterTitle')}
-          description={t('explore.filterDescription')}
-          onDismiss={dismissSpotlight}
-        />
-      )}
+      <Modal
+        transparent
+        visible={(showFilterSpotlight || isSpotlightClosing) && !!filterButtonRect}
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={handleDismissSpotlight}
+      >
+        {filterButtonRect && (
+          <SpotlightTooltip
+            targetRect={filterButtonRect}
+            title={t('explore.filterTitle')}
+            description={t('explore.filterDescription')}
+            onDismiss={handleDismissSpotlight}
+          />
+        )}
+      </Modal>
     </View>
   );
 }
