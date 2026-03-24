@@ -49,6 +49,9 @@ export default function SaveScreen() {
   const createTag = useCreateTag();
   const tagEditorRef = useRef<BottomSheetModal>(null);
   const [tagEditorKey, setTagEditorKey] = useState(0);
+  // Ref so onSuccess callbacks can read the current effectiveMapId without stale closure issues
+  const effectiveMapIdRef = useRef<string | null>(effectiveMapId);
+  effectiveMapIdRef.current = effectiveMapId;
   const { handleMutationError } = useFreemiumGate();
   const { maybeRequestReview } = useAppReview();
   const didSaveRef = useRef(false);
@@ -360,8 +363,8 @@ export default function SaveScreen() {
           onCreateTag={({ mapId: initiatingMapId, name, emoji, color }) => {
             createTag.mutate({ mapId: initiatingMapId, name, emoji, color }, {
               onSuccess: (newTag) => {
-                // Only add the tag to the selection if the user is still on the same map
-                if (effectiveMapId === initiatingMapId) {
+                // Use ref to read the live effectiveMapId — closure would be stale
+                if (effectiveMapIdRef.current === initiatingMapId) {
                   setSelectedTagIds((prev) => [...prev, newTag.id]);
                 }
                 tagEditorRef.current?.dismiss();
