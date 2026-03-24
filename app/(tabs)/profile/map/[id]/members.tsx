@@ -169,7 +169,8 @@ export default function MapMembersScreen() {
                 .toUpperCase()
                 .slice(0, 2);
               const isCurrentUser = member.user_id === user?.id;
-              const canTap = isPremiumOwner && !isCurrentUser && member.role !== 'owner' && removingMemberId === null;
+              const isBeingRemoved = removingMemberId === member.id;
+              const canTap = isPremiumOwner && !isCurrentUser && member.role !== 'owner' && !isBeingRemoved;
 
               const roleBadgeBg =
                 member.role === 'owner'
