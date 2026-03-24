@@ -228,11 +228,13 @@ export default function ExploreScreen() {
   const handleDismissSpotlight = useCallback(() => {
     if (isDismissingSpotlightRef.current) return;
     isDismissingSpotlightRef.current = true;
+    dismissSpotlight(); // persist immediately so remount doesn't re-show spotlight
     setIsSpotlightClosing(true);
     spotlightCloseTimerRef.current = setTimeout(() => {
-      dismissSpotlight();
       setIsSpotlightClosing(false);
+      setFilterButtonRect(null);
       isDismissingSpotlightRef.current = false;
+      spotlightCloseTimerRef.current = null;
     }, 200); // matches SpotlightTooltip FadeOut.duration(200)
   }, [dismissSpotlight]);
 
@@ -247,10 +249,10 @@ export default function ExploreScreen() {
         });
       }, 300);
       return () => clearTimeout(timer);
-    } else {
+    } else if (!isSpotlightClosing) {
       setFilterButtonRect(null);
     }
-  }, [showFilterSpotlight]);
+  }, [showFilterSpotlight, isSpotlightClosing]);
 
   // Reset filters when switching maps
   useEffect(() => {
@@ -506,7 +508,7 @@ export default function ExploreScreen() {
         statusBarTranslucent
         onRequestClose={handleDismissSpotlight}
       >
-        {filterButtonRect && (
+        {showFilterSpotlight && filterButtonRect && (
           <SpotlightTooltip
             targetRect={filterButtonRect}
             title={t('explore.filterTitle')}
