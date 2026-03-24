@@ -49,7 +49,8 @@ export default function SaveScreen() {
   const createTag = useCreateTag();
   const tagEditorRef = useRef<BottomSheetModal>(null);
   const [tagEditorKey, setTagEditorKey] = useState(0);
-  // Ref so onSuccess callbacks can read the current effectiveMapId without stale closure issues
+  // Ref so onSuccess can read the live effectiveMapId — mutate()'s inline callbacks
+  // capture a stale closure from the render when mutate() was called, not when it settles
   const effectiveMapIdRef = useRef<string | null>(effectiveMapId);
   effectiveMapIdRef.current = effectiveMapId;
   const { handleMutationError } = useFreemiumGate();
