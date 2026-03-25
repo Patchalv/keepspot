@@ -16,7 +16,6 @@ import { useToggleVisited } from '@/hooks/use-toggle-visited';
 import { useUpdatePlaceTags } from '@/hooks/use-update-place-tags';
 import { useDeletePlace } from '@/hooks/use-delete-place';
 import { useUpdatePlaceNote } from '@/hooks/use-update-place-note';
-import { useOnboarding } from '@/hooks/use-onboarding';
 import { useAppReview } from '@/hooks/use-app-review';
 import { track } from '@/lib/analytics';
 import { ExploreHeader } from '@/components/explore-header/explore-header';
@@ -24,9 +23,7 @@ import { MapMarkers } from '@/components/map-markers/map-markers';
 import { PlaceDetailSheet } from '@/components/place-detail-sheet/place-detail-sheet';
 import { FilterSheet } from '@/components/filter-sheet/filter-sheet';
 import { PlaceList } from '@/components/place-list/place-list';
-import { EmptyState } from '@/components/empty-state/empty-state';
 import { ErrorState } from '@/components/error-state/error-state';
-import { SpotlightTooltip } from '@/components/spotlight-tooltip/spotlight-tooltip';
 import type { Tag, ViewMode, VisitedFilter } from '@/types';
 
 // Madrid fallback coordinates
@@ -79,7 +76,6 @@ export default function ExploreScreen() {
   // Refs
   const detailSheetRef = useRef<BottomSheet>(null);
   const filterSheetRef = useRef<BottomSheetModal>(null);
-  const filterButtonRef = useRef<View>(null);
   const hasInitializedLocationRef = useRef(false);
 
   // Derived
@@ -201,36 +197,6 @@ export default function ExploreScreen() {
     (isAllMaps ? 0 : selectedTagIds.length) +
     (visitedFilter !== 'all' ? 1 : 0) +
     (searchQuery ? 1 : 0);
-
-  // Onboarding
-  const { showEmptyState, showFilterSpotlight, dismissSpotlight } =
-    useOnboarding({
-      placesData: places,
-      activeFilterCount,
-    });
-
-  const [filterButtonRect, setFilterButtonRect] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (showFilterSpotlight) {
-      // Small delay to ensure layout is complete after data loads
-      const timer = setTimeout(() => {
-        filterButtonRef.current?.measureInWindow((x, y, width, height) => {
-          if (width > 0 && height > 0) {
-            setFilterButtonRect({ x, y, width, height });
-          }
-        });
-      }, 300);
-      return () => clearTimeout(timer);
-    } else {
-      setFilterButtonRect(null);
-    }
-  }, [showFilterSpotlight]);
 
   // Reset filters when switching maps
   useEffect(() => {
@@ -386,8 +352,7 @@ export default function ExploreScreen() {
             <Mapbox.LocationPuck puckBearingEnabled puckBearing="heading" />
             <MapMarkers places={filteredPlaces} onPlacePress={handlePlacePress} />
           </Mapbox.MapView>
-          {showEmptyState && <EmptyState variant="map" />}
-          {isLoadingPlaces && !showEmptyState && (
+          {isLoadingPlaces && (
             <View
               pointerEvents="none"
               className="absolute inset-0 z-[5] items-center justify-center"
@@ -397,7 +362,7 @@ export default function ExploreScreen() {
               </View>
             </View>
           )}
-          {isErrorPlaces && !isLoadingPlaces && !showEmptyState && (
+          {isErrorPlaces && !isLoadingPlaces && (
             <View
               pointerEvents="box-none"
               className="absolute inset-0 z-[5] items-center justify-center"
@@ -422,8 +387,6 @@ export default function ExploreScreen() {
             </View>
           )}
         </>
-      ) : showEmptyState ? (
-        <EmptyState variant="list" />
       ) : isLoadingPlaces ? (
         <View style={{ flex: 1, backgroundColor: '#F3F4F6' }} className="items-center justify-center">
           <ActivityIndicator size="large" color="#3B82F6" />
@@ -456,7 +419,6 @@ export default function ExploreScreen() {
         activeFilterCount={activeFilterCount}
         onRecenter={viewMode === 'map' ? handleRecenter : undefined}
         onRefresh={viewMode === 'map' ? handleRefresh : undefined}
-        filterButtonRef={filterButtonRef}
       />
 
       {/* Place Detail Sheet */}
@@ -487,16 +449,6 @@ export default function ExploreScreen() {
         isAllMaps={isAllMaps}
         onChange={handleFilterSheetChange}
       />
-
-      {/* Filter spotlight tooltip (onboarding step 2) */}
-      {showFilterSpotlight && filterButtonRect && (
-        <SpotlightTooltip
-          targetRect={filterButtonRect}
-          title={t('explore.filterTitle')}
-          description={t('explore.filterDescription')}
-          onDismiss={dismissSpotlight}
-        />
-      )}
     </View>
   );
 }

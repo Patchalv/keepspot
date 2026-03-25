@@ -25,9 +25,7 @@
   "explore": {
     "couldntLoadPlaces": "Couldn't load places",
     "checkConnectionRetry": "Check your connection and try again.",
-    "couldntLoadPlacesFull": "Couldn't load places. Check your connection and try again.",
-    "filterTitle": "Filter your places",
-    "filterDescription": "Use filters to find places by tags, visited status, or search by name."
+    "couldntLoadPlacesFull": "Couldn't load places. Check your connection and try again."
   },
   "addPlace": {
     "title": "Add Place",
@@ -162,11 +160,6 @@
     "message": "This screen doesn't exist.",
     "goHome": "Go to home screen!"
   },
-  "emptyState": {
-    "title": "Save your first place",
-    "subtitle": "Start building your personal map by adding places you love or want to visit.",
-    "addButton": "Add a Place"
-  },
   "errorState": {
     "title": "Something went wrong",
     "defaultMessage": "Something went wrong. Please try again.",
@@ -275,9 +268,6 @@
   },
   "placeList": {
     "noPlacesFound": "No places found"
-  },
-  "spotlightTooltip": {
-    "tapToDismiss": "Tap anywhere to dismiss"
   },
   "tabs": {
     "explore": "Explore",

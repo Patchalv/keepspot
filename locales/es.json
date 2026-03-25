@@ -25,9 +25,7 @@
   "explore": {
     "couldntLoadPlaces": "No se pudieron cargar los lugares",
     "checkConnectionRetry": "Comprueba tu conexión e inténtalo de nuevo.",
-    "couldntLoadPlacesFull": "No se pudieron cargar los lugares. Comprueba tu conexión e inténtalo de nuevo.",
-    "filterTitle": "Filtra tus lugares",
-    "filterDescription": "Usa filtros para encontrar lugares por etiquetas, estado de visita o búsqueda por nombre."
+    "couldntLoadPlacesFull": "No se pudieron cargar los lugares. Comprueba tu conexión e inténtalo de nuevo."
   },
   "addPlace": {
     "title": "Añadir lugar",
@@ -162,11 +160,6 @@
     "message": "Esta pantalla no existe.",
     "goHome": "¡Ir a la pantalla principal!"
   },
-  "emptyState": {
-    "title": "Guarda tu primer lugar",
-    "subtitle": "Empieza a construir tu mapa personal añadiendo lugares que amas o quieres visitar.",
-    "addButton": "Añadir un lugar"
-  },
   "errorState": {
     "title": "Algo salió mal",
     "defaultMessage": "Algo salió mal. Inténtalo de nuevo.",
@@ -275,9 +268,6 @@
   },
   "placeList": {
     "noPlacesFound": "No se encontraron lugares"
-  },
-  "spotlightTooltip": {
-    "tapToDismiss": "Toca en cualquier lugar para cerrar"
   },
   "tabs": {
     "explore": "Explorar",

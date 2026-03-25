@@ -123,10 +123,7 @@ The result: people who have done the work of building a curated, trusted list of
 
 1. User downloads the app and creates an account.
 2. A default map called "My Map" is automatically created.
-3. User sees a brief onboarding tour (2 steps):
-   - How to add a place
-   - How to search and filter saved places
-4. User lands on the main map view — empty, showing their current location, ready to add their first place.
+3. User lands on the main map view — empty, showing their current location, ready to add their first place.
 
 ### Core Daily Loop
 
@@ -194,7 +191,7 @@ The result: people who have done the work of building a curated, trusted list of
 1. **Platform:** Mobile-first for v1 (iOS or Android — TBD). Web app planned for v1.1 to support the "planning from the desk" use case. Retrieval and saving both happen on mobile and desktop, but mobile is the priority.
 2. **Google Maps import:** Not required for v1. Users can start adding places immediately and get value without their full history. Import moves to v1.1 — worth investigating technical feasibility early as it could significantly reduce the cold-start problem for power users.
 3. **Tag system:** Tags are per-map, not global. Each new map comes with sensible defaults ("Restaurant", "Bar", "Friend") and users can create additional custom tags for that map. All members of a shared map see and use the same tag set.
-4. **Onboarding:** On first launch, users get a default "My Map", a brief 2-step tour (how to add, how to search/filter), and a simple "Save your first place" prompt on the empty map. Lightweight — no heavy onboarding flow.
+4. **Onboarding:** On first launch, users get a default "My Map" and land on the empty map view. No in-app tour.
 5. **Monetization:** Freemium model.
    - **Free tier:** One personal map, up to 50 saved places. Can see premium features but they are behind a paywall.
    - **Premium tier:** Multiple maps, shared maps, higher (or no) place limits.
