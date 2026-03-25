@@ -34,7 +34,7 @@ type AnalyticsEvents = {
   visited_toggled: { map_place_id: string; new_status: boolean };
   view_mode_switched: { new_mode: 'map' | 'list' };
   map_created: { map_id: string };
-  map_switched: { map_id: string | 'all'; source: 'dropdown' };
+  map_switched: { map_id: string | 'all'; source: 'dropdown' | 'settings' };
   map_deleted: { map_id: string };
   tag_created: { map_id: string; tag_name: string };
   invite_link_created: { map_id: string };
@@ -46,12 +46,17 @@ type AnalyticsEvents = {
   member_role_changed: { map_id: string; new_role: string };
   member_removed: { map_id: string; role: string };
   paywall_viewed: {
-    trigger: 'map_limit' | 'place_limit' | 'invite_limit' | 'profile_tap' | 'profile_cta';
+    trigger: 'map_limit' | 'place_limit' | 'invite_limit' | 'profile_tap' | 'profile_cta' | 'settings_upgrade_cta';
   };
   purchase_started: Record<string, never>;
   purchase_completed: Record<string, never>;
   purchase_failed: { reason: 'cancelled' | 'error' };
   review_prompted: { trigger: 'place_visited' | 'places_saved_milestone' | 'directions_after_filter' };
+  settings_viewed: Record<string, never>;
+  settings_upgrade_cta_tapped: { entitlement: 'free' };
+  settings_map_switcher_opened: Record<string, never>;
+  settings_rate_review_tapped: Record<string, never>;
+  settings_external_link_tapped: { link: 'privacy' | 'terms' | 'help' };
 };
 
 let posthogInstance: PostHog | null = null;
