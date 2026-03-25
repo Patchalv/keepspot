@@ -1,4 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useRevenueCat } from '@/hooks/use-revenuecat';
@@ -39,10 +40,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="settings"
         options={{
-          title: t('tabs.profile'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          title: t('tabs.settings'),
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings-sharp" size={24} color={color} style={{ marginBottom: -3 }} />
+          ),
         }}
       />
     </Tabs>

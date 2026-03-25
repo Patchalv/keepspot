@@ -272,7 +272,7 @@
   "tabs": {
     "explore": "Explore",
     "add": "Add",
-    "profile": "Profile"
+    "settings": "Settings"
   },
   "tagEditor": {
     "editTagTitle": "Edit Tag",
@@ -285,5 +285,34 @@
     "deleteTag": "Delete Tag",
     "deleteTagTitle": "Delete Tag",
     "deleteTagMessage": "Delete \"{{tagName}}\"? This will remove the tag from all places."
+  },
+  "settings": {
+    "title": "Settings",
+    "premiumCta": {
+      "title": "Premium Membership",
+      "subtitle": "Upgrade for more features"
+    },
+    "sections": {
+      "maps": "Maps",
+      "account": "Account",
+      "more": "More"
+    },
+    "rows": {
+      "manageMaps": "Manage Maps (Coming Soon)",
+      "myMap": "Change Active Map",
+      "myMapDescription": "Controls which map is shown on Explore.",
+      "profile": "Profile",
+      "membership": "Membership (Coming Soon)",
+      "rateReview": "Rate & Review",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "help": "Help",
+      "signOut": "Log out",
+      "allMaps": "All Maps",
+      "premiumBadge": "PREMIUM"
+    },
+    "mapSwitcherSheet": {
+      "title": "Select which map should be active"
+    }
   }
 }

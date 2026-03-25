@@ -272,7 +272,7 @@
   "tabs": {
     "explore": "Explorar",
     "add": "Añadir",
-    "profile": "Perfil"
+    "settings": "Ajustes"
   },
   "tagEditor": {
     "editTagTitle": "Editar etiqueta",
@@ -285,5 +285,34 @@
     "deleteTag": "Eliminar etiqueta",
     "deleteTagTitle": "Eliminar etiqueta",
     "deleteTagMessage": "¿Eliminar \"{{tagName}}\"? Esto eliminará la etiqueta de todos los lugares."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "premiumCta": {
+      "title": "Membresía Premium",
+      "subtitle": "Mejora para obtener más funciones"
+    },
+    "sections": {
+      "maps": "Mapas",
+      "account": "Cuenta",
+      "more": "Más"
+    },
+    "rows": {
+      "manageMaps": "Gestionar mapas (próximamente)",
+      "myMap": "Cambiar Mapa Activo",
+      "myMapDescription": "Controla qué mapa se muestra en Explorar.",
+      "profile": "Perfil",
+      "membership": "Membresía (próximamente)",
+      "rateReview": "Calificar y reseñar",
+      "privacyPolicy": "Política de privacidad",
+      "termsOfService": "Términos de servicio",
+      "help": "Ayuda",
+      "signOut": "Cerrar sesión",
+      "allMaps": "Todos los mapas",
+      "premiumBadge": "PREMIUM"
+    },
+    "mapSwitcherSheet": {
+      "title": "Selecciona qué mapa debe estar activo"
+    }
   }
 }

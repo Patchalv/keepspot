@@ -32,6 +32,7 @@ export const ERROR_CODES = {
 export const LEGAL_URLS = {
   privacy: 'https://www.mapvault.app/privacy',
   terms: 'https://www.mapvault.app/terms',
+  help: 'https://www.mapvault.app/contact',
 } as const;
 
 export const APP_REVIEW = {
