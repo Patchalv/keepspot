@@ -11,6 +11,7 @@ import { useState } from "react";
 import {
   Alert,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -83,6 +84,7 @@ export default function ProfileScreen() {
 
   const handleCloseEditNameModal = () => {
     if (isSavingName) return;
+    Keyboard.dismiss();
     setShowEditNameModal(false);
   };
 
