@@ -1,12 +1,9 @@
-import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
 import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
 import BottomSheet, {
-  BottomSheetModal,
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import { useCreateTag } from '@/hooks/use-manage-tags';
-import { TagEditor } from '@/components/tag-editor/tag-editor';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import type { MapPlaceWithDetails, Tag } from '@/types';
@@ -16,7 +13,6 @@ import { track } from '@/lib/analytics';
 interface PlaceDetailSheetProps {
   place: MapPlaceWithDetails | null;
   availableTags: Tag[];
-  mapId: string;
   canEdit?: boolean;
   onToggleVisited: (mapPlaceId: string, visited: boolean) => void;
   onToggleTag: (
@@ -32,15 +28,12 @@ interface PlaceDetailSheetProps {
 
 export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
   function PlaceDetailSheet(
-    { place, availableTags, mapId, canEdit = true, onToggleVisited, onToggleTag, onUpdateNote, onDelete, onClose },
+    { place, availableTags, canEdit = true, onToggleVisited, onToggleTag, onUpdateNote, onDelete, onClose },
     ref
   ) {
     const { t } = useTranslation();
     const isVisited = place?.place_visits[0]?.visited ?? false;
     const [isEditingTags, setIsEditingTags] = useState(false);
-    const tagEditorRef = useRef<BottomSheetModal>(null);
-    const createTag = useCreateTag();
-    const [tagEditorKey, setTagEditorKey] = useState(0);
     const [isEditingNote, setIsEditingNote] = useState(false);
     const [draftNote, setDraftNote] = useState('');
 
@@ -102,7 +95,6 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
     }, [place, onDelete, t]);
 
     return (
-      <>
       <BottomSheet
         ref={ref}
         index={-1}
@@ -216,29 +208,6 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
                         </Pressable>
                       );
                     })}
-                    <Pressable
-                      onPress={() => tagEditorRef.current?.present()}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        backgroundColor: '#F3F4F6',
-                        borderRadius: 16,
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                        borderWidth: 1,
-                        borderColor: '#E5E7EB',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          fontWeight: '500',
-                          color: '#6B7280',
-                        }}
-                      >
-                        + {t('placeDetailSheet.newTag')}
-                      </Text>
-                    </Pressable>
                   </ScrollView>
                 </View>
               ) : (
@@ -282,7 +251,7 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
                       </Text>
                     </View>
                   ))}
-                  {canEdit && (
+                  {canEdit && availableTags.length > 0 && (
                     <Pressable
                       onPress={() => setIsEditingTags(true)}
                       hitSlop={8}
@@ -531,30 +500,6 @@ export const PlaceDetailSheet = forwardRef<BottomSheet, PlaceDetailSheetProps>(
           )}
         </BottomSheetScrollView>
       </BottomSheet>
-      {mapId && (
-        <TagEditor
-          key={tagEditorKey}
-          ref={tagEditorRef}
-          mapId={mapId}
-          editingTag={null}
-          onCreateTag={({ mapId: mId, name, emoji, color }) => {
-            // Capture place.id synchronously — place may be null by the time onSuccess fires
-            const placeId = place?.id;
-            createTag.mutate({ mapId: mId, name, emoji, color }, {
-              onSuccess: (newTag) => {
-                if (placeId) onToggleTag(placeId, newTag.id, newTag, false);
-                tagEditorRef.current?.dismiss();
-                setTagEditorKey((k) => k + 1);
-              },
-              onError: (err) => Alert.alert(t('common.error'), err.message),
-            });
-          }}
-          onUpdateTag={() => {}} // create-only mode
-          onDeleteTag={() => {}} // create-only mode
-          isPending={createTag.isPending}
-        />
-      )}
-      </>
     );
   }
 );

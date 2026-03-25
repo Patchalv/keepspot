@@ -41,7 +41,6 @@
   "savePlace": {
     "title": "Save Place",
     "tags": "Tags",
-    "newTag": "New Tag",
     "note": "Note",
     "notePlaceholder": "Add a note...",
     "alreadyVisited": "Already visited?",
@@ -265,7 +264,6 @@
     "addNote": "Add note",
     "editTagsButton": "Edit",
     "addTagsButton": "Add tags",
-    "newTag": "New Tag",
     "visited": "Visited",
     "notVisited": "Not visited",
     "directions": "Directions",
