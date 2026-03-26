@@ -10,6 +10,8 @@
     "saving": "Saving...",
     "deleting": "Deleting...",
     "leaving": "Leaving...",
+    "upgradeRequired": "Upgrade Required",
+    "viewPlans": "View Plans",
     "roles": {
       "owner": "Owner",
       "contributor": "Contributor",
@@ -286,6 +288,10 @@
     "deleteTagTitle": "Delete Tag",
     "deleteTagMessage": "Delete \"{{tagName}}\"? This will remove the tag from all places."
   },
+  "manageMaps": {
+    "loading": "Loading your maps...",
+    "loadError": "Couldn't load your maps. Check your connection and try again."
+  },
   "settings": {
     "title": "Settings",
     "premiumCta": {
@@ -298,7 +304,7 @@
       "more": "More"
     },
     "rows": {
-      "manageMaps": "Manage Maps (Coming Soon)",
+      "manageMaps": "Manage Maps",
       "myMap": "Change Active Map",
       "myMapDescription": "Controls which map is shown on Explore.",
       "profile": "Profile",
