@@ -18,6 +18,8 @@ export function usePlaceSearch() {
         clearTimeout(timerRef.current);
       }
 
+      setError(null);
+
       if (input.trim().length < PLACES_SEARCH.minQueryLength) {
         setPredictions([]);
         setIsSearching(false);
@@ -33,7 +35,6 @@ export function usePlaceSearch() {
         setIsSearching(true);
 
         try {
-          setError(null);
           const results = await searchPlaces(input, location, controller.signal);
           setPredictions(results);
           track('place_search_query', { query_length: input.length });
