@@ -1,11 +1,14 @@
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { EdgeFunctionError } from '@/lib/edge-function-error';
 import { ERROR_CODES } from '@/lib/constants';
 
 type PaywallTrigger = 'place_limit' | 'invite_limit';
 
 export function useFreemiumGate() {
+  const { t } = useTranslation();
+
   /** Returns true if the error was a freemium limit error (and was handled). */
   function handleMutationError(
     error: Error,
@@ -16,12 +19,12 @@ export function useFreemiumGate() {
       error.code === ERROR_CODES.freemiumLimitExceeded
     ) {
       Alert.alert(
-        'Upgrade Required',
+        t('common.upgradeRequired'),
         error.message,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           {
-            text: 'View Plans',
+            text: t('common.viewPlans'),
             onPress: () => router.push(`/(tabs)/settings/paywall?trigger=${trigger}`),
           },
         ],
@@ -29,7 +32,7 @@ export function useFreemiumGate() {
       return true;
     }
 
-    Alert.alert('Error', error.message);
+    Alert.alert(t('common.error'), error.message);
     return false;
   }
 

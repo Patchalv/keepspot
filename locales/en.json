@@ -10,6 +10,8 @@
     "saving": "Saving...",
     "deleting": "Deleting...",
     "leaving": "Leaving...",
+    "upgradeRequired": "Upgrade Required",
+    "viewPlans": "View Plans",
     "roles": {
       "owner": "Owner",
       "contributor": "Contributor",

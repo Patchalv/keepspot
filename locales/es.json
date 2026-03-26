@@ -10,6 +10,8 @@
     "saving": "Guardando...",
     "deleting": "Eliminando...",
     "leaving": "Saliendo...",
+    "upgradeRequired": "Actualización necesaria",
+    "viewPlans": "Ver planes",
     "roles": {
       "owner": "Propietario",
       "contributor": "Colaborador",
