@@ -31,7 +31,6 @@
   },
   "addPlace": {
     "title": "Add Place",
-    "chooseMapWhenSaving": "You'll choose a map when saving",
     "savingTo": "Saving to {{mapName}}",
     "viewerCannotEdit": "You're a viewer of this map. Switch to a map you can edit to add places.",
     "searchPlaceholder": "Search for a place...",
@@ -47,7 +46,6 @@
     "notePlaceholder": "Add a note...",
     "alreadyVisited": "Already visited?",
     "savingTo": "Saving to {{mapName}}",
-    "tapToSelectMap": "Tap to select a map",
     "failedToLoadDetails": "Failed to load place details.",
     "saveButton": "Save Place"
   },
@@ -80,6 +78,7 @@
     "cannotDeleteMessage": "You must have at least one map. Create another map before deleting this one.",
     "deleteMapTitle": "Delete Map",
     "deleteMapMessage": "Are you sure you want to delete \"{{mapName}}\"? This will permanently remove all places, tags, and members. This cannot be undone.",
+    "deleteActiveMapMessage": "\"{{mapName}}\" is your active map. You'll be switched to \"{{nextMapName}}\" before it's deleted. This cannot be undone.",
     "leaveMapTitle": "Leave Map",
     "leaveMapMessage": "Are you sure you want to leave \"{{mapName}}\"? You will lose access to this map.",
     "leave": "Leave",
@@ -187,15 +186,13 @@
     "retryButton": "Try Again"
   },
   "exploreHeader": {
-    "noMap": "No Map",
-    "allMaps": "All Maps"
+    "noMap": "No Map"
   },
   "filterSheet": {
     "title": "Filters",
     "clearAll": "Clear all",
     "searchPlaceholder": "Search places...",
     "tagsLabel": "Tags",
-    "tagsAllMapsHint": "Switch to a specific map to filter by tags",
     "statusLabel": "Status",
     "all": "All",
     "visited": "Visited",
@@ -268,10 +265,6 @@
     "inviteLinkTitle": "Invite someone new",
     "inviteLinkSubtitle": "Send an invite link to add more people"
   },
-  "mapPickerSheet": {
-    "title": "Save to Map",
-    "subtitle": "Choose which map to save this place to"
-  },
   "placeDetailSheet": {
     "editTags": "Edit Tags",
     "editNote": "Edit Note",
@@ -342,7 +335,6 @@
       "termsOfService": "Terms of Service",
       "help": "Help",
       "signOut": "Log out",
-      "allMaps": "All Maps",
       "premiumBadge": "PREMIUM"
     },
     "mapSwitcherSheet": {

@@ -31,7 +31,6 @@
   },
   "addPlace": {
     "title": "Añadir lugar",
-    "chooseMapWhenSaving": "Elegirás un mapa al guardar",
     "savingTo": "Guardando en {{mapName}}",
     "viewerCannotEdit": "Eres un espectador de este mapa. Cambia a un mapa que puedas editar para añadir lugares.",
     "searchPlaceholder": "Buscar un lugar...",
@@ -47,7 +46,6 @@
     "notePlaceholder": "Añadir una nota...",
     "alreadyVisited": "¿Ya lo visitaste?",
     "savingTo": "Guardando en {{mapName}}",
-    "tapToSelectMap": "Toca para seleccionar un mapa",
     "failedToLoadDetails": "No se pudieron cargar los detalles del lugar.",
     "saveButton": "Guardar lugar"
   },
@@ -80,6 +78,7 @@
     "cannotDeleteMessage": "Debes tener al menos un mapa. Crea otro mapa antes de eliminar éste.",
     "deleteMapTitle": "Eliminar mapa",
     "deleteMapMessage": "¿Seguro que quieres eliminar \"{{mapName}}\"? Esto eliminará permanentemente todos los lugares, etiquetas y miembros. Esta acción no se puede deshacer.",
+    "deleteActiveMapMessage": "\"{{mapName}}\" es tu mapa activo. Cambiarás a \"{{nextMapName}}\" antes de eliminarlo. Esto no se puede deshacer.",
     "leaveMapTitle": "Abandonar mapa",
     "leaveMapMessage": "¿Seguro que quieres abandonar \"{{mapName}}\"? Perderás el acceso a este mapa.",
     "leave": "Abandonar",
@@ -187,15 +186,13 @@
     "retryButton": "Intentar de nuevo"
   },
   "exploreHeader": {
-    "noMap": "Sin mapa",
-    "allMaps": "Todos los mapas"
+    "noMap": "Sin mapa"
   },
   "filterSheet": {
     "title": "Filtros",
     "clearAll": "Borrar todo",
     "searchPlaceholder": "Buscar lugares...",
     "tagsLabel": "Etiquetas",
-    "tagsAllMapsHint": "Cambia a un mapa específico para filtrar por etiquetas",
     "statusLabel": "Estado",
     "all": "Todos",
     "visited": "Visitado",
@@ -268,10 +265,6 @@
     "inviteLinkTitle": "Invitar a alguien nuevo",
     "inviteLinkSubtitle": "Envía un enlace de invitación para añadir más personas"
   },
-  "mapPickerSheet": {
-    "title": "Guardar en mapa",
-    "subtitle": "Elige a qué mapa guardar este lugar"
-  },
   "placeDetailSheet": {
     "editTags": "Editar etiquetas",
     "editNote": "Editar nota",
@@ -342,7 +335,6 @@
       "termsOfService": "Términos de servicio",
       "help": "Ayuda",
       "signOut": "Cerrar sesión",
-      "allMaps": "Todos los mapas",
       "premiumBadge": "PREMIUM"
     },
     "mapSwitcherSheet": {

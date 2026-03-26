@@ -1,9 +1,9 @@
+import { useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useProfile } from '@/hooks/use-profile';
 import { useMaps } from '@/hooks/use-maps';
 import { track } from '@/lib/analytics';
-import { ALL_MAPS_ID } from '@/lib/constants';
 import type { MapRole } from '@/types';
 
 export function useActiveMap() {
@@ -13,56 +13,74 @@ export function useActiveMap() {
 
   const maps = mapMembers?.map((m) => m.maps).filter(Boolean) ?? [];
 
-  // null active_map_id means "All Maps" mode
-  const isAllMaps = profile?.active_map_id === null && maps.length > 0;
-  const activeMapId = isAllMaps
-    ? ALL_MAPS_ID
-    : profile?.active_map_id ?? maps[0]?.id ?? null;
-  const activeMap = isAllMaps
-    ? null
-    : maps.find((m) => m.id === activeMapId) ?? maps[0] ?? null;
+  const activeMapId = profile?.active_map_id ?? maps[0]?.id ?? null;
+  const activeMap = maps.find((m) => m.id === activeMapId) ?? maps[0] ?? null;
 
-  // Role for active map (null when "All Maps")
-  const activeMembership = isAllMaps
-    ? null
-    : mapMembers?.find((m) => m.maps?.id === (activeMap?.id ?? activeMapId)) ?? null;
+  // Role for active map
+  const activeMembership = mapMembers?.find((m) => m.maps?.id === (activeMap?.id ?? activeMapId)) ?? null;
   const activeMapRole = (activeMembership?.role ?? null) as MapRole | null;
   const canEditActiveMap = activeMapRole === 'owner' || activeMapRole === 'contributor';
 
   const { mutate: _setActiveMap, isPending: isSettingMap } = useMutation({
-    mutationFn: async ({ mapId }: { mapId: string; source?: 'dropdown' | 'settings' }) => {
+    mutationFn: async ({ mapId }: { mapId: string; source?: 'dropdown' | 'settings' | 'auto' }) => {
       if (!profile) throw new Error('No profile');
-      // ALL_MAPS_ID → set active_map_id to null
-      const newActiveMapId = mapId === ALL_MAPS_ID ? null : mapId;
       const { error } = await supabase
         .from('profiles')
-        .update({ active_map_id: newActiveMapId })
+        .update({ active_map_id: mapId })
         .eq('id', profile.id);
       if (error) throw error;
     },
     onSuccess: (_data, { mapId, source = 'dropdown' }) => {
-      track('map_switched', {
-        map_id: mapId === ALL_MAPS_ID ? 'all' : mapId,
-        source,
-      });
+      if (source !== 'auto') {
+        track('map_switched', {
+          map_id: mapId,
+          source,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
 
-  // Backwards-compatible wrapper to support optional source parameter
-  const setActiveMap = (mapId: string, options?: { source?: 'dropdown' | 'settings' }) => {
-    _setActiveMap({ mapId, source: options?.source });
+  // Backwards-compatible wrapper to support optional source parameter and callbacks
+  const setActiveMap = (
+    mapId: string,
+    options?: {
+      source?: 'dropdown' | 'settings' | 'auto';
+      onSuccess?: () => void;
+      onError?: (err: Error) => void;
+    }
+  ) => {
+    _setActiveMap(
+      { mapId, source: options?.source },
+      {
+        onSuccess: options?.onSuccess ? () => options.onSuccess!() : undefined,
+        onError: options?.onError ? (err) => options.onError!(err as Error) : undefined,
+      }
+    );
   };
+
+  // Silent safety net: recover if active_map_id is null but maps exist.
+  // Normal path is handled proactively in the delete map flow (Task 7).
+  // This catches any edge case (e.g. direct DB changes, unexpected FK cascade).
+  // _setActiveMap (TanStack mutate) is intentionally excluded from deps: it is
+  // a stable reference across renders, but its identity changes on every
+  // mutation cycle. Including it would create an infinite loop (mutate →
+  // profile invalidation → new _setActiveMap ref → effect re-runs → mutate…).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (profile && profile.active_map_id === null && maps.length > 0) {
+      _setActiveMap({ mapId: maps[0].id, source: 'auto' });
+    }
+  }, [profile?.active_map_id, maps.length]);
 
   return {
     activeMapId,
-    activeMapName: isAllMaps ? null : activeMap?.name ?? null,
+    activeMapName: activeMap?.name ?? null,
     activeMapRole,
-    canEditActiveMap: isAllMaps ? null : canEditActiveMap,
+    canEditActiveMap,
     maps,
     mapMembers: mapMembers ?? [],
     setActiveMap,
     isSettingMap,
-    isAllMaps,
   };
 }
