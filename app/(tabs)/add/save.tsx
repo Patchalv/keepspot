@@ -26,7 +26,6 @@ import { track } from '@/lib/analytics';
 import { supabase } from '@/lib/supabase';
 import { getPlaceDetails } from '@/lib/google-places';
 
-
 export default function SaveScreen() {
   const { t } = useTranslation();
   const { placeId, name, address } = useLocalSearchParams<{

@@ -62,6 +62,10 @@ export function useActiveMap() {
   // Silent safety net: recover if active_map_id is null but maps exist.
   // Normal path is handled proactively in the delete map flow (Task 7).
   // This catches any edge case (e.g. direct DB changes, unexpected FK cascade).
+  // _setActiveMap (TanStack mutate) is intentionally excluded from deps: it is
+  // a stable reference across renders, but its identity changes on every
+  // mutation cycle. Including it would create an infinite loop (mutate →
+  // profile invalidation → new _setActiveMap ref → effect re-runs → mutate…).
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (profile && profile.active_map_id === null && maps.length > 0) {

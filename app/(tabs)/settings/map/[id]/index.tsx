@@ -89,6 +89,9 @@ export default function MapSettingsScreen() {
     const nextMap = isDeletingActiveMap
       ? maps.find((m) => m.id !== id) ?? null
       : null;
+    // nextMap will always be non-null here when isDeletingActiveMap is true:
+    // the ownedMapCount <= 1 guard above already blocks deletion if this is
+    // the user's only owned map, so a second map is guaranteed to exist.
 
     Alert.alert(
       t('mapSettings.deleteMapTitle'),
