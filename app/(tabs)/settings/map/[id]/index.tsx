@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useMaps } from '@/hooks/use-maps';
+import { useActiveMap } from '@/hooks/use-active-map';
 import { useTags } from '@/hooks/use-tags';
 import { useMapMembers } from '@/hooks/use-map-members';
 import { useUpdateMap } from '@/hooks/use-update-map';
@@ -43,6 +44,7 @@ export default function MapSettingsScreen() {
   const [isSyncing, setIsSyncing] = useState(false);
   const { mutate: updateMap, isPending: isUpdating } = useUpdateMap();
   const { mutate: deleteMap, isPending: isDeleting } = useDeleteMap();
+  const { activeMapId, maps, setActiveMap } = useActiveMap();
   const { mutate: leaveMap, isPending: isLeaving } = useLeaveMap();
   const { mutate: createTag, isPending: isCreatingTag } = useCreateTag();
   const { mutate: updateTag, isPending: isUpdatingTag } = useUpdateTag();
@@ -83,19 +85,42 @@ export default function MapSettingsScreen() {
       return;
     }
 
+    const isDeletingActiveMap = activeMapId === id;
+    const nextMap = isDeletingActiveMap
+      ? maps.find((m) => m.id !== id) ?? null
+      : null;
+
     Alert.alert(
       t('mapSettings.deleteMapTitle'),
-      t('mapSettings.deleteMapMessage', { mapName: map?.name }),
+      isDeletingActiveMap && nextMap
+        ? t('mapSettings.deleteActiveMapMessage', {
+            mapName: map?.name,
+            nextMapName: nextMap.name,
+          })
+        : t('mapSettings.deleteMapMessage', { mapName: map?.name }),
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('common.delete'),
           style: 'destructive',
           onPress: () => {
-            deleteMap(id, {
-              onSuccess: () => router.back(),
-              onError: (err) => Alert.alert(t('common.error'), err.message),
-            });
+            if (isDeletingActiveMap && nextMap) {
+              setActiveMap(nextMap.id, {
+                source: 'settings',
+                onSuccess: () => {
+                  deleteMap(id, {
+                    onSuccess: () => router.back(),
+                    onError: (err) => Alert.alert(t('common.error'), err.message),
+                  });
+                },
+                onError: (err) => Alert.alert(t('common.error'), err.message),
+              });
+            } else {
+              deleteMap(id, {
+                onSuccess: () => router.back(),
+                onError: (err) => Alert.alert(t('common.error'), err.message),
+              });
+            }
           },
         },
       ]

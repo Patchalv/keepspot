@@ -30,7 +30,7 @@ export function useActiveMap() {
   const canEditActiveMap = activeMapRole === 'owner' || activeMapRole === 'contributor';
 
   const { mutate: _setActiveMap, isPending: isSettingMap } = useMutation({
-    mutationFn: async ({ mapId }: { mapId: string; source?: 'dropdown' | 'settings' }) => {
+    mutationFn: async ({ mapId }: { mapId: string; source?: 'dropdown' | 'settings' | 'auto' }) => {
       if (!profile) throw new Error('No profile');
       // ALL_MAPS_ID → set active_map_id to null
       const newActiveMapId = mapId === ALL_MAPS_ID ? null : mapId;
@@ -49,9 +49,22 @@ export function useActiveMap() {
     },
   });
 
-  // Backwards-compatible wrapper to support optional source parameter
-  const setActiveMap = (mapId: string, options?: { source?: 'dropdown' | 'settings' }) => {
-    _setActiveMap({ mapId, source: options?.source });
+  // Backwards-compatible wrapper to support optional source parameter and callbacks
+  const setActiveMap = (
+    mapId: string,
+    options?: {
+      source?: 'dropdown' | 'settings' | 'auto';
+      onSuccess?: () => void;
+      onError?: (err: Error) => void;
+    }
+  ) => {
+    _setActiveMap(
+      { mapId, source: options?.source },
+      {
+        onSuccess: options?.onSuccess ? () => options.onSuccess!() : undefined,
+        onError: options?.onError ? (err) => options.onError!(err as Error) : undefined,
+      }
+    );
   };
 
   return {

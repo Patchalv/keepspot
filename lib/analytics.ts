@@ -34,7 +34,7 @@ type AnalyticsEvents = {
   visited_toggled: { map_place_id: string; new_status: boolean };
   view_mode_switched: { new_mode: 'map' | 'list' };
   map_created: { map_id: string };
-  map_switched: { map_id: string | 'all'; source: 'dropdown' | 'settings' };
+  map_switched: { map_id: string | 'all'; source: 'dropdown' | 'settings' | 'auto' };
   map_deleted: { map_id: string };
   tag_created: { map_id: string; tag_name: string };
   invite_link_created: { map_id: string };

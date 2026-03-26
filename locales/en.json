@@ -80,6 +80,7 @@
     "cannotDeleteMessage": "You must have at least one map. Create another map before deleting this one.",
     "deleteMapTitle": "Delete Map",
     "deleteMapMessage": "Are you sure you want to delete \"{{mapName}}\"? This will permanently remove all places, tags, and members. This cannot be undone.",
+    "deleteActiveMapMessage": "\"{{mapName}}\" is your active map. You'll be switched to \"{{nextMapName}}\" before it's deleted. This cannot be undone.",
     "leaveMapTitle": "Leave Map",
     "leaveMapMessage": "Are you sure you want to leave \"{{mapName}}\"? You will lose access to this map.",
     "leave": "Leave",
