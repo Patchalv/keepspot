@@ -31,7 +31,6 @@
   },
   "addPlace": {
     "title": "Añadir lugar",
-    "chooseMapWhenSaving": "Elegirás un mapa al guardar",
     "savingTo": "Guardando en {{mapName}}",
     "viewerCannotEdit": "Eres un espectador de este mapa. Cambia a un mapa que puedas editar para añadir lugares.",
     "searchPlaceholder": "Buscar un lugar...",
@@ -188,15 +187,13 @@
     "retryButton": "Intentar de nuevo"
   },
   "exploreHeader": {
-    "noMap": "Sin mapa",
-    "allMaps": "Todos los mapas"
+    "noMap": "Sin mapa"
   },
   "filterSheet": {
     "title": "Filtros",
     "clearAll": "Borrar todo",
     "searchPlaceholder": "Buscar lugares...",
     "tagsLabel": "Etiquetas",
-    "tagsAllMapsHint": "Cambia a un mapa específico para filtrar por etiquetas",
     "statusLabel": "Estado",
     "all": "Todos",
     "visited": "Visitado",
@@ -343,7 +340,6 @@
       "termsOfService": "Términos de servicio",
       "help": "Ayuda",
       "signOut": "Cerrar sesión",
-      "allMaps": "Todos los mapas",
       "premiumBadge": "PREMIUM"
     },
     "mapSwitcherSheet": {

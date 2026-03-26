@@ -31,7 +31,6 @@
   },
   "addPlace": {
     "title": "Add Place",
-    "chooseMapWhenSaving": "You'll choose a map when saving",
     "savingTo": "Saving to {{mapName}}",
     "viewerCannotEdit": "You're a viewer of this map. Switch to a map you can edit to add places.",
     "searchPlaceholder": "Search for a place...",
@@ -188,15 +187,13 @@
     "retryButton": "Try Again"
   },
   "exploreHeader": {
-    "noMap": "No Map",
-    "allMaps": "All Maps"
+    "noMap": "No Map"
   },
   "filterSheet": {
     "title": "Filters",
     "clearAll": "Clear all",
     "searchPlaceholder": "Search places...",
     "tagsLabel": "Tags",
-    "tagsAllMapsHint": "Switch to a specific map to filter by tags",
     "statusLabel": "Status",
     "all": "All",
     "visited": "Visited",
@@ -343,7 +340,6 @@
       "termsOfService": "Terms of Service",
       "help": "Help",
       "signOut": "Log out",
-      "allMaps": "All Maps",
       "premiumBadge": "PREMIUM"
     },
     "mapSwitcherSheet": {
