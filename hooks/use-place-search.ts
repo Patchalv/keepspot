@@ -10,6 +10,7 @@ export function usePlaceSearch() {
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const search = useCallback(
     (input: string) => {
@@ -17,21 +18,27 @@ export function usePlaceSearch() {
         clearTimeout(timerRef.current);
       }
 
-      if (!input.trim()) {
+      if (!input.trim() || input.trim().length < PLACES_SEARCH.minQueryLength) {
         setPredictions([]);
         setIsSearching(false);
         return;
       }
 
-      setIsSearching(true);
+      abortControllerRef.current?.abort();
 
       timerRef.current = setTimeout(async () => {
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        setIsSearching(true);
+
         try {
           setError(null);
-          const results = await searchPlaces(input, location);
+          const results = await searchPlaces(input, location, controller.signal);
           setPredictions(results);
           track('place_search_query', { query_length: input.length });
-        } catch {
+        } catch (err) {
+          if (err instanceof Error && err.name === 'AbortError') return;
           setPredictions([]);
           setError('Search failed. Check your connection and try again.');
         } finally {
@@ -46,6 +53,7 @@ export function usePlaceSearch() {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
+    abortControllerRef.current?.abort();
     setPredictions([]);
     setIsSearching(false);
     setError(null);
