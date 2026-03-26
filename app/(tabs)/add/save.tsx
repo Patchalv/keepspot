@@ -37,7 +37,6 @@ export default function SaveScreen() {
   const { activeMapId, activeMapName } = useActiveMap();
 
   const effectiveMapId = activeMapId;
-  const effectiveMapName = activeMapName;
 
   const { data: tags } = useTags(effectiveMapId);
   const addPlace = useAddPlace();
