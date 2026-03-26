@@ -113,7 +113,7 @@ export default function ProfileScreen() {
                 source={{ uri: profile.avatar_url }}
                 className="h-full w-full"
                 resizeMode="cover"
-                accessibilityLabel={`${displayName}'s avatar`}
+                accessibilityLabel={t('profile.avatarLabel', { name: displayName })}
               />
             </View>
           ) : (
@@ -125,7 +125,12 @@ export default function ProfileScreen() {
           {/* Display Name with edit button */}
           <View className="flex-row items-center gap-2">
             <Text className="text-3xl font-bold text-gray-900">{displayName}</Text>
-            <Pressable onPress={handleEditName} hitSlop={8}>
+            <Pressable
+              onPress={handleEditName}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('profile.editDisplayNameTitle')}
+            >
               <FontAwesome name="pencil" size={14} color="#9CA3AF" />
             </Pressable>
           </View>

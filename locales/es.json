@@ -52,6 +52,7 @@
     "loadingProfile": "Cargando tu perfil...",
     "couldntLoadProfile": "No se pudo cargar tu perfil. Comprueba tu conexión e inténtalo de nuevo.",
     "unknownUser": "Usuario",
+    "avatarLabel": "Avatar de {{name}}",
     "editDisplayNameTitle": "Editar nombre",
     "displayNamePlaceholder": "Nombre de pantalla",
     "deleteAccount": "Eliminar cuenta"
