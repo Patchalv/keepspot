@@ -302,6 +302,7 @@ export default function ExploreScreen() {
   const handleRecenter = useCallback(async () => {
     if (isRecenteringRef.current) return;
     isRecenteringRef.current = true;
+    // Fire-and-forget: refresh places in parallel with the location lookup
     refetch();
     try {
       const position = await Location.getCurrentPositionAsync({
